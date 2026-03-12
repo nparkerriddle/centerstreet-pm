@@ -1,0 +1,25 @@
+# Flask app files — not published to GitHub Pages
+app.py
+database.py
+email_helper.py
+requirements.txt
+setup.bat
+Launch App.bat
+inspection-form.html
+*.py
+*.pyc
+*.db
+*.sqlite
+__pycache__/
+backups/
+data/
+uploads/
+static/
+templates/
+forms/
+
+# Dev files
+.claude/
+Screenshot*.png
+*.jpg
+*.bat
