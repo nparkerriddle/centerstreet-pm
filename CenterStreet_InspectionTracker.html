@@ -25,7 +25,9 @@ body{display:flex;}
 .page-header{margin-bottom:18px;}
 .page-header h2{color:var(--navy);font-weight:700;margin-bottom:2px;font-size:1.4rem;}
 .page-header p{color:#6b7280;margin:0;font-size:.875rem;}
-.stat-card{background:#fff;border-radius:10px;padding:14px 16px;box-shadow:0 1px 4px rgba(0,0,0,.08);}
+.stat-card{background:#fff;border-radius:10px;padding:14px 16px;box-shadow:0 1px 4px rgba(0,0,0,.08);transition:box-shadow .15s,transform .1s;}
+.stat-card.clickable{cursor:pointer;}
+.stat-card.clickable:hover{box-shadow:0 4px 14px rgba(0,0,0,.13);transform:translateY(-2px);}
 .stat-card .stat-num{font-size:1.8rem;font-weight:700;color:var(--navy);line-height:1;}
 .stat-card .stat-label{font-size:.72rem;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;margin-top:3px;}
 .cs-card{background:#fff;border-radius:10px;padding:16px 18px;box-shadow:0 1px 4px rgba(0,0,0,.08);margin-bottom:16px;}
@@ -297,6 +299,8 @@ body{display:flex;}
     <div class="nav-lbl">Main</div>
     <a id="nav-dashboard" onclick="showPage('dashboard')" class="active"><i class="bi bi-grid-1x2-fill"></i><span>Dashboard</span></a>
     <a id="nav-tenants" onclick="showPage('tenants')"><i class="bi bi-people-fill"></i><span>Tenants</span></a>
+    <a id="nav-candidates" onclick="showPage('candidates')"><i class="bi bi-person-plus-fill" style="color:#a78bfa"></i><span>Candidates</span></a>
+    <a id="nav-prev-tenants" onclick="showPage('prev-tenants')"><i class="bi bi-person-dash-fill" style="color:#9ca3af"></i><span>Previous Tenants</span></a>
     <div class="sidebar-divider"></div>
     <div class="nav-lbl">Records</div>
     <a id="nav-inspections" onclick="showPage('inspections')"><i class="bi bi-clipboard-check-fill"></i><span>Inspections</span></a>
@@ -338,14 +342,14 @@ body{display:flex;}
   </div>
   <div class="cs-card mb-3" id="alerts-section"><h5><i class="bi bi-bell-fill me-2 text-warning"></i>Alerts</h5><div id="alerts-container"></div></div>
   <div class="row g-3 mb-3" id="stats-row">
-    <div class="col-6 col-md-3 col-lg-2"><div class="stat-card"><div class="stat-num" id="stat-tenants">0</div><div class="stat-label">Tenants</div></div></div>
-    <div class="col-6 col-md-3 col-lg-2"><div class="stat-card"><div class="stat-num text-secondary" id="stat-pending">0</div><div class="stat-label">Pending</div></div></div>
-    <div class="col-6 col-md-3 col-lg-2"><div class="stat-card"><div class="stat-num" style="color:var(--blue)" id="stat-sent">0</div><div class="stat-label">Sent</div></div></div>
-    <div class="col-6 col-md-3 col-lg-2"><div class="stat-card"><div class="stat-num text-warning" id="stat-received">0</div><div class="stat-label">Received</div></div></div>
-    <div class="col-6 col-md-3 col-lg-2"><div class="stat-card"><div class="stat-num text-success" id="stat-complete">0</div><div class="stat-label">Complete</div></div></div>
-    <div class="col-6 col-md-3 col-lg-2"><div class="stat-card"><div class="stat-num text-danger" id="stat-overdue">0</div><div class="stat-label">Overdue</div></div></div>
-    <div class="col-6 col-md-3 col-lg-2"><div class="stat-card"><div class="stat-num text-warning" id="stat-unpaid-inv">0</div><div class="stat-label">Unpaid Invoices</div></div></div>
-    <div class="col-6 col-md-3 col-lg-2"><div class="stat-card"><div class="stat-num" style="color:var(--teal)" id="stat-open-maint">0</div><div class="stat-label">Open Maintenance</div></div></div>
+    <div class="col-6 col-md-3 col-lg-2"><div class="stat-card clickable" onclick="showPage('tenants')" title="View Tenants"><div class="stat-num" id="stat-tenants">0</div><div class="stat-label">Tenants</div></div></div>
+    <div class="col-6 col-md-3 col-lg-2"><div class="stat-card clickable" onclick="navigateInspections('pending')" title="View Pending Inspections"><div class="stat-num text-secondary" id="stat-pending">0</div><div class="stat-label">Pending</div></div></div>
+    <div class="col-6 col-md-3 col-lg-2"><div class="stat-card clickable" onclick="navigateInspections('sent')" title="View Sent Inspections"><div class="stat-num" style="color:var(--blue)" id="stat-sent">0</div><div class="stat-label">Sent</div></div></div>
+    <div class="col-6 col-md-3 col-lg-2"><div class="stat-card clickable" onclick="navigateInspections('received')" title="View Received Inspections"><div class="stat-num text-warning" id="stat-received">0</div><div class="stat-label">Received</div></div></div>
+    <div class="col-6 col-md-3 col-lg-2"><div class="stat-card clickable" onclick="navigateInspections('complete')" title="View Completed Inspections"><div class="stat-num text-success" id="stat-complete">0</div><div class="stat-label">Complete</div></div></div>
+    <div class="col-6 col-md-3 col-lg-2"><div class="stat-card clickable" onclick="navigateInspections('overdue')" title="View Overdue Inspections"><div class="stat-num text-danger" id="stat-overdue">0</div><div class="stat-label">Overdue</div></div></div>
+    <div class="col-6 col-md-3 col-lg-2"><div class="stat-card clickable" onclick="navigateInvoices('unpaid')" title="View Unpaid Invoices"><div class="stat-num text-warning" id="stat-unpaid-inv">0</div><div class="stat-label">Unpaid Invoices</div></div></div>
+    <div class="col-6 col-md-3 col-lg-2"><div class="stat-card clickable" onclick="showPage('maintenance')" title="View Open Maintenance"><div class="stat-num" style="color:var(--teal)" id="stat-open-maint">0</div><div class="stat-label">Open Maintenance</div></div></div>
   </div>
   <div class="cs-card"><h5><i class="bi bi-clock-history me-2"></i>Recent Inspections</h5><div class="cs-table"><table class="table table-hover mb-0"><thead><tr><th>Unit</th><th>Tenant</th><th>Type</th><th>Status</th><th>Date Sent</th><th>Action</th></tr></thead><tbody id="recent-inspections-body"></tbody></table></div></div>
 </div>
@@ -385,6 +389,36 @@ body{display:flex;}
     <select class="form-select" id="insp-type-filter" style="max-width:160px" onchange="renderInspections()"><option value="">All Types</option><option value="semi-annual">Semi-Annual</option><option value="move-in">Move-In</option><option value="move-out">Move-Out</option><option value="compliance">Compliance</option></select>
   </div>
   <div class="cs-table"><table class="table table-hover mb-0"><thead><tr><th>Unit</th><th>Tenant</th><th>Type</th><th>Status</th><th>Date Sent</th><th>Date Received</th><th>Actions</th></tr></thead><tbody id="inspections-body"></tbody></table></div>
+</div>
+
+<!-- CANDIDATES -->
+<div id="page-candidates" class="page" style="display:none">
+  <div class="page-header d-flex justify-content-between align-items-start flex-wrap gap-2">
+    <div><h2><i class="bi bi-person-plus-fill me-2" style="color:#a78bfa"></i>Candidates</h2><p>Prospective tenants who have expressed interest — track and follow up</p></div>
+    <button class="btn btn-navy" onclick="openCandidateModal()"><i class="bi bi-plus-lg me-1"></i>Add Candidate</button>
+  </div>
+  <div class="filter-bar">
+    <input type="text" class="form-control" id="cand-search" placeholder="Search name, unit, phone..." style="max-width:240px" oninput="renderCandidates()">
+    <select class="form-select" id="cand-status-filter" style="max-width:160px" onchange="renderCandidates()">
+      <option value="">All Statuses</option>
+      <option value="new">New</option>
+      <option value="contacted">Contacted</option>
+      <option value="showing-scheduled">Showing Scheduled</option>
+      <option value="application-received">Application Received</option>
+      <option value="approved">Approved</option>
+      <option value="declined">Declined</option>
+    </select>
+  </div>
+  <div id="candidates-container"></div>
+</div>
+
+<!-- PREVIOUS TENANTS -->
+<div id="page-prev-tenants" class="page" style="display:none">
+  <div class="page-header"><h2><i class="bi bi-person-dash-fill me-2" style="color:#9ca3af"></i>Previous Tenants</h2><p>Archived tenant records — moved out or no longer active</p></div>
+  <div class="filter-bar">
+    <input type="text" class="form-control" id="prev-search" placeholder="Search name, unit..." style="max-width:240px" oninput="renderPrevTenants()">
+  </div>
+  <div id="prev-tenants-container"></div>
 </div>
 
 <!-- INSPECTION DETAIL -->
@@ -1005,6 +1039,177 @@ body{display:flex;}
   </div>
 </div>
 
+<!-- ═══ ARCHIVE (MOVE-OUT) MODAL ═══ -->
+<div class="modal fade" id="archiveModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header" style="background:var(--navy);color:#fff;">
+        <h5 class="modal-title"><i class="bi bi-box-arrow-right me-2"></i>Move Out Tenant</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="archive-tenant-id">
+        <!-- Tenant summary banner -->
+        <div id="archive-tenant-banner" class="rounded-3 p-3 mb-4 d-flex align-items-center gap-3" style="background:linear-gradient(135deg,var(--navy),#274d78);color:#fff;">
+          <div id="archive-tenant-avatar" style="width:48px;height:48px;background:rgba(255,255,255,.18);border-radius:50%;font-size:1.1rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;"></div>
+          <div>
+            <div id="archive-tenant-name" class="fw-bold" style="font-size:1rem;"></div>
+            <div id="archive-tenant-sub" style="font-size:.8rem;opacity:.8;"></div>
+          </div>
+        </div>
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label class="form-label fw-semibold">Move-Out Date</label>
+            <input type="date" class="form-control" id="archive-moveout-date">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label fw-semibold">Reason for Leaving</label>
+            <select class="form-select" id="archive-reason">
+              <option value="">— Select reason —</option>
+              <option value="end-of-lease">End of Lease</option>
+              <option value="early-termination">Early Termination</option>
+              <option value="mutual-agreement">Mutual Agreement</option>
+              <option value="eviction">Eviction</option>
+              <option value="relocation">Relocation</option>
+              <option value="purchase">Purchased a Home</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+          <div class="col-12">
+            <label class="form-label fw-semibold">Forwarding Address</label>
+            <input type="text" class="form-control" id="archive-forwarding" placeholder="New address for mail / deposit return">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label fw-semibold">Deposit Returned?</label>
+            <select class="form-select" id="archive-deposit">
+              <option value="">— —</option>
+              <option value="yes">Yes — Returned in full</option>
+              <option value="partial">Partial — Deductions applied</option>
+              <option value="no">No — Withheld</option>
+              <option value="pending">Pending</option>
+            </select>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label fw-semibold">Unit Condition</label>
+            <select class="form-select" id="archive-condition">
+              <option value="">— —</option>
+              <option value="excellent">Excellent</option>
+              <option value="good">Good</option>
+              <option value="fair">Fair — Minor repairs</option>
+              <option value="poor">Poor — Major repairs needed</option>
+            </select>
+          </div>
+          <div class="col-12">
+            <label class="form-label fw-semibold">Notes</label>
+            <textarea class="form-control" id="archive-notes" rows="2" placeholder="Any additional notes about this move-out..."></textarea>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button class="btn btn-navy" onclick="confirmArchiveTenant()"><i class="bi bi-box-arrow-right me-1"></i>Archive Tenant</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ CONVERT CANDIDATE TO TENANT MODAL ═══ -->
+<div class="modal fade" id="convertCandModal" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header" style="background:#22c55e;color:#fff;">
+        <h5 class="modal-title"><i class="bi bi-person-check-fill me-2"></i>Convert Candidate to Tenant</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="convert-cand-id">
+        <!-- Candidate summary -->
+        <div id="convert-cand-banner" class="rounded-3 p-3 mb-4" style="background:#f0fdf4;border:1px solid #bbf7d0;">
+          <div class="fw-bold text-success mb-1" style="font-size:.75rem;text-transform:uppercase;letter-spacing:.05em;">Converting Candidate</div>
+          <div id="convert-cand-summary" style="font-size:.9rem;color:#166534;"></div>
+        </div>
+        <!-- Lease upload -->
+        <div class="mb-4 pb-3 border-bottom">
+          <div class="fw-semibold mb-2" style="font-size:.8rem;text-transform:uppercase;letter-spacing:.05em;color:#6b7280;">Lease Document</div>
+          <p class="text-muted mb-2" style="font-size:.83rem;">Upload the signed lease to attach it to the tenant's file, and optionally email them a copy.</p>
+          <div class="d-flex gap-2 flex-wrap align-items-center mb-2">
+            <label class="btn btn-outline-secondary btn-sm mb-0" style="cursor:pointer">
+              <i class="bi bi-upload me-1"></i>Attach Signed Lease
+              <input type="file" id="convert-lease-file" accept=".pdf,.doc,.docx,.jpg,.png" style="display:none" onchange="handleConvertLeaseFile(this)">
+            </label>
+            <span id="convert-lease-filename" class="text-muted" style="font-size:.82rem;"></span>
+          </div>
+          <div id="convert-lease-email-row" style="display:none" class="d-flex gap-2 align-items-center flex-wrap">
+            <input type="email" class="form-control form-control-sm" id="convert-lease-email" placeholder="Send lease to email..." style="max-width:260px">
+            <button class="btn btn-sm btn-outline-primary" onclick="emailLeaseToCandidate()"><i class="bi bi-envelope me-1"></i>Email Lease</button>
+          </div>
+        </div>
+        <!-- Lease terms confirmation -->
+        <div class="mb-3">
+          <div class="fw-semibold mb-2" style="font-size:.8rem;text-transform:uppercase;letter-spacing:.05em;color:#6b7280;">Lease Details</div>
+          <div class="row g-2">
+            <div class="col-md-4"><label class="form-label">Unit Number</label><input type="text" class="form-control" id="convert-unit" placeholder="e.g. 204"></div>
+            <div class="col-md-4"><label class="form-label">Move-In Date</label><input type="date" class="form-control" id="convert-move-in"></div>
+            <div class="col-md-4"><label class="form-label">Lease Start</label><input type="date" class="form-control" id="convert-lease-start"></div>
+            <div class="col-md-4"><label class="form-label">Lease End</label><input type="date" class="form-control" id="convert-lease-end"></div>
+            <div class="col-md-4"><label class="form-label">Monthly Rent ($)</label><input type="number" class="form-control" id="convert-rent" placeholder="0.00" min="0" step="0.01"></div>
+            <div class="col-md-4"><label class="form-label">Security Deposit ($)</label><input type="number" class="form-control" id="convert-deposit" placeholder="0.00" min="0" step="0.01"></div>
+          </div>
+        </div>
+        <div class="alert alert-info mb-0" style="font-size:.83rem;"><i class="bi bi-info-circle me-1"></i>Clicking <strong>Create Tenant</strong> will move this candidate to the active tenant list with the details above. You can edit all fields in their tenant file afterward.</div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button class="btn btn-success" onclick="confirmConvertToTenant()"><i class="bi bi-person-check-fill me-1"></i>Create Tenant</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ CANDIDATE MODAL ═══ -->
+<div class="modal fade" id="candidateModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header" style="background:#7c3aed;color:#fff;"><h5 class="modal-title" id="candidateModalTitle">Add Candidate</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
+      <div class="modal-body">
+        <input type="hidden" id="cand-edit-id">
+        <div class="row g-3">
+          <div class="col-md-6"><label class="form-label">Full Name <span class="text-danger">*</span></label><input type="text" class="form-control" id="cand-name" placeholder="First Last"></div>
+          <div class="col-md-3"><label class="form-label">Phone</label><input type="text" class="form-control" id="cand-phone" placeholder="(555) 555-5555"></div>
+          <div class="col-md-3"><label class="form-label">Email</label><input type="email" class="form-control" id="cand-email" placeholder="email@example.com"></div>
+          <div class="col-md-4"><label class="form-label">Unit Interested In</label><input type="text" class="form-control" id="cand-unit" placeholder="e.g. 204, any 1BR"></div>
+          <div class="col-md-4"><label class="form-label">Move-In Date Needed</label><input type="date" class="form-control" id="cand-move-in-needed"></div>
+          <div class="col-md-4"><label class="form-label">Status</label>
+            <select class="form-select" id="cand-status">
+              <option value="new">New</option>
+              <option value="contacted">Contacted</option>
+              <option value="showing-scheduled">Showing Scheduled</option>
+              <option value="application-received">Application Received</option>
+              <option value="approved">Approved</option>
+              <option value="declined">Declined</option>
+            </select>
+          </div>
+          <div class="col-12"><label class="form-label">Special Offers / Notes</label><textarea class="form-control" id="cand-notes" rows="3" placeholder="Special offers discussed, requirements, notes..."></textarea></div>
+          <div class="col-md-6"><label class="form-label">Date of Inquiry</label><input type="date" class="form-control" id="cand-inquiry-date"></div>
+          <div class="col-md-6"><label class="form-label">Source</label>
+            <select class="form-select" id="cand-source">
+              <option value="">— How did they find us? —</option>
+              <option value="walk-in">Walk-In</option>
+              <option value="phone">Phone Call</option>
+              <option value="email">Email</option>
+              <option value="referral">Referral</option>
+              <option value="online">Online Listing</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+        </div>
+        <div id="cand-modal-error" class="text-danger mt-2" style="display:none;font-size:.83rem;"></div>
+      </div>
+      <div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button class="btn btn-navy" style="background:#7c3aed;border:none" onclick="saveCandidateFromModal()"><i class="bi bi-check2-circle me-1"></i>Save Candidate</button></div>
+    </div>
+  </div>
+</div>
+
 <!-- ═══ FRIDAY BACKUP REMINDER ═══ -->
 <div class="modal fade" id="backupReminderModal" tabindex="-1" data-bs-backdrop="static">
   <div class="modal-dialog modal-sm">
@@ -1240,6 +1445,9 @@ const DB = {
     return`WO-${yr}-${String(c.seq).padStart(3,'0')}`;
   },
   nextRecId(){return 'rec_'+Date.now()+'_'+Math.random().toString(36).slice(2,6);},
+  candidates(){return DB.get('candidates')||[];},
+  prevTenants(){return DB.get('prev_tenants')||[];},
+  nextCandidateId(){return 'cand_'+Date.now()+'_'+Math.random().toString(36).slice(2,6);},
   nextNoteId(){return 'note_'+Date.now()+'_'+Math.random().toString(36).slice(2,6);},
   nextViolId(){return 'viol_'+Date.now()+'_'+Math.random().toString(36).slice(2,6);},
   events(){return DB.get('events')||[];},
@@ -1344,6 +1552,28 @@ function showPage(name){
   if(name==='violations')renderViolations();
   if(name==='directory')renderDirectory();
   if(name==='renewals')renderRenewals();
+  if(name==='candidates')renderCandidates();
+  if(name==='prev-tenants')renderPrevTenants();
+}
+
+function navigateInspections(status){
+  showPage('inspections');
+  // Apply filter after render
+  setTimeout(()=>{
+    const sel=document.getElementById('insp-status-filter');
+    if(sel){
+      if(status==='overdue'){sel.value='';}  // overdue shown via alerts; just show all
+      else{sel.value=status;}
+      renderInspections();
+    }
+  },50);
+}
+function navigateInvoices(status){
+  showPage('invoices');
+  setTimeout(()=>{
+    const sel=document.getElementById('inv-status-filter');
+    if(sel){sel.value=status==='unpaid'?'unpaid':'';renderInvoices();}
+  },50);
 }
 
 function renderDashboard(){
@@ -1406,6 +1636,7 @@ function renderTenants(){
       <td>
         <button class="btn btn-sm btn-outline-primary me-1" onclick="openTenantFile(${t.id})" title="Open File"><i class="bi bi-folder2-open"></i></button>
         <button class="btn btn-sm btn-outline-secondary me-1" onclick="openTenantModal(${t.id})" title="Edit"><i class="bi bi-pencil-fill"></i></button>
+        <button class="btn btn-sm btn-outline-secondary me-1" onclick="archiveTenant(${t.id})" title="Move Out / Archive"><i class="bi bi-box-arrow-right"></i></button>
         <button class="btn btn-sm btn-outline-danger" onclick="deleteTenant(${t.id})" title="Delete"><i class="bi bi-trash-fill"></i></button>
       </td>
     </tr>`;
@@ -1560,8 +1791,8 @@ function renderTenantFile(tenantId){
   const docs=tenant.documents||[];
   const notes=tenant.notes_log||[];
   const violations=tenant.violations||[];
-  const maintenance=tenant.maintenance||[];
-  const openMaint=maintenance.filter(m=>m.status!=='resolved').length;
+  const maintenance=DB.maintenanceWOs().filter(w=>w.tenant_id===tenantId);
+  const openMaint=maintenance.filter(m=>m.status!=='complete'&&m.status!=='resolved').length;
   const openViol=violations.filter(v=>!v.resolved).length;
   const badges=[];
   if(tenant.has_pets)badges.push(`<span class="chip chip-pets"><i class="bi bi-heart-fill me-1"></i>${tenant.pet_type||'Pets'}</span>`);
@@ -1576,7 +1807,8 @@ function renderTenantFile(tenantId){
     {id:'inspections',label:'Inspections',icon:'bi-clipboard-check-fill',count:inspections.length},
     {id:'maintenance',label:'Maintenance',icon:'bi-tools',count:openMaint||null},
     {id:'notes',label:'Notes',icon:'bi-chat-text-fill',count:notes.length||null},
-    {id:'violations',label:'Violations',icon:'bi-exclamation-octagon-fill',count:violations.length||null}
+    {id:'violations',label:'Violations',icon:'bi-exclamation-octagon-fill',count:violations.length||null},
+    {id:'tenant-checklists',label:'Checklists',icon:'bi-check2-square',count:null}
   ];
   const tabNav=tabs.map(tab=>{
     const cnt=tab.count!==null?`<span class="profile-tab-count">${tab.count}</span>`:'';
@@ -1592,6 +1824,7 @@ function renderTenantFile(tenantId){
       </div>
       <div class="d-flex flex-column gap-2 align-items-end ms-auto">
         <button class="btn btn-sm btn-outline-light" onclick="openTenantModal(${tenantId})"><i class="bi bi-pencil-fill me-1"></i>Edit</button>
+        <button class="btn btn-sm btn-outline-light" onclick="archiveTenant(${tenantId})"><i class="bi bi-box-arrow-right me-1"></i>Move Out</button>
         <button class="btn btn-sm btn-navy" onclick="openInspectionModal(${tenantId})"><i class="bi bi-plus-lg me-1"></i>New Inspection</button>
       </div>
     </div>
@@ -1619,6 +1852,7 @@ function renderTenantTabContent(tenantId,tab){
     case 'maintenance':body.innerHTML=renderMaintTab(tenant);break;
     case 'notes':body.innerHTML=renderNotesTab(tenant);break;
     case 'violations':body.innerHTML=renderViolTab(tenant);break;
+    case 'tenant-checklists':body.innerHTML=renderTenantChecklistsTab(tenant);break;
   }
 }
 
@@ -2276,7 +2510,7 @@ function deleteInvoice(id){
 
 /* ─── BACKUP / EXPORT ─── */
 function downloadBackup(){
-  const backup={_version:5,_exported:new Date().toISOString(),tenants:DB.tenants(),inspections:DB.inspections(),invoices:DB.invoices(),documents:DB.documents(),checklists:DB.checklists(),events:DB.events(),event_history:DB.eventHistory(),maintenance:DB.maintenanceWOs(),recurring_maint:DB.recurringMaint(),settings:DB.settings(),next_tenant_id:DB.get('next_tenant_id')||1,next_inspection_id:DB.get('next_inspection_id')||1,next_invoice_id:DB.get('next_invoice_id')||1,next_doc_id:DB.get('next_doc_id')||1,next_cl_id:DB.get('next_cl_id')||1,next_cl_item_id:DB.get('next_cl_item_id')||1,wo_counter:DB.get('wo_counter')||null};
+  const backup={_version:6,_exported:new Date().toISOString(),tenants:DB.tenants(),inspections:DB.inspections(),invoices:DB.invoices(),documents:DB.documents(),checklists:DB.checklists(),events:DB.events(),event_history:DB.eventHistory(),maintenance:DB.maintenanceWOs(),recurring_maint:DB.recurringMaint(),candidates:DB.candidates(),prev_tenants:DB.prevTenants(),settings:DB.settings(),next_tenant_id:DB.get('next_tenant_id')||1,next_inspection_id:DB.get('next_inspection_id')||1,next_invoice_id:DB.get('next_invoice_id')||1,next_doc_id:DB.get('next_doc_id')||1,next_cl_id:DB.get('next_cl_id')||1,next_cl_item_id:DB.get('next_cl_item_id')||1,wo_counter:DB.get('wo_counter')||null};
   const dateStr=new Date().toISOString().slice(0,10);
   const blob=new Blob([JSON.stringify(backup,null,2)],{type:'application/json'});
   const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`CenterStreet_Backup_${dateStr}.json`;a.click();
@@ -2310,6 +2544,8 @@ function restoreBackup(input){
       if(data.maintenance){DB.set('maintenance',data.maintenance);DB.set('maint_migrated',true);}
       if(data.recurring_maint)DB.set('recurring_maint',data.recurring_maint);
       if(data.wo_counter)DB.set('wo_counter',data.wo_counter);
+      if(data.candidates)DB.set('candidates',data.candidates);
+      if(data.prev_tenants)DB.set('prev_tenants',data.prev_tenants);
       showToast('Backup restored!');showPage('dashboard');
     }catch(err){alert('Failed to restore: '+err.message);}
   };
@@ -3029,10 +3265,11 @@ async function writeAutoBackup(){
       updateBackupFolderStatus('needs-permission',_backupDirHandle.name);return;
     }
     const data={
-      _version:5,_exported:new Date().toISOString(),_auto:true,
+      _version:6,_exported:new Date().toISOString(),_auto:true,
       tenants:DB.tenants(),inspections:DB.inspections(),invoices:DB.invoices(),
       documents:DB.documents(),checklists:DB.checklists(),events:DB.events(),event_history:DB.eventHistory(),
-      maintenance:DB.maintenanceWOs(),recurring_maint:DB.recurringMaint(),settings:DB.settings(),
+      maintenance:DB.maintenanceWOs(),recurring_maint:DB.recurringMaint(),
+      candidates:DB.candidates(),prev_tenants:DB.prevTenants(),settings:DB.settings(),
       next_tenant_id:DB.get('next_tenant_id')||1,
       next_inspection_id:DB.get('next_inspection_id')||1,
       next_invoice_id:DB.get('next_invoice_id')||1,
@@ -3977,6 +4214,283 @@ function renderRenewals(){
   }
   if(!html)html=`<div class="cs-card"><div class="no-data">No leases expiring within the next ${days} days.</div></div>`;
   el.innerHTML=html;
+}
+
+/* ─── ARCHIVE TENANT (Move Out) ─── */
+function archiveTenant(tenantId){
+  const tenant=DB.tenants().find(t=>t.id===tenantId);if(!tenant)return;
+  document.getElementById('archive-tenant-id').value=tenantId;
+  document.getElementById('archive-moveout-date').value=todayISO();
+  document.getElementById('archive-reason').value='';
+  document.getElementById('archive-forwarding').value='';
+  document.getElementById('archive-deposit').value='';
+  document.getElementById('archive-condition').value='';
+  document.getElementById('archive-notes').value='';
+  const initials=tenant.name.split(' ').map(w=>w[0]||'').join('').slice(0,2).toUpperCase()||'?';
+  document.getElementById('archive-tenant-avatar').textContent=initials;
+  document.getElementById('archive-tenant-name').textContent=tenant.name;
+  document.getElementById('archive-tenant-sub').textContent=`Unit ${tenant.unit_number||'—'} · Lease ends ${fmtDate(tenant.lease_end)} · ${tenant.email||'—'}`;
+  bootstrap.Modal.getOrCreateInstance(document.getElementById('archiveModal')).show();
+}
+function confirmArchiveTenant(){
+  const tenantId=parseInt(document.getElementById('archive-tenant-id').value);
+  const tenant=DB.tenants().find(t=>t.id===tenantId);if(!tenant)return;
+  const archived={...tenant,
+    move_out_date:document.getElementById('archive-moveout-date').value||todayISO(),
+    move_out_reason:document.getElementById('archive-reason').value,
+    forwarding_address:document.getElementById('archive-forwarding').value.trim(),
+    deposit_status:document.getElementById('archive-deposit').value,
+    unit_condition:document.getElementById('archive-condition').value,
+    move_out_notes:document.getElementById('archive-notes').value.trim(),
+    archived_at:new Date().toISOString()
+  };
+  const prev=DB.prevTenants();prev.push(archived);
+  DB.set('prev_tenants',prev);
+  DB.set('tenants',DB.tenants().filter(t=>t.id!==tenantId));
+  bootstrap.Modal.getInstance(document.getElementById('archiveModal')).hide();
+  showToast(`${tenant.name} archived as previous tenant.`);
+  if(_currentTenantFileId===tenantId){showPage('tenants');}
+  else{renderTenants();}
+}
+
+/* ─── PREVIOUS TENANTS ─── */
+function renderPrevTenants(){
+  const q=(document.getElementById('prev-search')?.value||'').toLowerCase();
+  let tenants=DB.prevTenants();
+  if(q)tenants=tenants.filter(t=>(t.name||'').toLowerCase().includes(q)||(t.unit_number||'').toLowerCase().includes(q));
+  tenants.sort((a,b)=>(b.move_out_date||b.archived_at||'').localeCompare(a.move_out_date||a.archived_at||''));
+  const el=document.getElementById('prev-tenants-container');
+  if(!tenants.length){el.innerHTML='<div class="cs-card"><div class="no-data">No previous tenants on record. Use the <i class="bi bi-box-arrow-right"></i> button on a tenant to archive them when they move out.</div></div>';return;}
+  el.innerHTML=`<div class="cs-table"><table class="table mb-0">
+    <thead><tr><th>Unit</th><th>Name</th><th>Email</th><th>Phone</th><th>Lease End</th><th>Move-Out Date</th><th>Action</th></tr></thead>
+    <tbody>${tenants.map(t=>`<tr>
+      <td><strong>${t.unit_number||'—'}</strong></td>
+      <td>${t.name||'—'}</td>
+      <td style="font-size:.8rem">${t.email||'—'}</td>
+      <td>${t.phone||'—'}</td>
+      <td>${fmtDate(t.lease_end)}</td>
+      <td>${fmtDate(t.move_out_date)}</td>
+      <td style="white-space:nowrap">
+        <button class="btn btn-sm btn-outline-secondary me-1" onclick="restorePrevTenant('${t.id}')" title="Restore to active tenants"><i class="bi bi-arrow-counterclockwise"></i></button>
+        <button class="btn btn-sm btn-outline-danger" onclick="deletePrevTenant('${t.id}')" title="Delete permanently"><i class="bi bi-trash-fill"></i></button>
+      </td>
+    </tr>`).join('')}</tbody></table></div>`;
+}
+function restorePrevTenant(tenantId){
+  const prev=DB.prevTenants();const t=prev.find(x=>x.id===tenantId);if(!t)return;
+  if(!confirm(`Restore ${t.name} back to active tenants?`))return;
+  const {move_out_date,archived_at,...restored}=t;
+  const tenants=DB.tenants();tenants.push(restored);
+  DB.set('tenants',tenants);DB.set('prev_tenants',prev.filter(x=>x.id!==tenantId));
+  showToast(`${t.name} restored to active tenants.`);renderPrevTenants();
+}
+function deletePrevTenant(tenantId){
+  const t=DB.prevTenants().find(x=>x.id===tenantId);if(!t)return;
+  if(!confirm(`Permanently delete ${t.name}'s record? This cannot be undone.`))return;
+  DB.set('prev_tenants',DB.prevTenants().filter(x=>x.id!==tenantId));
+  showToast('Record deleted.');renderPrevTenants();
+}
+
+/* ─── CANDIDATES ─── */
+const CAND_STATUS_COLORS={new:'#7c3aed',contacted:'#2e6da4','showing-scheduled':'#0891b2','application-received':'#d97706',approved:'#22c55e',declined:'#6b7280'};
+function renderCandidates(){
+  const q=(document.getElementById('cand-search')?.value||'').toLowerCase();
+  const statusF=document.getElementById('cand-status-filter')?.value||'';
+  let cands=DB.candidates();
+  if(q)cands=cands.filter(c=>(c.name||'').toLowerCase().includes(q)||(c.unit_interest||'').toLowerCase().includes(q)||(c.phone||'').includes(q)||(c.email||'').toLowerCase().includes(q));
+  if(statusF)cands=cands.filter(c=>c.status===statusF);
+  cands.sort((a,b)=>(b.inquiry_date||b.created_at||'').localeCompare(a.inquiry_date||a.created_at||''));
+  const el=document.getElementById('candidates-container');
+  if(!cands.length){el.innerHTML='<div class="cs-card"><div class="no-data">No candidates on record. Add one with the button above.</div></div>';return;}
+  el.innerHTML=`<div class="cs-table"><table class="table mb-0">
+    <thead><tr><th>Name</th><th>Phone</th><th>Email</th><th>Unit Interest</th><th>Move-In Needed</th><th>Status</th><th>Date</th><th>Special Offers / Notes</th><th>Action</th></tr></thead>
+    <tbody>${cands.map(c=>`<tr>
+      <td><strong>${c.name||'—'}</strong>${c.source?`<div style="font-size:.73rem;color:#9ca3af">${c.source}</div>`:''}</td>
+      <td>${c.phone||'—'}</td>
+      <td style="font-size:.8rem">${c.email?`<a href="mailto:${c.email}">${c.email}</a>`:'—'}</td>
+      <td>${c.unit_interest||'—'}</td>
+      <td>${c.move_in_needed?fmtDate(c.move_in_needed):'—'}</td>
+      <td><span class="badge" style="background:${CAND_STATUS_COLORS[c.status]||'#9ca3af'};color:#fff">${c.status||'new'}</span></td>
+      <td style="white-space:nowrap;font-size:.8rem">${fmtDate(c.inquiry_date)}</td>
+      <td style="max-width:200px;font-size:.8rem">${c.notes||'—'}</td>
+      <td style="white-space:nowrap">
+        <button class="btn btn-sm btn-outline-secondary me-1" onclick="openCandidateModal('${c.id}')" title="Edit"><i class="bi bi-pencil-fill"></i></button>
+        <button class="btn btn-sm btn-outline-success me-1" onclick="convertCandidateToTenant('${c.id}')" title="Convert to Tenant"><i class="bi bi-person-check-fill"></i></button>
+        <button class="btn btn-sm btn-outline-danger" onclick="deleteCandidate('${c.id}')" title="Delete"><i class="bi bi-trash-fill"></i></button>
+      </td>
+    </tr>`).join('')}</tbody></table></div>`;
+}
+function openCandidateModal(candId){
+  const errEl=document.getElementById('cand-modal-error');errEl.style.display='none';
+  document.getElementById('cand-edit-id').value=candId||'';
+  document.getElementById('candidateModalTitle').textContent=candId?'Edit Candidate':'Add Candidate';
+  if(candId){
+    const c=DB.candidates().find(x=>x.id===candId);
+    if(c){
+      document.getElementById('cand-name').value=c.name||'';
+      document.getElementById('cand-phone').value=c.phone||'';
+      document.getElementById('cand-email').value=c.email||'';
+      document.getElementById('cand-unit').value=c.unit_interest||'';
+      document.getElementById('cand-move-in-needed').value=c.move_in_needed||'';
+      document.getElementById('cand-status').value=c.status||'new';
+      document.getElementById('cand-notes').value=c.notes||'';
+      document.getElementById('cand-inquiry-date').value=c.inquiry_date||'';
+      document.getElementById('cand-source').value=c.source||'';
+    }
+  } else {
+    document.getElementById('cand-name').value='';
+    document.getElementById('cand-phone').value='';
+    document.getElementById('cand-email').value='';
+    document.getElementById('cand-unit').value='';
+    document.getElementById('cand-move-in-needed').value='';
+    document.getElementById('cand-status').value='new';
+    document.getElementById('cand-notes').value='';
+    document.getElementById('cand-inquiry-date').value=todayISO();
+    document.getElementById('cand-source').value='';
+  }
+  bootstrap.Modal.getOrCreateInstance(document.getElementById('candidateModal')).show();
+}
+function saveCandidateFromModal(){
+  const errEl=document.getElementById('cand-modal-error');errEl.style.display='none';
+  const name=document.getElementById('cand-name').value.trim();
+  if(!name){errEl.textContent='Name is required.';errEl.style.display='block';return;}
+  const editId=document.getElementById('cand-edit-id').value;
+  const cands=DB.candidates();
+  const data={name,phone:document.getElementById('cand-phone').value.trim(),email:document.getElementById('cand-email').value.trim(),unit_interest:document.getElementById('cand-unit').value.trim(),move_in_needed:document.getElementById('cand-move-in-needed').value||null,status:document.getElementById('cand-status').value,notes:document.getElementById('cand-notes').value.trim(),inquiry_date:document.getElementById('cand-inquiry-date').value||todayISO(),source:document.getElementById('cand-source').value};
+  if(editId){const idx=cands.findIndex(c=>c.id===editId);if(idx!==-1)Object.assign(cands[idx],data);}
+  else{data.id=DB.nextCandidateId();data.created_at=new Date().toISOString();cands.push(data);}
+  DB.set('candidates',cands);
+  bootstrap.Modal.getInstance(document.getElementById('candidateModal')).hide();
+  showToast('Candidate saved.');renderCandidates();
+}
+function deleteCandidate(candId){
+  const c=DB.candidates().find(x=>x.id===candId);if(!c)return;
+  if(!confirm(`Delete ${c.name}?`))return;
+  DB.set('candidates',DB.candidates().filter(x=>x.id!==candId));
+  showToast('Candidate deleted.');renderCandidates();
+}
+function convertCandidateToTenant(candId){
+  const c=DB.candidates().find(x=>x.id===candId);if(!c)return;
+  document.getElementById('convert-cand-id').value=candId;
+  document.getElementById('convert-cand-summary').textContent=`${c.name}${c.phone?' · '+c.phone:''}${c.email?' · '+c.email:''}${c.unit_interest?' · Unit: '+c.unit_interest:''}`;
+  document.getElementById('convert-unit').value=c.unit_interest||'';
+  document.getElementById('convert-move-in').value=c.move_in_needed||'';
+  document.getElementById('convert-lease-start').value=c.move_in_needed||'';
+  document.getElementById('convert-lease-end').value='';
+  document.getElementById('convert-rent').value='';
+  document.getElementById('convert-deposit').value='';
+  document.getElementById('convert-lease-filename').textContent='No file selected';
+  document.getElementById('convert-lease-email').value=c.email||'';
+  document.getElementById('convert-lease-email-row').style.display='none';
+  document.getElementById('convert-lease-file').value='';
+  window._convertLeaseData=null;
+  bootstrap.Modal.getOrCreateInstance(document.getElementById('convertCandModal')).show();
+}
+function handleConvertLeaseFile(input){
+  const file=input.files[0];if(!file)return;
+  document.getElementById('convert-lease-filename').textContent=file.name;
+  document.getElementById('convert-lease-email-row').style.display='flex';
+  const reader=new FileReader();
+  reader.onload=e=>{window._convertLeaseData={name:file.name,type:file.type,data:e.target.result};};
+  reader.readAsDataURL(file);
+}
+function emailLeaseToCandidate(){
+  if(!window._convertLeaseData){showToast('Attach a lease file first.','error');return;}
+  const email=document.getElementById('convert-lease-email').value.trim();
+  const candId=document.getElementById('convert-cand-id').value;
+  const c=DB.candidates().find(x=>x.id===candId)||{name:''};
+  // Download the file first
+  const a=document.createElement('a');a.href=window._convertLeaseData.data;a.download=window._convertLeaseData.name;a.click();
+  setTimeout(()=>{
+    const sub=encodeURIComponent('Your Lease Agreement — Center Street Property Management');
+    const body=encodeURIComponent(`Hi ${c.name||''},\n\nPlease find your signed lease agreement attached to this email.\n\nIf you have any questions, don't hesitate to reach out.\n\nWelcome!\n${DB.settings().manager_name||DB.settings().company_name||'Management'}`);
+    window.location.href=`mailto:${email||''}?subject=${sub}&body=${body}`;
+  },700);
+}
+function confirmConvertToTenant(){
+  const candId=document.getElementById('convert-cand-id').value;
+  const c=DB.candidates().find(x=>x.id===candId);if(!c)return;
+  const tenants=DB.tenants();
+  const newTenant={
+    id:DB.nextTenantId(),
+    name:c.name,phone:c.phone||'',email:c.email||'',
+    unit_number:document.getElementById('convert-unit').value.trim()||c.unit_interest||'',
+    move_in_date:document.getElementById('convert-move-in').value||null,
+    lease_start:document.getElementById('convert-lease-start').value||null,
+    lease_end:document.getElementById('convert-lease-end').value||null,
+    rent_amount:document.getElementById('convert-rent').value||null,
+    deposit_amount:document.getElementById('convert-deposit').value||null,
+    active:true,documents:[],notes_log:[],violations:[],
+    created_at:new Date().toISOString()
+  };
+  // Attach lease doc if uploaded
+  if(window._convertLeaseData){
+    if(!newTenant.documents)newTenant.documents=[];
+    newTenant.documents.push({id:DB.nextDocId(),name:window._convertLeaseData.name,category:'Lease',data:window._convertLeaseData.data,type:window._convertLeaseData.type,uploaded_at:new Date().toISOString(),size:Math.round(window._convertLeaseData.data.length*0.75)});
+  }
+  tenants.push(newTenant);
+  DB.set('tenants',tenants);
+  DB.set('candidates',DB.candidates().filter(x=>x.id!==candId));
+  window._convertLeaseData=null;
+  bootstrap.Modal.getInstance(document.getElementById('convertCandModal')).hide();
+  showToast(`${c.name} added as active tenant!`);
+  openTenantFile(newTenant.id);
+}
+
+/* ─── TENANT MOVE-IN/OUT CHECKLISTS ─── */
+const DEFAULT_MOVEIN_ITEMS=['Take photos of all rooms and surfaces','Document any existing damage (walls, floors, fixtures)','Test all appliances (stove, fridge, dishwasher, washer/dryer)','Test all light switches and outlets','Check all faucets and drains for leaks','Test smoke detectors and carbon monoxide detectors','Verify heating and cooling works','Check all windows and doors open/close/lock properly','Inspect carpets/flooring for existing stains or damage','Review parking stall and storage unit assignment','Collect all keys, fobs, and parking passes','Review lease terms and rules with tenant','Complete and sign move-in inspection form','Provide tenant with emergency contact info'];
+const DEFAULT_MOVEOUT_ITEMS=['Conduct move-out walkthrough with tenant','Document all damage beyond normal wear and tear','Check all appliances left in working condition','Inspect carpets/flooring for damage or stains','Check all walls for holes, scuffs, excessive marks','Check all fixtures and faucets','Verify all keys, fobs, and passes are returned','Check storage unit is emptied and clean','Confirm forwarding address from tenant','Process security deposit return per lease and local law','Final utility meter readings','Schedule cleaning and any repair work','Update unit availability for new tenants','Complete and sign move-out inspection form'];
+
+function renderTenantChecklistsTab(t){
+  const miItems=t.move_in_checklist||(DEFAULT_MOVEIN_ITEMS.map((text,i)=>({id:'mi_'+i,text,checked:false})));
+  const moItems=t.move_out_checklist||(DEFAULT_MOVEOUT_ITEMS.map((text,i)=>({id:'mo_'+i,text,checked:false})));
+  const miDone=miItems.filter(x=>x.checked).length;
+  const moDone=moItems.filter(x=>x.checked).length;
+  function listHtml(items,prefix){
+    return items.map(item=>`<div class="d-flex align-items-center gap-2 py-1 border-bottom" style="font-size:.85rem">
+      <input type="checkbox" class="form-check-input flex-shrink-0" ${item.checked?'checked':''} onchange="toggleTenantChecklistItem(${t.id},'${prefix}','${item.id}',this.checked)" style="width:1.1em;height:1.1em;cursor:pointer">
+      <span style="${item.checked?'text-decoration:line-through;color:#9ca3af':''}">${item.text}</span>
+    </div>`).join('');
+  }
+  return`<div class="row g-3">
+    <div class="col-md-6">
+      <div class="cs-card" style="border-left:4px solid #22c55e">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <h5 class="mb-0" style="color:#166534"><i class="bi bi-box-arrow-in-right me-2"></i>Move-In Checklist</h5>
+          <span class="badge bg-success">${miDone}/${miItems.length}</span>
+        </div>
+        <div class="progress mb-3" style="height:6px"><div class="progress-bar bg-success" style="width:${miItems.length?Math.round(miDone/miItems.length*100):0}%"></div></div>
+        <div>${listHtml(miItems,'move_in_checklist')}</div>
+        <button class="btn btn-sm btn-outline-secondary mt-2" onclick="resetTenantChecklist(${t.id},'move_in_checklist')"><i class="bi bi-arrow-counterclockwise me-1"></i>Reset</button>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="cs-card" style="border-left:4px solid #f59e0b">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <h5 class="mb-0" style="color:#92400e"><i class="bi bi-box-arrow-right me-2"></i>Move-Out Checklist</h5>
+          <span class="badge bg-warning text-dark">${moDone}/${moItems.length}</span>
+        </div>
+        <div class="progress mb-3" style="height:6px"><div class="progress-bar bg-warning" style="width:${moItems.length?Math.round(moDone/moItems.length*100):0}%"></div></div>
+        <div>${listHtml(moItems,'move_out_checklist')}</div>
+        <button class="btn btn-sm btn-outline-secondary mt-2" onclick="resetTenantChecklist(${t.id},'move_out_checklist')"><i class="bi bi-arrow-counterclockwise me-1"></i>Reset</button>
+      </div>
+    </div>
+  </div>`;
+}
+function toggleTenantChecklistItem(tenantId,listKey,itemId,checked){
+  const tenants=DB.tenants();const idx=tenants.findIndex(t=>t.id===tenantId);if(idx===-1)return;
+  const defaultItems=listKey==='move_in_checklist'?DEFAULT_MOVEIN_ITEMS.map((text,i)=>({id:'mi_'+i,text,checked:false})):DEFAULT_MOVEOUT_ITEMS.map((text,i)=>({id:'mo_'+i,text,checked:false}));
+  if(!tenants[idx][listKey])tenants[idx][listKey]=defaultItems;
+  const item=tenants[idx][listKey].find(x=>x.id===itemId);
+  if(item)item.checked=checked;
+  DB.set('tenants',tenants);
+}
+function resetTenantChecklist(tenantId,listKey){
+  if(!confirm('Reset all items to unchecked?'))return;
+  const tenants=DB.tenants();const idx=tenants.findIndex(t=>t.id===tenantId);if(idx===-1)return;
+  if(tenants[idx][listKey])tenants[idx][listKey].forEach(x=>x.checked=false);
+  DB.set('tenants',tenants);
+  renderTenantTabContent(tenantId,'tenant-checklists');
 }
 
 /* ─── GLOBAL SEARCH ─── */
