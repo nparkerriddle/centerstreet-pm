@@ -314,6 +314,7 @@ body{display:flex;}
     <a id="nav-violations" onclick="showPage('violations')"><i class="bi bi-exclamation-octagon-fill"></i><span>Violations</span></a>
     <a id="nav-directory" onclick="showPage('directory')"><i class="bi bi-telephone-fill"></i><span>Directory</span></a>
     <a id="nav-renewals" onclick="showPage('renewals')"><i class="bi bi-calendar-check-fill"></i><span>Renewals</span></a>
+    <a id="nav-vacancies" onclick="showPage('vacancies')"><i class="bi bi-door-open-fill" style="color:#f87171"></i><span>Vacancies</span></a>
     <div class="sidebar-divider"></div>
     <div class="nav-lbl">System</div>
     <a id="nav-backup" onclick="showPage('backup')"><i class="bi bi-cloud-download-fill"></i><span>Backup</span></a>
@@ -638,6 +639,27 @@ body{display:flex;}
     </select>
   </div>
   <div id="renewals-container"></div>
+</div>
+
+<!-- VACANCIES -->
+<div id="page-vacancies" class="page" style="display:none">
+  <div class="page-header d-flex justify-content-between align-items-start flex-wrap gap-2">
+    <div><h2><i class="bi bi-door-open-fill me-2" style="color:#f87171"></i>Vacancies</h2><p>Currently vacant units and upcoming availability</p></div>
+    <button class="btn btn-navy" onclick="openVacancyModal()"><i class="bi bi-plus-lg me-1"></i>Add Vacant Unit</button>
+  </div>
+  <!-- Stats row -->
+  <div class="row g-2 mb-3" id="vacancy-stats-row"></div>
+  <!-- Filter -->
+  <div class="filter-bar mb-3">
+    <label class="text-muted" style="font-size:.83rem;align-self:center">Show coming available within:</label>
+    <select class="form-select" id="vacancy-days-filter" style="max-width:140px" onchange="renderVacancies()">
+      <option value="30">30 days</option>
+      <option value="60" selected>60 days</option>
+      <option value="90">90 days</option>
+      <option value="180">180 days</option>
+    </select>
+  </div>
+  <div id="vacancies-container"></div>
 </div>
 
 <!-- BACKUP -->
@@ -1035,6 +1057,52 @@ body{display:flex;}
         <div id="rec-modal-error" class="text-danger mt-2" style="display:none;font-size:.83rem;"></div>
       </div>
       <div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button class="btn btn-navy" onclick="saveRecurringFromModal()">Save Schedule</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ VACANCY MODAL ═══ -->
+<div class="modal fade" id="vacancyModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header" style="background:var(--navy);color:#fff;">
+        <h5 class="modal-title" id="vacancyModalTitle"><i class="bi bi-door-open-fill me-2"></i>Add Vacant Unit</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="vac-edit-id">
+        <div class="row g-3">
+          <div class="col-md-4"><label class="form-label">Unit Number <span class="text-danger">*</span></label><input type="text" class="form-control" id="vac-unit" placeholder="e.g. 204"></div>
+          <div class="col-md-4"><label class="form-label">Available Date</label><input type="date" class="form-control" id="vac-available-date"></div>
+          <div class="col-md-4"><label class="form-label">Bedrooms</label>
+            <select class="form-select" id="vac-bedrooms">
+              <option value="">—</option>
+              <option value="Bachelor">Bachelor / Studio</option>
+              <option value="1BR">1 Bedroom</option>
+              <option value="2BR">2 Bedrooms</option>
+              <option value="3BR">3 Bedrooms</option>
+              <option value="4BR+">4+ Bedrooms</option>
+            </select>
+          </div>
+          <div class="col-md-4"><label class="form-label">Asking Rent ($/mo)</label><input type="number" class="form-control" id="vac-rent" min="0" step="0.01" placeholder="0.00"></div>
+          <div class="col-md-4"><label class="form-label">Floor</label><input type="text" class="form-control" id="vac-floor" placeholder="e.g. 2nd, Ground"></div>
+          <div class="col-md-4"><label class="form-label">Status</label>
+            <select class="form-select" id="vac-status">
+              <option value="vacant">Vacant — Available Now</option>
+              <option value="notice-given">Notice Given</option>
+              <option value="cleaning">Cleaning / Turnover</option>
+              <option value="repairs">Under Repair</option>
+              <option value="leased">Leased — Not Yet Occupied</option>
+            </select>
+          </div>
+          <div class="col-12"><label class="form-label">Notes</label><textarea class="form-control" id="vac-notes" rows="2" placeholder="Renovations planned, features, showing instructions..."></textarea></div>
+        </div>
+        <div id="vac-modal-error" class="text-danger mt-2" style="display:none;font-size:.83rem;"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button class="btn btn-navy" onclick="saveVacancyFromModal()"><i class="bi bi-check2-circle me-1"></i>Save</button>
+      </div>
     </div>
   </div>
 </div>
@@ -1447,7 +1515,9 @@ const DB = {
   nextRecId(){return 'rec_'+Date.now()+'_'+Math.random().toString(36).slice(2,6);},
   candidates(){return DB.get('candidates')||[];},
   prevTenants(){return DB.get('prev_tenants')||[];},
+  vacancies(){return DB.get('vacancies')||[];},
   nextCandidateId(){return 'cand_'+Date.now()+'_'+Math.random().toString(36).slice(2,6);},
+  nextVacancyId(){return 'vac_'+Date.now()+'_'+Math.random().toString(36).slice(2,6);},
   nextNoteId(){return 'note_'+Date.now()+'_'+Math.random().toString(36).slice(2,6);},
   nextViolId(){return 'viol_'+Date.now()+'_'+Math.random().toString(36).slice(2,6);},
   events(){return DB.get('events')||[];},
@@ -1554,6 +1624,7 @@ function showPage(name){
   if(name==='renewals')renderRenewals();
   if(name==='candidates')renderCandidates();
   if(name==='prev-tenants')renderPrevTenants();
+  if(name==='vacancies')renderVacancies();
 }
 
 function navigateInspections(status){
@@ -2510,7 +2581,7 @@ function deleteInvoice(id){
 
 /* ─── BACKUP / EXPORT ─── */
 function downloadBackup(){
-  const backup={_version:6,_exported:new Date().toISOString(),tenants:DB.tenants(),inspections:DB.inspections(),invoices:DB.invoices(),documents:DB.documents(),checklists:DB.checklists(),events:DB.events(),event_history:DB.eventHistory(),maintenance:DB.maintenanceWOs(),recurring_maint:DB.recurringMaint(),candidates:DB.candidates(),prev_tenants:DB.prevTenants(),settings:DB.settings(),next_tenant_id:DB.get('next_tenant_id')||1,next_inspection_id:DB.get('next_inspection_id')||1,next_invoice_id:DB.get('next_invoice_id')||1,next_doc_id:DB.get('next_doc_id')||1,next_cl_id:DB.get('next_cl_id')||1,next_cl_item_id:DB.get('next_cl_item_id')||1,wo_counter:DB.get('wo_counter')||null};
+  const backup={_version:6,_exported:new Date().toISOString(),tenants:DB.tenants(),inspections:DB.inspections(),invoices:DB.invoices(),documents:DB.documents(),checklists:DB.checklists(),events:DB.events(),event_history:DB.eventHistory(),maintenance:DB.maintenanceWOs(),recurring_maint:DB.recurringMaint(),candidates:DB.candidates(),prev_tenants:DB.prevTenants(),vacancies:DB.vacancies(),settings:DB.settings(),next_tenant_id:DB.get('next_tenant_id')||1,next_inspection_id:DB.get('next_inspection_id')||1,next_invoice_id:DB.get('next_invoice_id')||1,next_doc_id:DB.get('next_doc_id')||1,next_cl_id:DB.get('next_cl_id')||1,next_cl_item_id:DB.get('next_cl_item_id')||1,wo_counter:DB.get('wo_counter')||null};
   const dateStr=new Date().toISOString().slice(0,10);
   const blob=new Blob([JSON.stringify(backup,null,2)],{type:'application/json'});
   const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`CenterStreet_Backup_${dateStr}.json`;a.click();
@@ -2546,6 +2617,7 @@ function restoreBackup(input){
       if(data.wo_counter)DB.set('wo_counter',data.wo_counter);
       if(data.candidates)DB.set('candidates',data.candidates);
       if(data.prev_tenants)DB.set('prev_tenants',data.prev_tenants);
+      if(data.vacancies)DB.set('vacancies',data.vacancies);
       showToast('Backup restored!');showPage('dashboard');
     }catch(err){alert('Failed to restore: '+err.message);}
   };
@@ -3269,7 +3341,7 @@ async function writeAutoBackup(){
       tenants:DB.tenants(),inspections:DB.inspections(),invoices:DB.invoices(),
       documents:DB.documents(),checklists:DB.checklists(),events:DB.events(),event_history:DB.eventHistory(),
       maintenance:DB.maintenanceWOs(),recurring_maint:DB.recurringMaint(),
-      candidates:DB.candidates(),prev_tenants:DB.prevTenants(),settings:DB.settings(),
+      candidates:DB.candidates(),prev_tenants:DB.prevTenants(),vacancies:DB.vacancies(),settings:DB.settings(),
       next_tenant_id:DB.get('next_tenant_id')||1,
       next_inspection_id:DB.get('next_inspection_id')||1,
       next_invoice_id:DB.get('next_invoice_id')||1,
@@ -4491,6 +4563,173 @@ function resetTenantChecklist(tenantId,listKey){
   if(tenants[idx][listKey])tenants[idx][listKey].forEach(x=>x.checked=false);
   DB.set('tenants',tenants);
   renderTenantTabContent(tenantId,'tenant-checklists');
+}
+
+/* ─── VACANCIES ─── */
+const VAC_STATUS_LABELS={'vacant':'Vacant — Available Now','notice-given':'Notice Given','cleaning':'Cleaning / Turnover','repairs':'Under Repair','leased':'Leased — Not Occupied'};
+const VAC_STATUS_COLORS={'vacant':'#dc2626','notice-given':'#d97706','cleaning':'#0891b2','repairs':'#7c3aed','leased':'#22c55e'};
+
+function renderVacancies(){
+  const days=parseInt(document.getElementById('vacancy-days-filter')?.value||60);
+  const today=todayISO();
+  const cutoff=addDays(today,days);
+
+  // Manual vacancies
+  const manualVacs=DB.vacancies();
+
+  // Derive coming-available from expiring/expired leases (not already in manual list)
+  const manualUnits=new Set(manualVacs.map(v=>v.unit_number));
+  const allTenants=DB.tenants().filter(t=>t.active!==false&&t.lease_end);
+  const comingAvail=allTenants.filter(t=>t.lease_end<=cutoff&&!manualUnits.has(t.unit_number))
+    .sort((a,b)=>a.lease_end.localeCompare(b.lease_end));
+
+  // Stats
+  const vacantNow=manualVacs.filter(v=>v.status==='vacant'||v.status==='cleaning'||v.status==='repairs').length;
+  const expiredCount=allTenants.filter(t=>t.lease_end<today).length;
+  const upcomingCount=comingAvail.filter(t=>t.lease_end>=today).length;
+  document.getElementById('vacancy-stats-row').innerHTML=[
+    {n:vacantNow,l:'Vacant Now',c:'#dc2626'},
+    {n:manualVacs.length,l:'On Vacancy List',c:'var(--navy)'},
+    {n:expiredCount,l:'Expired Leases',c:'#d97706'},
+    {n:upcomingCount,l:`Expiring in ${days}d`,c:'#0891b2'}
+  ].map(x=>`<div class="col-6 col-md-3"><div class="stat-mini"><div class="sn" style="color:${x.c}">${x.n}</div><div class="sl">${x.l}</div></div></div>`).join('');
+
+  const el=document.getElementById('vacancies-container');
+  let html='';
+
+  // Manual vacancy cards
+  if(manualVacs.length){
+    html+=`<div class="cs-card mb-3">
+      <h5 class="mb-3"><i class="bi bi-door-open-fill me-2" style="color:#f87171"></i>Vacancy List (${manualVacs.length})</h5>
+      <div class="row g-2">
+        ${manualVacs.map(v=>`
+        <div class="col-md-6 col-lg-4">
+          <div class="rounded-3 border p-3" style="background:#fff9f9;border-color:#fecaca!important;">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+              <div>
+                <span class="fw-bold" style="font-size:1.1rem;color:var(--navy)">Unit ${v.unit_number}</span>
+                ${v.bedrooms?`<span class="badge bg-secondary ms-2" style="font-size:.7rem">${v.bedrooms}</span>`:''}
+              </div>
+              <span class="badge" style="background:${VAC_STATUS_COLORS[v.status]||'#6b7280'};color:#fff;font-size:.72rem">${VAC_STATUS_LABELS[v.status]||v.status}</span>
+            </div>
+            <div class="info-grid mb-2">
+              ${v.available_date?`<span class="info-lbl">Available</span><span class="info-val">${fmtDate(v.available_date)}</span>`:''}
+              ${v.asking_rent?`<span class="info-lbl">Asking Rent</span><span class="info-val fw-bold">${fmtMoney(v.asking_rent)}/mo</span>`:''}
+              ${v.floor?`<span class="info-lbl">Floor</span><span class="info-val">${v.floor}</span>`:''}
+            </div>
+            ${v.notes?`<div style="font-size:.79rem;color:#6b7280;margin-bottom:8px">${v.notes}</div>`:''}
+            <div class="d-flex gap-2 mt-1">
+              <button class="btn btn-sm btn-outline-primary" onclick="openVacancyModal('${v.id}')"><i class="bi bi-pencil-fill me-1"></i>Edit</button>
+              <button class="btn btn-sm btn-outline-success" onclick="markVacancyFilled('${v.id}')"><i class="bi bi-check2-circle me-1"></i>Filled</button>
+              <button class="btn btn-sm btn-outline-danger ms-auto" onclick="deleteVacancy('${v.id}')"><i class="bi bi-trash-fill"></i></button>
+            </div>
+          </div>
+        </div>`).join('')}
+      </div>
+    </div>`;
+  } else {
+    html+=`<div class="cs-card mb-3"><div class="no-data">No units on the vacancy list. Click <strong>Add Vacant Unit</strong> to log one.</div></div>`;
+  }
+
+  // Coming available from tenant leases
+  if(comingAvail.length){
+    const expired=comingAvail.filter(t=>t.lease_end<today);
+    const expiring=comingAvail.filter(t=>t.lease_end>=today);
+    html+=`<div class="cs-card">
+      <h5 class="mb-3"><i class="bi bi-calendar-event-fill me-2" style="color:#d97706"></i>Coming Available from Lease Data</h5>`;
+    if(expired.length){
+      html+=`<div class="fw-semibold mb-2" style="font-size:.8rem;color:#dc2626;text-transform:uppercase;letter-spacing:.04em">Lease Already Expired (${expired.length})</div>
+      <div class="cs-table mb-3"><table class="table mb-0">
+        <thead><tr><th>Unit</th><th>Tenant</th><th>Lease End</th><th>Days Past</th><th>Action</th></tr></thead>
+        <tbody>${expired.map(t=>`<tr>
+          <td><strong>${t.unit_number}</strong></td><td>${t.name}</td>
+          <td class="text-danger fw-bold">${fmtDate(t.lease_end)}</td>
+          <td><span class="badge bg-danger">${daysDiff(t.lease_end,today)}d ago</span></td>
+          <td style="white-space:nowrap">
+            <button class="btn btn-sm btn-outline-primary me-1" onclick="openTenantFile(${t.id})"><i class="bi bi-folder2-open"></i></button>
+            <button class="btn btn-sm btn-outline-secondary" onclick="addVacancyFromTenant(${t.id})" title="Add to vacancy list"><i class="bi bi-plus-lg"></i> Add to List</button>
+          </td>
+        </tr>`).join('')}</tbody></table></div>`;
+    }
+    if(expiring.length){
+      html+=`<div class="fw-semibold mb-2" style="font-size:.8rem;color:#d97706;text-transform:uppercase;letter-spacing:.04em">Expiring Within ${days} Days (${expiring.length})</div>
+      <div class="cs-table"><table class="table mb-0">
+        <thead><tr><th>Unit</th><th>Tenant</th><th>Lease End</th><th>Days Left</th><th>Action</th></tr></thead>
+        <tbody>${expiring.map(t=>{const d=daysDiff(today,t.lease_end);const cls=d<=14?'bg-danger':d<=30?'bg-warning text-dark':'bg-primary';return`<tr>
+          <td><strong>${t.unit_number}</strong></td><td>${t.name}</td>
+          <td>${fmtDate(t.lease_end)}</td>
+          <td><span class="badge ${cls}">${d}d</span></td>
+          <td style="white-space:nowrap">
+            <button class="btn btn-sm btn-outline-primary me-1" onclick="openTenantFile(${t.id})"><i class="bi bi-folder2-open"></i></button>
+            <button class="btn btn-sm btn-outline-secondary" onclick="addVacancyFromTenant(${t.id})" title="Add to vacancy list"><i class="bi bi-plus-lg"></i> Add to List</button>
+          </td>
+        </tr>`;}).join('')}</tbody></table></div>`;
+    }
+    html+=`</div>`;
+  } else if(!manualVacs.length){
+    html+=`<div class="cs-card"><div class="no-data">No leases expiring within the next ${days} days.</div></div>`;
+  }
+
+  el.innerHTML=html;
+}
+
+function openVacancyModal(vacId){
+  document.getElementById('vac-edit-id').value=vacId||'';
+  document.getElementById('vacancyModalTitle').innerHTML=`<i class="bi bi-door-open-fill me-2"></i>${vacId?'Edit Vacant Unit':'Add Vacant Unit'}`;
+  document.getElementById('vac-modal-error').style.display='none';
+  if(vacId){
+    const v=DB.vacancies().find(x=>x.id===vacId);
+    if(v){
+      document.getElementById('vac-unit').value=v.unit_number||'';
+      document.getElementById('vac-available-date').value=v.available_date||'';
+      document.getElementById('vac-bedrooms').value=v.bedrooms||'';
+      document.getElementById('vac-rent').value=v.asking_rent||'';
+      document.getElementById('vac-floor').value=v.floor||'';
+      document.getElementById('vac-status').value=v.status||'vacant';
+      document.getElementById('vac-notes').value=v.notes||'';
+    }
+  } else {
+    document.getElementById('vac-unit').value='';
+    document.getElementById('vac-available-date').value=todayISO();
+    document.getElementById('vac-bedrooms').value='';
+    document.getElementById('vac-rent').value='';
+    document.getElementById('vac-floor').value='';
+    document.getElementById('vac-status').value='vacant';
+    document.getElementById('vac-notes').value='';
+  }
+  bootstrap.Modal.getOrCreateInstance(document.getElementById('vacancyModal')).show();
+}
+function saveVacancyFromModal(){
+  const errEl=document.getElementById('vac-modal-error');errEl.style.display='none';
+  const unit=document.getElementById('vac-unit').value.trim();
+  if(!unit){errEl.textContent='Unit number is required.';errEl.style.display='block';return;}
+  const editId=document.getElementById('vac-edit-id').value;
+  const vacs=DB.vacancies();
+  const data={unit_number:unit,available_date:document.getElementById('vac-available-date').value||null,bedrooms:document.getElementById('vac-bedrooms').value,asking_rent:parseFloat(document.getElementById('vac-rent').value)||null,floor:document.getElementById('vac-floor').value.trim(),status:document.getElementById('vac-status').value,notes:document.getElementById('vac-notes').value.trim()};
+  if(editId){const idx=vacs.findIndex(v=>v.id===editId);if(idx!==-1)Object.assign(vacs[idx],data);}
+  else{data.id=DB.nextVacancyId();data.created_at=new Date().toISOString();vacs.push(data);}
+  DB.set('vacancies',vacs);
+  bootstrap.Modal.getInstance(document.getElementById('vacancyModal')).hide();
+  showToast('Vacancy saved.');renderVacancies();
+}
+function deleteVacancy(vacId){
+  if(!confirm('Remove this unit from the vacancy list?'))return;
+  DB.set('vacancies',DB.vacancies().filter(v=>v.id!==vacId));
+  showToast('Vacancy removed.');renderVacancies();
+}
+function markVacancyFilled(vacId){
+  if(!confirm('Mark this unit as filled and remove from vacancy list?'))return;
+  DB.set('vacancies',DB.vacancies().filter(v=>v.id!==vacId));
+  showToast('Unit marked as filled.');renderVacancies();
+}
+function addVacancyFromTenant(tenantId){
+  const t=DB.tenants().find(x=>x.id===tenantId);if(!t)return;
+  openVacancyModal();
+  setTimeout(()=>{
+    document.getElementById('vac-unit').value=t.unit_number||'';
+    document.getElementById('vac-available-date').value=t.lease_end||todayISO();
+    document.getElementById('vac-status').value=t.lease_end<todayISO()?'vacant':'notice-given';
+  },200);
 }
 
 /* ─── GLOBAL SEARCH ─── */
