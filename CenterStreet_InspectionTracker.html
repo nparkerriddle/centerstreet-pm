@@ -2784,6 +2784,34 @@ function renderTutStep(){
   } else {box.style.top='50%';box.style.left='50%';box.style.transform='translate(-50%,-50%)';}
 }
 
+/* ─── UPDATE CHECK ─── */
+function checkForUpdate(){
+  const liveUrl='https://nparkerriddle.github.io/centerstreet-pm/CenterStreet_InspectionTracker.html';
+  fetch(liveUrl+'?v='+Date.now())
+    .then(r=>r.text())
+    .then(html=>{
+      const vMatch=html.match(/const APP_VERSION='([^']+)'/);
+      const cMatch=html.match(/const APP_CHANGELOG='([^']+)'/);
+      if(!vMatch)return;
+      if(vMatch[1]>APP_VERSION){
+        const liveLog=cMatch?cMatch[1]:'';
+        showUpdateBanner(liveLog);
+      }
+    }).catch(()=>{});
+}
+function showUpdateBanner(changelog){
+  if(document.getElementById('cs-update-banner'))return;
+  const el=document.createElement('div');
+  el.id='cs-update-banner';
+  el.innerHTML=`<div style="background:linear-gradient(90deg,#1e40af,#0891b2);color:#fff;padding:11px 16px;display:flex;align-items:center;gap:12px;font-size:.88rem;box-shadow:0 2px 8px rgba(0,0,0,.18)">
+    <i class="bi bi-arrow-up-circle-fill" style="font-size:1.25rem;flex-shrink:0"></i>
+    <div style="flex:1"><strong>New update available!</strong>${changelog?` &nbsp;—&nbsp; <span style="opacity:.92">${changelog}</span>`:''}</div>
+    <button onclick="location.reload(true)" style="background:#fff;color:#1e40af;font-weight:700;border:none;border-radius:6px;padding:5px 14px;cursor:pointer;white-space:nowrap;font-size:.85rem">Refresh Now</button>
+    <button onclick="document.getElementById('cs-update-banner').remove()" style="background:none;border:none;color:#fff;font-size:1.3rem;cursor:pointer;line-height:1;padding:0 2px;opacity:.8" title="Dismiss">&times;</button>
+  </div>`;
+  document.body.prepend(el);
+}
+
 /* ─── INIT ─── */
 function init(){
   applyDarkMode(!!DB.settings().dark_mode);
@@ -2791,6 +2819,7 @@ function init(){
   checkFridayReminder();
   if(!localStorage.getItem('cs_tutorial_shown'))setTimeout(startTutorial,800);
   initAutoBackup();
+  setTimeout(checkForUpdate,4000);
 }
 document.addEventListener('DOMContentLoaded',init);
 
@@ -4567,6 +4596,10 @@ function resetTenantChecklist(tenantId,listKey){
   DB.set('tenants',tenants);
   renderTenantTabContent(tenantId,'tenant-checklists');
 }
+
+/* ─── APP VERSION ─── */
+const APP_VERSION='20260313002';
+const APP_CHANGELOG='Cross-section sync: candidates now show a green Vacant badge when their unit interest matches an open vacancy, converting a candidate to tenant auto-removes the vacancy, and vacancy cards show how many candidates are interested.';
 
 /* ─── VACANCIES ─── */
 const VAC_STATUS_LABELS={'vacant':'Vacant — Available Now','notice-given':'Notice Given','cleaning':'Cleaning / Turnover','repairs':'Under Repair','leased':'Leased — Not Occupied'};
