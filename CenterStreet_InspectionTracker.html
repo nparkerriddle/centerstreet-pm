@@ -4380,7 +4380,7 @@ function renderCandidates(){
       <td><strong>${c.name||'—'}</strong>${c.source?`<div style="font-size:.73rem;color:#9ca3af">${c.source}</div>`:''}</td>
       <td>${c.phone||'—'}</td>
       <td style="font-size:.8rem">${c.email?`<a href="mailto:${c.email}">${c.email}</a>`:'—'}</td>
-      <td>${c.unit_interest||'—'}</td>
+      <td>${(()=>{const vacMatch=DB.vacancies().find(v=>v.unit_number&&c.unit_interest&&v.unit_number.trim().toLowerCase()===c.unit_interest.trim().toLowerCase());return (c.unit_interest||'—')+(vacMatch?`<div style="margin-top:3px"><span class="badge" style="background:#16a34a;color:#fff;font-size:.68rem"><i class="bi bi-door-open-fill me-1"></i>Vacant${vacMatch.asking_rent?' · '+fmtMoney(vacMatch.asking_rent):''}</span></div>`:'')})()} </td>
       <td>${c.move_in_needed?fmtDate(c.move_in_needed):'—'}</td>
       <td><span class="badge" style="background:${CAND_STATUS_COLORS[c.status]||'#9ca3af'};color:#fff">${c.status||'new'}</span></td>
       <td style="white-space:nowrap;font-size:.8rem">${fmtDate(c.inquiry_date)}</td>
@@ -4503,6 +4503,9 @@ function confirmConvertToTenant(){
   tenants.push(newTenant);
   DB.set('tenants',tenants);
   DB.set('candidates',DB.candidates().filter(x=>x.id!==candId));
+  // Auto-remove matching vacancy
+  const unitNum=(newTenant.unit_number||'').trim().toLowerCase();
+  if(unitNum){DB.set('vacancies',DB.vacancies().filter(v=>!v.unit_number||v.unit_number.trim().toLowerCase()!==unitNum));}
   window._convertLeaseData=null;
   bootstrap.Modal.getInstance(document.getElementById('convertCandModal')).hide();
   showToast(`${c.name} added as active tenant!`);
@@ -4602,13 +4605,14 @@ function renderVacancies(){
     html+=`<div class="cs-card mb-3">
       <h5 class="mb-3"><i class="bi bi-door-open-fill me-2" style="color:#f87171"></i>Vacancy List (${manualVacs.length})</h5>
       <div class="row g-2">
-        ${manualVacs.map(v=>`
+        ${manualVacs.map(v=>{const intCands=DB.candidates().filter(c=>c.unit_interest&&v.unit_number&&c.unit_interest.trim().toLowerCase()===v.unit_number.trim().toLowerCase());return`
         <div class="col-md-6 col-lg-4">
           <div class="rounded-3 border p-3" style="background:#fff9f9;border-color:#fecaca!important;">
             <div class="d-flex justify-content-between align-items-start mb-2">
               <div>
                 <span class="fw-bold" style="font-size:1.1rem;color:var(--navy)">Unit ${v.unit_number}</span>
                 ${v.bedrooms?`<span class="badge bg-secondary ms-2" style="font-size:.7rem">${v.bedrooms}</span>`:''}
+                ${intCands.length?`<span class="badge ms-2" style="background:#0891b2;color:#fff;font-size:.68rem" title="${intCands.map(c=>c.name).join(', ')}"><i class="bi bi-people-fill me-1"></i>${intCands.length} interested</span>`:''}
               </div>
               <span class="badge" style="background:${VAC_STATUS_COLORS[v.status]||'#6b7280'};color:#fff;font-size:.72rem">${VAC_STATUS_LABELS[v.status]||v.status}</span>
             </div>
@@ -4624,7 +4628,7 @@ function renderVacancies(){
               <button class="btn btn-sm btn-outline-danger ms-auto" onclick="deleteVacancy('${v.id}')"><i class="bi bi-trash-fill"></i></button>
             </div>
           </div>
-        </div>`).join('')}
+        </div>`;}).join('')}
       </div>
     </div>`;
   } else {
