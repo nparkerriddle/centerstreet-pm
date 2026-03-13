@@ -320,6 +320,7 @@ body{display:flex;}
     <a id="nav-backup" onclick="showPage('backup')"><i class="bi bi-cloud-download-fill"></i><span>Backup</span></a>
     <a id="nav-settings" onclick="showPage('settings')"><i class="bi bi-gear-fill"></i><span>Settings</span></a>
     <a id="nav-help" onclick="startTutorial()"><i class="bi bi-question-circle-fill"></i><span>Help</span></a>
+    <a id="nav-feature-request" onclick="openFeatureRequestModal()" style="color:#a78bfa"><i class="bi bi-lightbulb-fill"></i><span>Feature Request</span></a>
   </nav>
 </div>
 <div id="search-results-panel" class="search-results-panel"></div>
@@ -1459,6 +1460,41 @@ body{display:flex;}
         </div>
       </div>
       <div class="modal-footer"><button class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button><button class="btn btn-navy" onclick="saveChecklistFromModal()"><i class="bi bi-plus-circle me-1"></i>Create Checklist</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- Feature Request Modal -->
+<div class="modal fade" id="featureRequestModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header" style="background:linear-gradient(135deg,#4f46e5,#7c3aed);color:#fff">
+        <h5 class="modal-title"><i class="bi bi-lightbulb-fill me-2"></i>New Feature Request</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size:.88rem;color:#6b7280;margin-bottom:14px">Have an idea or something you'd like added? Describe it below and it'll be sent directly to your developer.</p>
+        <div class="mb-3">
+          <label class="form-label fw-semibold">Feature Title <span class="text-danger">*</span></label>
+          <input type="text" class="form-control" id="fr-title" placeholder="e.g. Add a rent payment tracker">
+        </div>
+        <div class="mb-3">
+          <label class="form-label fw-semibold">Description</label>
+          <textarea class="form-control" id="fr-desc" rows="4" placeholder="Describe what you'd like it to do, and why it would be helpful..."></textarea>
+        </div>
+        <div class="mb-2">
+          <label class="form-label fw-semibold">Priority</label>
+          <select class="form-select" id="fr-priority">
+            <option value="low">Low — nice to have someday</option>
+            <option value="medium" selected>Medium — would use it regularly</option>
+            <option value="high">High — really need this soon</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button class="btn btn-primary" style="background:#4f46e5;border-color:#4f46e5" onclick="submitFeatureRequest()"><i class="bi bi-send-fill me-1"></i>Send Request</button>
+      </div>
     </div>
   </div>
 </div>
@@ -2782,6 +2818,26 @@ function renderTutStep(){
       box.style.left=Math.max(m,left)+'px';box.style.transform='';
     }
   } else {box.style.top='50%';box.style.left='50%';box.style.transform='translate(-50%,-50%)';}
+}
+
+/* ─── FEATURE REQUEST ─── */
+function openFeatureRequestModal(){
+  document.getElementById('fr-title').value='';
+  document.getElementById('fr-desc').value='';
+  document.getElementById('fr-priority').value='medium';
+  new bootstrap.Modal(document.getElementById('featureRequestModal')).show();
+}
+function submitFeatureRequest(){
+  const title=document.getElementById('fr-title').value.trim();
+  if(!title){showToast('Please enter a feature title.','warning');return;}
+  const desc=document.getElementById('fr-desc').value.trim();
+  const priority=document.getElementById('fr-priority').value;
+  const priorityLabel={low:'Low — nice to have',medium:'Medium — would use regularly',high:'High — need soon'}[priority]||priority;
+  const subject=encodeURIComponent(`[CS Tracker] Feature Request: ${title}`);
+  const body=encodeURIComponent(`Hi Nick,\n\nI have a feature request for the inspection tracker:\n\nTitle: ${title}\nPriority: ${priorityLabel}\n\n${desc?'Description:\n'+desc+'\n\n':''}Thanks!\nKarley`);
+  bootstrap.Modal.getInstance(document.getElementById('featureRequestModal')).hide();
+  setTimeout(()=>{window.location.href=`mailto:nparkerriddle@gmail.com?subject=${subject}&body=${body}`;},300);
+  showToast('Opening your email client...');
 }
 
 /* ─── UPDATE CHECK ─── */
@@ -4598,8 +4654,8 @@ function resetTenantChecklist(tenantId,listKey){
 }
 
 /* ─── APP VERSION ─── */
-const APP_VERSION='20260313002';
-const APP_CHANGELOG='Cross-section sync: candidates now show a green Vacant badge when their unit interest matches an open vacancy, converting a candidate to tenant auto-removes the vacancy, and vacancy cards show how many candidates are interested.';
+const APP_VERSION='20260313003';
+const APP_CHANGELOG='New Feature Request button added to the sidebar — click it anytime to send a feature idea directly to your developer.';
 
 /* ─── VACANCIES ─── */
 const VAC_STATUS_LABELS={'vacant':'Vacant — Available Now','notice-given':'Notice Given','cleaning':'Cleaning / Turnover','repairs':'Under Repair','leased':'Leased — Not Occupied'};
