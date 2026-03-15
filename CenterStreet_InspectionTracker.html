@@ -1567,6 +1567,7 @@ body{display:flex;}
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
@@ -4658,6 +4659,7 @@ function confirmConvertToTenant(){
   window._convertLeaseData=null;
   bootstrap.Modal.getInstance(document.getElementById('convertCandModal')).hide();
   showToast(`${c.name} added as active tenant!`);
+  if(typeof confetti==='function'){confetti({particleCount:120,spread:70,origin:{y:0.6},colors:['#1a3a5c','#2e6da4','#0d9488','#d97706','#22c55e','#ffffff']});}
   openTenantFile(newTenant.id);
 }
 
@@ -4718,8 +4720,8 @@ function resetTenantChecklist(tenantId,listKey){
 }
 
 /* ─── APP VERSION ─── */
-const APP_VERSION='20260315004';
-const APP_CHANGELOG='Delight pass: time-of-day greeting on dashboard, per-tenant colored avatars, checklist check spring animation, stat cards fade in on load, sidebar icons scale on hover, button press tactile effect, warmer All Clear empty state.';
+const APP_VERSION='20260315005';
+const APP_CHANGELOG='Confetti burst when a candidate is converted to an active tenant.';
 
 /* ─── VACANCIES ─── */
 const VAC_STATUS_LABELS={'vacant':'Vacant — Available Now','notice-given':'Notice Given','cleaning':'Cleaning / Turnover','repairs':'Under Repair','leased':'Leased — Not Occupied'};
