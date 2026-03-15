@@ -362,6 +362,7 @@ body{display:flex;}
   <nav id="sidebar-nav">
     <div class="nav-lbl">Main</div>
     <a id="nav-dashboard" href="#" onclick="showPage('dashboard');return false" onkeydown="if(event.key==='Enter'||event.key===' '){showPage('dashboard');event.preventDefault();}" tabindex="0" class="active" title="Dashboard"><i class="bi bi-grid-1x2-fill"></i><span>Dashboard</span></a>
+    <a id="nav-alerts" href="#" onclick="showAlerts();return false" onkeydown="if(event.key==='Enter'||event.key===' '){showAlerts();event.preventDefault();}" tabindex="0" title="Alerts"><i class="bi bi-bell-fill" style="color:#f59e0b"></i><span>Alerts <span id="nav-alerts-count" style="background:#e05c5c;color:#fff;font-size:.62rem;padding:1px 6px;border-radius:10px;font-weight:700;vertical-align:middle;display:none;">0</span></span></a>
     <a id="nav-tenants" href="#" onclick="showPage('tenants');return false" onkeydown="if(event.key==='Enter'||event.key===' '){showPage('tenants');event.preventDefault();}" tabindex="0" title="Tenants"><i class="bi bi-people-fill"></i><span>Tenants</span></a>
     <a id="nav-candidates" href="#" onclick="showPage('candidates');return false" onkeydown="if(event.key==='Enter'||event.key===' '){showPage('candidates');event.preventDefault();}" tabindex="0" title="Candidates"><i class="bi bi-person-plus-fill" style="color:#a78bfa"></i><span>Candidates</span></a>
     <a id="nav-prev-tenants" href="#" onclick="showPage('prev-tenants');return false" onkeydown="if(event.key==='Enter'||event.key===' '){showPage('prev-tenants');event.preventDefault();}" tabindex="0" title="Previous Tenants"><i class="bi bi-person-dash-fill" style="color:#9ca3af"></i><span>Previous Tenants</span></a>
@@ -1761,6 +1762,14 @@ function navigateInvoices(status){
   },50);
 }
 
+function showAlerts(){
+  showPage('dashboard');
+  document.querySelectorAll('#sidebar-nav a').forEach(a=>a.classList.remove('active'));
+  document.getElementById('nav-alerts')?.classList.add('active');
+  const el=document.getElementById('alerts-collapse');
+  if(el)bootstrap.Collapse.getOrCreateInstance(el,{toggle:false}).show();
+  setTimeout(()=>document.getElementById('alerts-section')?.scrollIntoView({behavior:'smooth',block:'start'}),150);
+}
 function renderDashboard(){
   const tenants=DB.tenants();const inspections=DB.inspections();const invoices=DB.invoices();
   const greetEl=document.getElementById('dash-greeting');
@@ -1773,6 +1782,8 @@ function renderDashboard(){
   const alerts=computeAlerts();
   const alertBadge=document.getElementById('alerts-badge');
   if(alertBadge){if(alerts.length===0){alertBadge.textContent='All clear';alertBadge.style.background='#22c55e';}else{alertBadge.textContent=alerts.length+' alert'+(alerts.length===1?'':'s');alertBadge.style.background=alerts.some(a=>a.level==='danger')?'#e05c5c':'#f59e0b';}}
+  const navCount=document.getElementById('nav-alerts-count');
+  if(navCount){navCount.textContent=alerts.length;navCount.style.display=alerts.length?'inline':'none';navCount.style.background=alerts.some(a=>a.level==='danger')?'#e05c5c':'#f59e0b';}
   const alertsCollapse=document.getElementById('alerts-collapse');
   if(alertsCollapse&&!alertsCollapse._cinit){alertsCollapse._cinit=true;alertsCollapse.addEventListener('show.bs.collapse',()=>{const ch=document.getElementById('alerts-chevron');if(ch)ch.style.transform='rotate(180deg)';});alertsCollapse.addEventListener('hide.bs.collapse',()=>{const ch=document.getElementById('alerts-chevron');if(ch)ch.style.transform='rotate(0deg)';});}
   document.getElementById('stat-overdue').textContent=alerts.filter(a=>a.type==='overdue_inspection').length;
@@ -4778,8 +4789,8 @@ function resetTenantChecklist(tenantId,listKey){
 }
 
 /* ─── APP VERSION ─── */
-const APP_VERSION='20260315007';
-const APP_CHANGELOG='Tenant notes: new Reminder button lets you attach a follow-up date and time to any note. Reminders show as a chip on the note (amber = upcoming, red = past due).';
+const APP_VERSION='20260315008';
+const APP_CHANGELOG='Alerts now has its own sidebar link. Click Alerts to jump straight to the alerts panel. Live count badge shows how many alerts are active.';
 
 /* ─── VACANCIES ─── */
 const VAC_STATUS_LABELS={'vacant':'Vacant — Available Now','notice-given':'Notice Given','cleaning':'Cleaning / Turnover','repairs':'Under Repair','leased':'Leased — Not Occupied'};
