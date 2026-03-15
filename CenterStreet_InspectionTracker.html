@@ -10,28 +10,28 @@
 html,body{height:100%;margin:0;padding:0;font-family:'Segoe UI',Arial,sans-serif;background:var(--light);}
 body{display:flex;}
 #sidebar{width:220px;min-width:220px;background:var(--navy);color:#fff;display:flex;flex-direction:column;height:100vh;position:sticky;top:0;overflow-y:auto;}
-#sidebar .brand{padding:16px 14px 12px;border-bottom:1px solid rgba(255,255,255,.1);display:flex;align-items:center;gap:9px;}
-#sidebar .cs-badge{background:var(--blue);color:#fff;font-weight:700;font-size:1rem;width:34px;height:34px;border-radius:7px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
-#sidebar .brand-text{line-height:1.2;font-size:.75rem;}
-#sidebar .brand-text strong{font-size:.875rem;display:block;}
+#sidebar .brand{padding:16px 14px 14px;border-bottom:1px solid rgba(255,255,255,.12);display:flex;align-items:center;gap:10px;}
+#sidebar .cs-badge{background:var(--blue);color:#fff;font-weight:800;font-size:1.05rem;width:40px;height:40px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0;letter-spacing:-.5px;box-shadow:0 2px 8px rgba(0,0,0,.25);}
+#sidebar .brand-text{line-height:1.25;font-size:.75rem;}
+#sidebar .brand-text strong{font-size:.9rem;display:block;font-weight:700;}
 #sidebar nav{flex:1;padding:8px 0;}
-#sidebar nav a{display:flex;align-items:center;gap:9px;padding:8px 16px;color:rgba(255,255,255,.72);text-decoration:none;font-size:.85rem;border-left:3px solid transparent;transition:all .15s;cursor:pointer;}
+#sidebar nav a{display:flex;align-items:center;gap:9px;padding:9px 16px;color:rgba(255,255,255,.76);text-decoration:none;font-size:.85rem;border-left:3px solid transparent;transition:all .15s;cursor:pointer;}
 #sidebar nav a:hover{background:rgba(255,255,255,.08);color:#fff;}
 #sidebar nav a.active{background:rgba(255,255,255,.12);color:#fff;border-left-color:var(--blue);}
 #sidebar nav a i{font-size:.95rem;width:16px;flex-shrink:0;}
 #sidebar .sidebar-divider{border-top:1px solid rgba(255,255,255,.1);margin:5px 0;}
 #sidebar .nav-lbl{font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:rgba(255,255,255,.45);padding:7px 16px 3px;}
 #main-content{flex:1;overflow-y:auto;padding:22px 26px;min-width:0;}
-.page-header{margin-bottom:18px;}
-.page-header h2{color:var(--navy);font-weight:700;margin-bottom:2px;font-size:1.4rem;}
+.page-header{margin-bottom:20px;}
+.page-header h2{color:var(--navy);font-weight:800;margin-bottom:4px;font-size:1.65rem;letter-spacing:-.02em;}
 .page-header p{color:#6b7280;margin:0;font-size:.875rem;}
 .stat-card{background:#fff;border-radius:10px;padding:14px 16px;box-shadow:0 1px 4px rgba(0,0,0,.08);transition:box-shadow .15s,transform .1s;}
 .stat-card.clickable{cursor:pointer;}
 .stat-card.clickable:hover{box-shadow:0 4px 14px rgba(0,0,0,.13);transform:translateY(-2px);}
-.stat-card .stat-num{font-size:1.8rem;font-weight:700;color:var(--navy);line-height:1;}
-.stat-card .stat-label{font-size:.72rem;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;margin-top:3px;}
+.stat-card .stat-num{font-size:2.25rem;font-weight:800;color:var(--navy);line-height:1;}
+.stat-card .stat-label{font-size:.68rem;color:#6b7280;text-transform:uppercase;letter-spacing:.07em;margin-top:5px;font-weight:600;}
 .cs-card{background:#fff;border-radius:10px;padding:16px 18px;box-shadow:0 1px 4px rgba(0,0,0,.08);margin-bottom:16px;}
-.cs-card h5{color:var(--navy);font-weight:600;margin-bottom:12px;font-size:.9rem;}
+.cs-card h5{color:var(--navy);font-weight:700;margin-bottom:13px;font-size:.9rem;letter-spacing:-.01em;}
 .alert-row{display:flex;align-items:center;gap:11px;padding:9px 12px;border-radius:8px;border-left:4px solid transparent;margin-bottom:5px;}
 .alert-row-danger{background:#fff5f5;border-color:#e05c5c;}
 .alert-row-warning{background:#fffbeb;border-color:#f59e0b;}
@@ -41,7 +41,7 @@ body{display:flex;}
 .search-result-item{padding:8px 12px;cursor:pointer;border-bottom:1px solid #f3f4f6;display:flex;gap:9px;align-items:flex-start;}
 .search-result-item:last-child{border-bottom:none;}
 .search-result-item:hover{background:#f0f4f8;}
-.quick-action-btn{display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 14px;border-radius:8px;border:1.5px solid #e5e7eb;background:#fff;cursor:pointer;transition:all .15s;font-size:.78rem;font-weight:600;color:var(--navy);min-width:80px;text-align:center;}
+.quick-action-btn{display:flex;flex-direction:column;align-items:center;gap:5px;padding:11px 14px;border-radius:9px;border:1.5px solid #e5e7eb;background:#fff;cursor:pointer;transition:all .15s;font-size:.78rem;font-weight:700;color:var(--navy);min-width:82px;text-align:center;}
 .quick-action-btn:hover{border-color:var(--blue);background:#f0f4f8;color:var(--blue);}
 .quick-action-btn i{font-size:1.15rem;width:38px;height:38px;border-radius:9px;display:flex;align-items:center;justify-content:center;transition:transform .15s;margin:0 auto;}
 .quick-action-btn:hover i{transform:scale(1.1);}
@@ -65,12 +65,12 @@ body{display:flex;}
 @media print{#sidebar,#global-search,.btn,.filter-bar,.page-header button,.no-print{display:none!important;}#main-content{padding:0;}body{display:block;}.cs-table thead th{background:#1a3a5c!important;-webkit-print-color-adjust:exact;}}
 .alert-row .alert-icon{font-size:1.1rem;flex-shrink:0;}
 .alert-row .alert-body{flex:1;min-width:0;}
-.alert-row .alert-unit{font-weight:700;color:var(--navy);font-size:.85rem;}
+.alert-row .alert-unit{font-weight:800;color:var(--navy);font-size:.875rem;letter-spacing:-.01em;}
 .alert-row .alert-msg{font-size:.8rem;color:#374151;}
 .alert-row .alert-detail{font-size:.74rem;color:#6b7280;}
 .cs-table{border-radius:10px;overflow-x:auto;box-shadow:0 1px 4px rgba(0,0,0,.08);background:#fff;}
 .cs-table table{margin:0;min-width:500px;}
-.cs-table thead th{background:var(--navy);color:#fff;font-weight:600;font-size:.8rem;border:none;padding:9px 11px;}
+.cs-table thead th{background:var(--navy);color:#fff;font-weight:700;font-size:.78rem;border:none;padding:10px 11px;letter-spacing:.03em;text-transform:uppercase;}
 .cs-table tbody tr:hover{background:#f8fafc;}
 .cs-table td,.cs-table th{vertical-align:middle;font-size:.835rem;padding:7px 11px;}
 .badge-pending{background:#9ca3af;color:#fff;}
@@ -99,8 +99,8 @@ body{display:flex;}
 .wo-comment-body{font-size:.82rem;color:#374151;flex:1;}
 .wo-comment-meta{font-size:.72rem;color:#9ca3af;margin-top:1px;}
 .stat-mini{background:#fff;border-radius:8px;padding:9px 14px;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,.07);}
-.stat-mini .sn{font-size:1.5rem;font-weight:700;color:var(--navy);}
-.stat-mini .sl{font-size:.7rem;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;}
+.stat-mini .sn{font-size:1.7rem;font-weight:800;color:var(--navy);}
+.stat-mini .sl{font-size:.67rem;color:#6b7280;text-transform:uppercase;letter-spacing:.07em;font-weight:600;}
 .rec-item{background:#f0f9ff;border:1px solid #bae6fd;border-radius:8px;padding:10px 13px;margin-bottom:7px;display:flex;align-items:center;gap:10px;}
 .rec-item .rec-body{flex:1;}
 .rec-item .rec-name{font-weight:600;font-size:.855rem;color:#0c4a6e;}
@@ -120,10 +120,10 @@ body{display:flex;}
 .tl-label{font-size:.82rem;font-weight:600;color:#374151;}
 .tl-date{font-size:.74rem;color:#9ca3af;}
 .tenant-profile-hdr{background:linear-gradient(135deg,var(--navy) 0%,#274d78 100%);border-radius:12px 12px 0 0;padding:18px 22px;color:#fff;display:flex;align-items:flex-start;gap:16px;flex-wrap:wrap;}
-.tenant-avatar{width:56px;height:56px;background:rgba(255,255,255,.18);border-radius:50%;font-size:1.3rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;letter-spacing:-1px;}
+.tenant-avatar{width:62px;height:62px;background:rgba(255,255,255,.2);border-radius:50%;font-size:1.4rem;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;letter-spacing:-1px;box-shadow:0 0 0 3px rgba(255,255,255,.15);}
 .tenant-hdr-info{flex:1;min-width:180px;}
-.tenant-hdr-name{font-size:1.15rem;font-weight:700;margin-bottom:2px;}
-.tenant-hdr-sub{font-size:.82rem;opacity:.8;}
+.tenant-hdr-name{font-size:1.3rem;font-weight:800;margin-bottom:3px;letter-spacing:-.02em;}
+.tenant-hdr-sub{font-size:.84rem;opacity:.85;}
 .tenant-hdr-badges{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px;}
 .chip{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;font-size:.72rem;font-weight:600;white-space:nowrap;}
 .chip-pets{background:rgba(245,158,11,.25);border:1px solid rgba(245,158,11,.6);color:#fcd34d;}
@@ -191,7 +191,7 @@ body{display:flex;}
 [data-theme="dark"] .cs-card{background:#1f2937;box-shadow:0 1px 4px rgba(0,0,0,.35);}
 [data-theme="dark"] .cs-card h5{color:#93c5fd;}
 [data-theme="dark"] .stat-card{background:#1f2937;}
-[data-theme="dark"] .stat-card .stat-num{color:#93c5fd;}
+[data-theme="dark"] .stat-card .stat-num{color:#93c5fd;font-weight:800;}
 [data-theme="dark"] .cs-table,[data-theme="dark"] .cs-table table{background:#1f2937;color:#e5e7eb;}
 [data-theme="dark"] .cs-table thead th{background:#0f2236;}
 [data-theme="dark"] .cs-table tbody tr:hover{background:#283548;}
@@ -4706,8 +4706,8 @@ function resetTenantChecklist(tenantId,listKey){
 }
 
 /* ─── APP VERSION ─── */
-const APP_VERSION='20260315002';
-const APP_CHANGELOG='Visual polish: dashboard stat cards now have color-coded top borders per stat type, quick action icons get tinted pill backgrounds, sidebar labels brighter, page header icons blue-tinted, work order numbers styled in brand blue. Plus all previous security and accessibility fixes.';
+const APP_VERSION='20260315003';
+const APP_CHANGELOG='Bolder & more confident UI: stat card numbers larger (2.25rem, weight 800), page headers bigger and tighter, table column headers uppercased, sidebar CS badge bigger with depth, tenant profile name larger, card section titles heavier, alert unit labels bolder, quick action buttons more substantial. No new colors — just stronger hierarchy throughout.';
 
 /* ─── VACANCIES ─── */
 const VAC_STATUS_LABELS={'vacant':'Vacant — Available Now','notice-given':'Notice Given','cleaning':'Cleaning / Turnover','repairs':'Under Repair','leased':'Leased — Not Occupied'};
