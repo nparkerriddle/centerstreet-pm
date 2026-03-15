@@ -60,6 +60,16 @@ body{display:flex;}
 .stat-card:has(#stat-overdue){border-top:3px solid var(--danger);}
 .stat-card:has(#stat-unpaid-inv){border-top:3px solid var(--warning);}
 .stat-card:has(#stat-open-maint){border-top:3px solid var(--teal);}
+.stat-card:has(#stat-reminders){border-top:3px solid var(--amber);}
+.reminder-item{display:flex;align-items:flex-start;gap:12px;padding:9px 0;border-bottom:1px solid var(--border);}
+.reminder-item:last-child{border-bottom:none;}
+.reminder-item-icon{width:32px;height:32px;border-radius:8px;background:rgba(217,119,6,.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--amber);font-size:.95rem;}
+.reminder-item-body{flex:1;min-width:0;}
+.reminder-item-when{font-size:.75rem;font-weight:700;color:var(--amber);margin-bottom:1px;}
+.reminder-item-note{font-size:.83rem;color:#374151;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.reminder-item-who{font-size:.74rem;color:var(--text-muted);margin-top:1px;}
+[data-theme="dark"] .reminder-item-icon{background:rgba(217,119,6,.2);}
+[data-theme="dark"] .reminder-item-note{color:#d1d5db;}
 /* ── Page header icon tint ── */
 .page-header h2 > i:first-child{color:var(--blue);opacity:.85;}
 @media print{#sidebar,#global-search,.btn,.filter-bar,.page-header button,.no-print{display:none!important;}#main-content{padding:0;}body{display:block;}.cs-table thead th{background:#1a3a5c!important;-webkit-print-color-adjust:exact;}}
@@ -331,7 +341,7 @@ body{display:flex;}
 [data-theme="dark"] .quick-action-btn i.text-danger{background:rgba(224,92,92,.18);}
 [data-theme="dark"] .quick-action-btn i.icon-bg-teal{background:rgba(13,148,136,.2);}
 [data-theme="dark"] .quick-action-btn i.icon-bg-purple{background:rgba(124,58,237,.2);}
-[data-theme="dark"] .stat-card:has(#stat-tenants),[data-theme="dark"] .stat-card:has(#stat-sent),[data-theme="dark"] .stat-card:has(#stat-received),[data-theme="dark"] .stat-card:has(#stat-complete),[data-theme="dark"] .stat-card:has(#stat-overdue),[data-theme="dark"] .stat-card:has(#stat-unpaid-inv),[data-theme="dark"] .stat-card:has(#stat-open-maint),[data-theme="dark"] .stat-card:has(#stat-pending){border-top-width:3px;border-top-style:solid;}
+[data-theme="dark"] .stat-card:has(#stat-tenants),[data-theme="dark"] .stat-card:has(#stat-sent),[data-theme="dark"] .stat-card:has(#stat-received),[data-theme="dark"] .stat-card:has(#stat-complete),[data-theme="dark"] .stat-card:has(#stat-overdue),[data-theme="dark"] .stat-card:has(#stat-unpaid-inv),[data-theme="dark"] .stat-card:has(#stat-open-maint),[data-theme="dark"] .stat-card:has(#stat-pending),[data-theme="dark"] .stat-card:has(#stat-reminders){border-top-width:3px;border-top-style:solid;}
 .btn:active:not(:disabled){transform:translateY(1px);box-shadow:none!important;transition:transform .08s;}
 #sidebar nav a i{transition:transform .15s cubic-bezier(.34,1.56,.64,1);}
 #sidebar nav a:hover i{transform:scale(1.18);}
@@ -425,6 +435,11 @@ body{display:flex;}
     <div class="col-6 col-md-3 col-lg-2"><div class="stat-card clickable" onclick="navigateInspections('overdue')" title="View Overdue Inspections"><div class="stat-num text-danger" id="stat-overdue">0</div><div class="stat-label">Overdue</div></div></div>
     <div class="col-6 col-md-3 col-lg-2"><div class="stat-card clickable" onclick="navigateInvoices('unpaid')" title="View Unpaid Invoices"><div class="stat-num text-warning" id="stat-unpaid-inv">0</div><div class="stat-label">Unpaid Invoices</div></div></div>
     <div class="col-6 col-md-3 col-lg-2"><div class="stat-card clickable" onclick="showPage('maintenance')" title="View Open Maintenance"><div class="stat-num" style="color:var(--teal)" id="stat-open-maint">0</div><div class="stat-label">Open Maintenance</div></div></div>
+    <div class="col-6 col-md-3 col-lg-2"><div class="stat-card clickable" onclick="document.getElementById('reminders-card').scrollIntoView({behavior:'smooth',block:'start'})" title="View Upcoming Reminders"><div class="stat-num" style="color:var(--amber)" id="stat-reminders">0</div><div class="stat-label">Reminders</div></div></div>
+  </div>
+  <div class="cs-card mb-3" id="reminders-card">
+    <h5><i class="bi bi-alarm-fill me-2 text-warning"></i>Upcoming Reminders</h5>
+    <div id="reminders-container"><div class="no-data">No upcoming reminders.</div></div>
   </div>
   <div class="cs-card"><h5><i class="bi bi-clock-history me-2"></i>Recent Inspections</h5><div class="cs-table"><table class="table table-hover mb-0"><thead><tr><th>Unit</th><th>Tenant</th><th>Type</th><th>Status</th><th>Date Sent</th><th>Action</th></tr></thead><tbody id="recent-inspections-body"></tbody></table></div></div>
 </div>
@@ -1790,6 +1805,32 @@ function renderDashboard(){
   document.getElementById('stat-unpaid-inv').textContent=invoices.filter(i=>i.status!=='paid').length;
   const allMaint=DB.maintenanceWOs().filter(m=>m.status!=='complete'&&m.status!=='resolved');
   document.getElementById('stat-open-maint').textContent=allMaint.length;
+  // Reminders
+  const now=new Date();
+  const reminders=[];
+  DB.tenants().filter(t=>t.active!==false).forEach(t=>{
+    (t.notes_log||[]).forEach(n=>{
+      if(n.reminder_at&&new Date(n.reminder_at)>now)reminders.push({tenant:t,note:n,when:new Date(n.reminder_at)});
+    });
+  });
+  reminders.sort((a,b)=>a.when-b.when);
+  document.getElementById('stat-reminders').textContent=reminders.length;
+  const rc=document.getElementById('reminders-container');
+  if(rc){
+    if(reminders.length===0){rc.innerHTML=`<div class="no-data">No upcoming reminders.</div>`;}
+    else{rc.innerHTML=reminders.map(r=>{
+      const when=r.when.toLocaleDateString(undefined,{weekday:'short',month:'short',day:'numeric'})+(r.note.reminder_at.includes('T')?' at '+r.when.toLocaleTimeString(undefined,{hour:'numeric',minute:'2-digit'}):'');
+      return`<div class="reminder-item">
+        <div class="reminder-item-icon"><i class="bi bi-alarm-fill"></i></div>
+        <div class="reminder-item-body">
+          <div class="reminder-item-when">${when}</div>
+          <div class="reminder-item-note">${h(r.note.text)}</div>
+          <div class="reminder-item-who">Unit ${h(r.tenant.unit_number)} &mdash; ${h(r.tenant.name)}</div>
+        </div>
+        <button class="btn btn-sm btn-outline-secondary flex-shrink-0" onclick="openTenantFile(${r.tenant.id})" title="Open tenant notes"><i class="bi bi-arrow-right"></i></button>
+      </div>`;
+    }).join('');}
+  }
   const container=document.getElementById('alerts-container');
   if(alerts.length===0){container.innerHTML=`<div class="alert-row alert-row-ok"><span class="alert-icon text-success"><i class="bi bi-patch-check-fill"></i></span><div class="alert-body"><div class="alert-unit">All Clear</div><div class="alert-msg text-success">Everything looks great — no alerts right now. Enjoy the quiet!</div></div></div>`;}
   else{container.innerHTML=alerts.map(a=>{const icon=a.level==='danger'?'<i class="bi bi-exclamation-circle-fill text-danger"></i>':a.level==='info'?'<i class="bi bi-heart-fill text-primary"></i>':'<i class="bi bi-exclamation-triangle-fill text-warning"></i>';let btn='';if(a.type==='compliance_open'&&a.insp_id){btn=`<button class="btn btn-sm btn-outline-secondary" onclick="renderDetail(${a.insp_id});showPage('detail')"><i class="bi bi-eye"></i></button>`;}else if(a.type==='birthday'||a.type==='anniversary'){btn=`<button class="btn btn-sm btn-outline-primary" onclick="openTenantFile(${a.tenant_id})"><i class="bi bi-person-fill"></i></button>`;}else if(a.type==='event_upcoming'){btn=`<button class="btn btn-sm btn-outline-secondary" onclick="showPage('events')"><i class="bi bi-calendar-heart-fill"></i></button>`;}else{btn=`<button class="btn btn-sm btn-navy" onclick="openInspectionModal(${a.tenant_id})"><i class="bi bi-plus-lg"></i></button>`;}return`<div class="alert-row alert-row-${a.level}"><span class="alert-icon">${icon}</span><div class="alert-body"><div class="alert-unit">Unit ${h(a.unit)} — ${h(a.name)}</div><div class="alert-msg">${h(a.msg)}</div><div class="alert-detail">${h(a.detail)}</div></div><div class="flex-shrink-0">${btn}</div></div>`;}).join('');}
@@ -4789,8 +4830,8 @@ function resetTenantChecklist(tenantId,listKey){
 }
 
 /* ─── APP VERSION ─── */
-const APP_VERSION='20260315008';
-const APP_CHANGELOG='Alerts now has its own sidebar link. Click Alerts to jump straight to the alerts panel. Live count badge shows how many alerts are active.';
+const APP_VERSION='20260315009';
+const APP_CHANGELOG='New Reminders tile on the dashboard. Shows all upcoming note reminders sorted by date, with a quick link to the tenant file. Stat card shows total count.';
 
 /* ─── VACANCIES ─── */
 const VAC_STATUS_LABELS={'vacant':'Vacant — Available Now','notice-given':'Notice Given','cleaning':'Cleaning / Turnover','repairs':'Under Repair','leased':'Leased — Not Occupied'};
