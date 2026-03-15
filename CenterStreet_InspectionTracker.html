@@ -399,7 +399,15 @@ body{display:flex;}
       <button class="quick-action-btn" onclick="showPage('renewals')"><i class="bi bi-calendar-check-fill icon-bg-purple" style="color:#7c3aed"></i>Renewals</button>
     </div>
   </div>
-  <div class="cs-card mb-3" id="alerts-section"><h5><i class="bi bi-bell-fill me-2 text-warning"></i>Alerts</h5><div id="alerts-container"></div></div>
+  <div class="cs-card mb-3 p-0 overflow-hidden" id="alerts-section">
+    <div class="d-flex align-items-center justify-content-between px-3 py-2" style="cursor:pointer;user-select:none;" data-bs-toggle="collapse" data-bs-target="#alerts-collapse" aria-expanded="false" aria-controls="alerts-collapse">
+      <h5 class="mb-0"><i class="bi bi-bell-fill me-2 text-warning"></i>Alerts <span id="alerts-badge" class="badge rounded-pill ms-2" style="background:#9ca3af;font-size:.72rem;vertical-align:middle;">…</span></h5>
+      <i class="bi bi-chevron-down" id="alerts-chevron" style="transition:transform .25s;color:#6b7280;font-size:.85rem;"></i>
+    </div>
+    <div class="collapse" id="alerts-collapse">
+      <div class="px-3 pb-3" id="alerts-container"></div>
+    </div>
+  </div>
   <div class="row g-3 mb-3" id="stats-row">
     <div class="col-6 col-md-3 col-lg-2"><div class="stat-card clickable" onclick="showPage('tenants')" title="View Tenants"><div class="stat-num" id="stat-tenants">0</div><div class="stat-label">Tenants</div></div></div>
     <div class="col-6 col-md-3 col-lg-2"><div class="stat-card clickable" onclick="navigateInspections('pending')" title="View Pending Inspections"><div class="stat-num text-secondary" id="stat-pending">0</div><div class="stat-label">Pending</div></div></div>
@@ -1756,6 +1764,10 @@ function renderDashboard(){
   document.getElementById('stat-received').textContent=inspections.filter(i=>i.status==='received').length;
   document.getElementById('stat-complete').textContent=inspections.filter(i=>i.status==='complete').length;
   const alerts=computeAlerts();
+  const alertBadge=document.getElementById('alerts-badge');
+  if(alertBadge){if(alerts.length===0){alertBadge.textContent='All clear';alertBadge.style.background='#22c55e';}else{alertBadge.textContent=alerts.length+' alert'+(alerts.length===1?'':'s');alertBadge.style.background=alerts.some(a=>a.level==='danger')?'#e05c5c':'#f59e0b';}}
+  const alertsCollapse=document.getElementById('alerts-collapse');
+  if(alertsCollapse&&!alertsCollapse._cinit){alertsCollapse._cinit=true;alertsCollapse.addEventListener('show.bs.collapse',()=>{const ch=document.getElementById('alerts-chevron');if(ch)ch.style.transform='rotate(180deg)';});alertsCollapse.addEventListener('hide.bs.collapse',()=>{const ch=document.getElementById('alerts-chevron');if(ch)ch.style.transform='rotate(0deg)';});}
   document.getElementById('stat-overdue').textContent=alerts.filter(a=>a.type==='overdue_inspection').length;
   document.getElementById('stat-unpaid-inv').textContent=invoices.filter(i=>i.status!=='paid').length;
   const allMaint=DB.maintenanceWOs().filter(m=>m.status!=='complete'&&m.status!=='resolved');
@@ -4720,8 +4732,8 @@ function resetTenantChecklist(tenantId,listKey){
 }
 
 /* ─── APP VERSION ─── */
-const APP_VERSION='20260315005';
-const APP_CHANGELOG='Confetti burst when a candidate is converted to an active tenant.';
+const APP_VERSION='20260315006';
+const APP_CHANGELOG='Dashboard alerts section is now collapsed by default. Click to expand. Badge shows alert count (green = all clear, yellow/red = alerts).';
 
 /* ─── VACANCIES ─── */
 const VAC_STATUS_LABELS={'vacant':'Vacant — Available Now','notice-given':'Notice Given','cleaning':'Cleaning / Turnover','repairs':'Under Repair','leased':'Leased — Not Occupied'};
