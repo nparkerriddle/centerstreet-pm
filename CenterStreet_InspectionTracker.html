@@ -280,6 +280,13 @@ body{display:flex;}
 .cl-progress-fill{height:100%;border-radius:3px;transition:width .3s;}
 .cl-progress-pct{font-size:.75rem;color:#6b7280;min-width:30px;text-align:right;}
 .cl-body{padding:8px 16px 14px;}
+.note-reminder-chip{display:inline-flex;align-items:center;font-size:.74rem;padding:2px 8px;border-radius:20px;margin:4px 0 2px;font-weight:600;}
+.note-reminder-future{background:#fffbeb;color:#92400e;border:1px solid #fde68a;}
+.note-reminder-past{background:#fff5f5;color:#991b1b;border:1px solid #fca5a5;}
+#reminder-row{background:#fffbeb;border:1px solid #fde68a;border-radius:8px;}
+[data-theme="dark"] #reminder-row{background:#292108;border-color:#44370a;}
+[data-theme="dark"] .note-reminder-future{background:#292108;color:#fcd34d;border-color:#78350f;}
+[data-theme="dark"] .note-reminder-past{background:#2d1515;color:#fca5a5;border-color:#7f1d1d;}
 .cl-item{display:flex;align-items:flex-start;gap:10px;padding:6px 0;border-bottom:1px solid #f9fafb;}
 .cl-item:last-child{border-bottom:none;}
 .cl-item-check{width:18px;height:18px;border:2px solid #d1d5db;border-radius:4px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;margin-top:2px;transition:all .15s;}
@@ -2132,12 +2139,47 @@ function renderMaintTab(t){
 
 function renderNotesTab(t){
   const notes=(t.notes_log||[]).slice().reverse();
-  const feed=notes.length===0?`<div class="no-data">No notes yet.</div>`:notes.map(n=>`<div class="activity-item"><div class="activity-dot"></div><div><div class="activity-text">${n.text}</div><div class="activity-meta">${fmtDate(n.date?.slice(0,10))} ${n.date?.slice(11,16)||''} ${n.author?'· '+n.author:''}</div></div><button class="btn btn-sm btn-link text-danger p-0 ms-auto" onclick="deleteTenantNote(${t.id},'${n.id}')" style="font-size:.7rem;align-self:flex-start;">✕</button></div>`).join('');
-  const s=DB.settings();
+  const now=new Date();
+  const feed=notes.length===0?`<div class="no-data">No notes yet.</div>`:notes.map(n=>{
+    let reminderChip='';
+    if(n.reminder_at){
+      const rd=new Date(n.reminder_at);
+      const isPast=rd<now;
+      const label=rd.toLocaleDateString(undefined,{weekday:'short',month:'short',day:'numeric'})+(n.reminder_at.includes('T')?' at '+rd.toLocaleTimeString(undefined,{hour:'numeric',minute:'2-digit'}):'');
+      reminderChip=`<div class="note-reminder-chip ${isPast?'note-reminder-past':'note-reminder-future'}"><i class="bi bi-alarm-fill me-1"></i>${isPast?'Follow-up was':'Follow-up'}: ${label}</div>`;
+    }
+    return`<div class="activity-item"><div class="activity-dot"></div><div style="flex:1;min-width:0"><div class="activity-text">${h(n.text)}</div>${reminderChip}<div class="activity-meta">${fmtDate(n.date?.slice(0,10))} ${n.date?.slice(11,16)||''} ${n.author?'· '+h(n.author):''}</div></div><button class="btn btn-sm btn-link text-danger p-0 ms-auto" onclick="deleteTenantNote(${t.id},'${n.id}')" style="font-size:.7rem;align-self:flex-start;">✕</button></div>`;
+  }).join('');
   return`<div class="cs-card"><h5><i class="bi bi-chat-text-fill me-2"></i>Notes &amp; Activity</h5>
-    <div class="mb-3"><textarea class="form-control mb-2" id="new-note-text" rows="2" placeholder="Add a note..."></textarea><button class="btn btn-navy btn-sm" onclick="addTenantNote(${t.id})"><i class="bi bi-plus-lg me-1"></i>Add Note</button></div>
+    <div class="mb-3">
+      <textarea class="form-control mb-2" id="new-note-text" rows="2" placeholder="Add a note..."></textarea>
+      <div id="reminder-row" style="display:none" class="d-flex flex-wrap gap-2 align-items-center mb-2 p-2 rounded" style="background:#fffbeb;border:1px solid #fde68a;">
+        <i class="bi bi-alarm-fill text-warning"></i>
+        <input type="date" class="form-control form-control-sm" id="reminder-date" style="max-width:160px">
+        <input type="time" class="form-control form-control-sm" id="reminder-time" style="max-width:120px">
+        <span class="text-muted" style="font-size:.78rem;">Follow-up reminder</span>
+      </div>
+      <div class="d-flex gap-2">
+        <button class="btn btn-navy btn-sm" onclick="addTenantNote(${t.id})"><i class="bi bi-plus-lg me-1"></i>Add Note</button>
+        <button class="btn btn-sm btn-outline-warning" id="reminder-toggle-btn" onclick="toggleNoteReminder()"><i class="bi bi-alarm me-1"></i>Reminder</button>
+      </div>
+    </div>
     <div>${feed}</div>
   </div>`;
+}
+function toggleNoteReminder(){
+  const row=document.getElementById('reminder-row');
+  const btn=document.getElementById('reminder-toggle-btn');
+  if(!row||!btn)return;
+  const visible=row.style.display!=='none';
+  row.style.display=visible?'none':'flex';
+  btn.classList.toggle('btn-outline-warning',visible);
+  btn.classList.toggle('btn-warning',!visible);
+  if(!visible){
+    const d=new Date();d.setDate(d.getDate()+1);
+    document.getElementById('reminder-date').value=d.toISOString().slice(0,10);
+    document.getElementById('reminder-time').value='09:00';
+  }
 }
 
 function renderViolTab(t){
@@ -2299,8 +2341,12 @@ function addTenantNote(tenantId){
   const tenants=DB.tenants();const idx=tenants.findIndex(t=>t.id===tenantId);if(idx===-1)return;
   if(!tenants[idx].notes_log)tenants[idx].notes_log=[];
   const s=DB.settings();
-  tenants[idx].notes_log.push({id:DB.nextNoteId(),date:new Date().toISOString(),text,author:s.manager_name||''});
-  DB.set('tenants',tenants);renderTenantTabContent(tenantId,'notes');showToast('Note added.');
+  const note={id:DB.nextNoteId(),date:new Date().toISOString(),text,author:s.manager_name||''};
+  const rdEl=document.getElementById('reminder-date');
+  const rtEl=document.getElementById('reminder-time');
+  if(rdEl?.value){note.reminder_at=rdEl.value+(rtEl?.value?'T'+rtEl.value:'');}
+  tenants[idx].notes_log.push(note);
+  DB.set('tenants',tenants);renderTenantTabContent(tenantId,'notes');showToast(note.reminder_at?'Note added with reminder.':'Note added.');
 }
 function deleteTenantNote(tenantId,noteId){
   const tenants=DB.tenants();const idx=tenants.findIndex(t=>t.id===tenantId);if(idx===-1)return;
@@ -4732,8 +4778,8 @@ function resetTenantChecklist(tenantId,listKey){
 }
 
 /* ─── APP VERSION ─── */
-const APP_VERSION='20260315006';
-const APP_CHANGELOG='Dashboard alerts section is now collapsed by default. Click to expand. Badge shows alert count (green = all clear, yellow/red = alerts).';
+const APP_VERSION='20260315007';
+const APP_CHANGELOG='Tenant notes: new Reminder button lets you attach a follow-up date and time to any note. Reminders show as a chip on the note (amber = upcoming, red = past due).';
 
 /* ─── VACANCIES ─── */
 const VAC_STATUS_LABELS={'vacant':'Vacant — Available Now','notice-given':'Notice Given','cleaning':'Cleaning / Turnover','repairs':'Under Repair','leased':'Leased — Not Occupied'};
