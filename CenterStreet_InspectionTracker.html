@@ -283,7 +283,8 @@ body{display:flex;}
 .cl-item{display:flex;align-items:flex-start;gap:10px;padding:6px 0;border-bottom:1px solid #f9fafb;}
 .cl-item:last-child{border-bottom:none;}
 .cl-item-check{width:18px;height:18px;border:2px solid #d1d5db;border-radius:4px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;margin-top:2px;transition:all .15s;}
-.cl-item-check.checked{background:#22c55e;border-color:#22c55e;color:#fff;}
+.cl-item-check.checked{background:#22c55e;border-color:#22c55e;color:#fff;animation:checkPop .28s cubic-bezier(.34,1.56,.64,1);}
+@keyframes checkPop{0%{transform:scale(.6);opacity:.6}100%{transform:scale(1);opacity:1}}
 .cl-item-text{flex:1;font-size:.845rem;color:#374151;line-height:1.4;}
 .cl-item-text.done{text-decoration:line-through;color:#9ca3af;}
 .cl-item-actions{display:flex;gap:3px;flex-shrink:0;}
@@ -324,6 +325,14 @@ body{display:flex;}
 [data-theme="dark"] .quick-action-btn i.icon-bg-teal{background:rgba(13,148,136,.2);}
 [data-theme="dark"] .quick-action-btn i.icon-bg-purple{background:rgba(124,58,237,.2);}
 [data-theme="dark"] .stat-card:has(#stat-tenants),[data-theme="dark"] .stat-card:has(#stat-sent),[data-theme="dark"] .stat-card:has(#stat-received),[data-theme="dark"] .stat-card:has(#stat-complete),[data-theme="dark"] .stat-card:has(#stat-overdue),[data-theme="dark"] .stat-card:has(#stat-unpaid-inv),[data-theme="dark"] .stat-card:has(#stat-open-maint),[data-theme="dark"] .stat-card:has(#stat-pending){border-top-width:3px;border-top-style:solid;}
+.btn:active:not(:disabled){transform:translateY(1px);box-shadow:none!important;transition:transform .08s;}
+#sidebar nav a i{transition:transform .15s cubic-bezier(.34,1.56,.64,1);}
+#sidebar nav a:hover i{transform:scale(1.18);}
+.stat-card{animation:fadeUp .35s ease-out both;}
+.stat-card:nth-child(1){animation-delay:.04s}.stat-card:nth-child(2){animation-delay:.08s}.stat-card:nth-child(3){animation-delay:.12s}.stat-card:nth-child(4){animation-delay:.16s}.stat-card:nth-child(5){animation-delay:.20s}.stat-card:nth-child(6){animation-delay:.24s}.stat-card:nth-child(7){animation-delay:.28s}.stat-card:nth-child(8){animation-delay:.32s}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.tenant-avatar{transition:transform .2s cubic-bezier(.34,1.56,.64,1);}
+.tenant-avatar:hover{transform:scale(1.08);}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;}}
 </style>
 </head>
@@ -377,7 +386,7 @@ body{display:flex;}
 
 <!-- DASHBOARD -->
 <div id="page-dashboard" class="page">
-  <div class="page-header"><h2><i class="bi bi-grid-1x2-fill me-2"></i>Dashboard</h2><p>Overview and alerts for Center Street Property Management</p></div>
+  <div class="page-header"><h2><i class="bi bi-grid-1x2-fill me-2"></i>Dashboard</h2><p id="dash-greeting">Overview and alerts for Center Street Property Management</p></div>
   <div class="cs-card mb-3">
     <h5 class="mb-2"><i class="bi bi-lightning-fill me-2 text-warning"></i>Quick Actions</h5>
     <div class="d-flex gap-2 flex-wrap">
@@ -1611,6 +1620,7 @@ function fmtMoney(v){if(!v)return'—';const n=parseFloat(String(v).replace(/[^0
 function statusBadge(s){const c={pending:'badge-pending',sent:'badge-sent',received:'badge-received',complete:'badge-complete',unpaid:'badge-unpaid',paid:'badge-paid',overdue:'badge-overdue',open:'badge-open',resolved:'badge-resolved','in-progress':'badge-in-progress',assigned:'badge-assigned','parts-ordered':'badge-parts-ordered','pending-approval':'badge-pending-approval'};return`<span class="badge ${c[s]||'badge-pending'}">${s||'—'}</span>`;}
 function typeLabel(t){return{semi_annual:'Semi-Annual','semi-annual':'Semi-Annual','move-in':'Move-In','move-out':'Move-Out',compliance:'Compliance'}[t]||t;}
 function h(s){return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function avatarBg(name){const palette=['#2e6da4','#0d9488','#7c3aed','#b45309','#dc2626','#0284c7','#059669','#9333ea','#1d4ed8','#be185d'];const c=String(name||'?').toUpperCase().charCodeAt(0)||65;return palette[(c-65)%palette.length];}
 function debounce(fn,ms){let t;return function(...a){clearTimeout(t);t=setTimeout(()=>fn.apply(this,a),ms);};}
 const _debouncedRenderTenants=debounce(()=>renderTenants(),150);
 const _debouncedRenderInspections=debounce(()=>renderInspections(),150);
@@ -1737,6 +1747,8 @@ function navigateInvoices(status){
 
 function renderDashboard(){
   const tenants=DB.tenants();const inspections=DB.inspections();const invoices=DB.invoices();
+  const greetEl=document.getElementById('dash-greeting');
+  if(greetEl){const hr=new Date().getHours();const name=(DB.settings().manager_name||'').split(' ')[0];const who=name?` ${name}`:'';const greets=[['Good morning','Rise and shine'],['Good afternoon','Hope your day is going well'],['Good evening','Wrapping up for the day?'],['Night owl','Hope everything is under control']];const g=hr<12?greets[0]:hr<17?greets[1]:hr<21?greets[2]:greets[3];greetEl.textContent=`${g[0]}${who}! ${g[1]}.`;}
   document.getElementById('stat-tenants').textContent=tenants.filter(t=>t.active!==false).length;
   document.getElementById('stat-pending').textContent=inspections.filter(i=>i.status==='pending').length;
   document.getElementById('stat-sent').textContent=inspections.filter(i=>i.status==='sent').length;
@@ -1748,7 +1760,7 @@ function renderDashboard(){
   const allMaint=DB.maintenanceWOs().filter(m=>m.status!=='complete'&&m.status!=='resolved');
   document.getElementById('stat-open-maint').textContent=allMaint.length;
   const container=document.getElementById('alerts-container');
-  if(alerts.length===0){container.innerHTML=`<div class="alert-row alert-row-ok"><span class="alert-icon text-success"><i class="bi bi-check-circle-fill"></i></span><div class="alert-body"><div class="alert-unit">All Clear</div><div class="alert-msg text-success">No alerts at this time. All tenants are up to date.</div></div></div>`;}
+  if(alerts.length===0){container.innerHTML=`<div class="alert-row alert-row-ok"><span class="alert-icon text-success"><i class="bi bi-patch-check-fill"></i></span><div class="alert-body"><div class="alert-unit">All Clear</div><div class="alert-msg text-success">Everything looks great — no alerts right now. Enjoy the quiet!</div></div></div>`;}
   else{container.innerHTML=alerts.map(a=>{const icon=a.level==='danger'?'<i class="bi bi-exclamation-circle-fill text-danger"></i>':a.level==='info'?'<i class="bi bi-heart-fill text-primary"></i>':'<i class="bi bi-exclamation-triangle-fill text-warning"></i>';let btn='';if(a.type==='compliance_open'&&a.insp_id){btn=`<button class="btn btn-sm btn-outline-secondary" onclick="renderDetail(${a.insp_id});showPage('detail')"><i class="bi bi-eye"></i></button>`;}else if(a.type==='birthday'||a.type==='anniversary'){btn=`<button class="btn btn-sm btn-outline-primary" onclick="openTenantFile(${a.tenant_id})"><i class="bi bi-person-fill"></i></button>`;}else if(a.type==='event_upcoming'){btn=`<button class="btn btn-sm btn-outline-secondary" onclick="showPage('events')"><i class="bi bi-calendar-heart-fill"></i></button>`;}else{btn=`<button class="btn btn-sm btn-navy" onclick="openInspectionModal(${a.tenant_id})"><i class="bi bi-plus-lg"></i></button>`;}return`<div class="alert-row alert-row-${a.level}"><span class="alert-icon">${icon}</span><div class="alert-body"><div class="alert-unit">Unit ${h(a.unit)} — ${h(a.name)}</div><div class="alert-msg">${h(a.msg)}</div><div class="alert-detail">${h(a.detail)}</div></div><div class="flex-shrink-0">${btn}</div></div>`;}).join('');}
   const sorted=[...inspections].sort((a,b)=>((b.created_at||'')>(a.created_at||''))?1:-1).slice(0,8);
   const tbody=document.getElementById('recent-inspections-body');
@@ -1975,7 +1987,7 @@ function renderTenantFile(tenantId){
   }).join('');
   document.getElementById('tenant-file-content').innerHTML=`
     <div class="tenant-profile-hdr">
-      <div class="tenant-avatar">${initials}</div>
+      <div class="tenant-avatar" style="background:${avatarBg(tenant.name)}">${initials}</div>
       <div class="tenant-hdr-info">
         <div class="tenant-hdr-name">${h(tenant.name)}</div>
         <div class="tenant-hdr-sub">Unit ${h(tenant.unit_number)} &nbsp;·&nbsp; ${h(tenant.email)||'—'} &nbsp;·&nbsp; ${h(tenant.phone)||'—'}</div>
@@ -4706,8 +4718,8 @@ function resetTenantChecklist(tenantId,listKey){
 }
 
 /* ─── APP VERSION ─── */
-const APP_VERSION='20260315003';
-const APP_CHANGELOG='Bolder & more confident UI: stat card numbers larger (2.25rem, weight 800), page headers bigger and tighter, table column headers uppercased, sidebar CS badge bigger with depth, tenant profile name larger, card section titles heavier, alert unit labels bolder, quick action buttons more substantial. No new colors — just stronger hierarchy throughout.';
+const APP_VERSION='20260315004';
+const APP_CHANGELOG='Delight pass: time-of-day greeting on dashboard, per-tenant colored avatars, checklist check spring animation, stat cards fade in on load, sidebar icons scale on hover, button press tactile effect, warmer All Clear empty state.';
 
 /* ─── VACANCIES ─── */
 const VAC_STATUS_LABELS={'vacant':'Vacant — Available Now','notice-given':'Notice Given','cleaning':'Cleaning / Turnover','repairs':'Under Repair','leased':'Leased — Not Occupied'};
