@@ -391,7 +391,7 @@ body{display:flex;}
   <nav id="sidebar-nav">
     <div class="nav-lbl">Main</div>
     <a id="nav-dashboard" href="#" onclick="showPage('dashboard');return false" onkeydown="if(event.key==='Enter'||event.key===' '){showPage('dashboard');event.preventDefault();}" tabindex="0" class="active" title="Dashboard"><i class="bi bi-grid-1x2-fill"></i><span>Dashboard</span></a>
-    <a id="nav-reminders" href="#" onclick="showPage('reminders');return false" onkeydown="if(event.key==='Enter'||event.key===' '){showPage('reminders');event.preventDefault();}" tabindex="0" title="Reminders"><i class="bi bi-bell-fill" style="color:#f59e0b"></i><span>Reminders <span id="nav-alerts-count" style="background:#e05c5c;color:#fff;font-size:.62rem;padding:1px 6px;border-radius:10px;font-weight:700;vertical-align:middle;display:none;">0</span></span></a>
+    <a id="nav-reminders" href="#" onclick="showPage('reminders');return false" onkeydown="if(event.key==='Enter'||event.key===' '){showPage('reminders');event.preventDefault();}" tabindex="0" title="Alerts & Reminders"><i class="bi bi-bell-fill" style="color:#f59e0b"></i><span>Alerts &amp; Reminders <span id="nav-alerts-count" style="background:#e05c5c;color:#fff;font-size:.62rem;padding:1px 6px;border-radius:10px;font-weight:700;vertical-align:middle;display:none;">0</span></span></a>
     <a id="nav-tenants" href="#" onclick="showPage('tenants');return false" onkeydown="if(event.key==='Enter'||event.key===' '){showPage('tenants');event.preventDefault();}" tabindex="0" title="Tenants"><i class="bi bi-people-fill"></i><span>Tenants</span></a>
     <a id="nav-candidates" href="#" onclick="showPage('candidates');return false" onkeydown="if(event.key==='Enter'||event.key===' '){showPage('candidates');event.preventDefault();}" tabindex="0" title="Candidates"><i class="bi bi-person-plus-fill" style="color:#a78bfa"></i><span>Candidates</span></a>
     <a id="nav-prev-tenants" href="#" onclick="showPage('prev-tenants');return false" onkeydown="if(event.key==='Enter'||event.key===' '){showPage('prev-tenants');event.preventDefault();}" tabindex="0" title="Previous Tenants"><i class="bi bi-person-dash-fill" style="color:#9ca3af"></i><span>Previous Tenants</span></a>
@@ -445,14 +445,14 @@ body{display:flex;}
     <div class="col-6 col-md-3 col-lg-2"><div class="stat-card clickable" onclick="navigateInspections('overdue')" title="View Overdue Inspections"><div class="stat-num text-danger" id="stat-overdue">0</div><div class="stat-label">Overdue</div></div></div>
     <div class="col-6 col-md-3 col-lg-2"><div class="stat-card clickable" onclick="navigateInvoices('unpaid')" title="View Unpaid Invoices"><div class="stat-num text-warning" id="stat-unpaid-inv">0</div><div class="stat-label">Unpaid Invoices</div></div></div>
     <div class="col-6 col-md-3 col-lg-2"><div class="stat-card clickable" onclick="showPage('maintenance')" title="View Open Maintenance"><div class="stat-num" style="color:var(--teal)" id="stat-open-maint">0</div><div class="stat-label">Open Maintenance</div></div></div>
-    <div class="col-6 col-md-3 col-lg-2"><div class="stat-card clickable" onclick="showPage('reminders')" title="View Reminders & Alerts"><div class="stat-num" style="color:var(--amber)" id="stat-reminders">0</div><div class="stat-label">Reminders</div></div></div>
+    <div class="col-6 col-md-3 col-lg-2"><div class="stat-card clickable" onclick="showPage('reminders')" title="View Alerts & Reminders"><div class="stat-num" style="color:var(--amber)" id="stat-reminders">0</div><div class="stat-label">Alerts &amp; Reminders</div></div></div>
   </div>
   <div class="cs-card"><h5><i class="bi bi-clock-history me-2"></i>Recent Inspections</h5><div class="cs-table"><table class="table table-hover mb-0"><thead><tr><th>Unit</th><th>Tenant</th><th>Type</th><th>Status</th><th>Date Sent</th><th>Action</th></tr></thead><tbody id="recent-inspections-body"></tbody></table></div></div>
 </div>
 
 <!-- REMINDERS & ALERTS -->
 <div id="page-reminders" class="page" style="display:none">
-  <div class="page-header"><h2><i class="bi bi-bell-fill me-2"></i>Reminders</h2><p>Personal reminders and system alerts in one place</p></div>
+  <div class="page-header"><h2><i class="bi bi-bell-fill me-2"></i>Alerts &amp; Reminders</h2><p>System alerts and personal reminders in one place</p></div>
   <div class="cs-card mb-3">
     <h5><i class="bi bi-plus-circle-fill me-2" style="color:var(--blue)"></i>Add Reminder</h5>
     <div class="row g-2 align-items-end">
@@ -1775,7 +1775,7 @@ function showPage(name){
   document.querySelectorAll('#sidebar-nav a').forEach(a=>a.classList.remove('active'));
   const pg=document.getElementById('page-'+name);if(pg)pg.style.display='';
   const nav=document.getElementById('nav-'+name);if(nav)nav.classList.add('active');
-  const pageTitles={dashboard:'Dashboard',tenants:'Tenants',inspections:'Inspections',invoices:'Invoices',documents:'Documents',checklists:'Checklists',events:'Events',maintenance:'Maintenance',violations:'Violations',directory:'Directory',renewals:'Renewals',candidates:'Candidates','prev-tenants':'Previous Tenants',vacancies:'Vacancies',backup:'Backup & Export',settings:'Settings','tenant-file':'Tenant File',detail:'Inspection Detail',reminders:'Reminders'};
+  const pageTitles={dashboard:'Dashboard',tenants:'Tenants',inspections:'Inspections',invoices:'Invoices',documents:'Documents',checklists:'Checklists',events:'Events',maintenance:'Maintenance',violations:'Violations',directory:'Directory',renewals:'Renewals',candidates:'Candidates','prev-tenants':'Previous Tenants',vacancies:'Vacancies',backup:'Backup & Export',settings:'Settings','tenant-file':'Tenant File',detail:'Inspection Detail',reminders:'Alerts & Reminders'};
   document.title=(pageTitles[name]||name)+' — Center Street PM';
   if(name==='dashboard')renderDashboard();
   if(name==='tenants')renderTenants();
@@ -4885,7 +4885,7 @@ function resetTenantChecklist(tenantId,listKey){
 }
 
 /* ─── APP VERSION ─── */
-const APP_VERSION='20260315010';
+const APP_VERSION='20260315011';
 const APP_CHANGELOG='Reminders is now its own full page (sidebar → Reminders). Add personal reminders for anything, dismiss system alerts, view past reminders. Tenant profiles now support language, preferred contact method, and accessibility needs (Deaf/HH, low vision, mobility, cognitive) — shown as badges on the tenant file.';
 
 /* ─── VACANCIES ─── */
