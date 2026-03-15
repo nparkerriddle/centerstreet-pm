@@ -148,6 +148,10 @@ body{display:flex;}
 .rem-item:last-child{border-bottom:none;}
 .rem-item-icon{width:36px;height:36px;border-radius:9px;background:rgba(217,119,6,.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--amber);font-size:1rem;}
 .rem-item-icon.past{background:rgba(156,163,175,.12);color:#9ca3af;}
+.rem-item-icon.done{background:rgba(34,197,94,.12);color:#16a34a;}
+.rem-item.done{opacity:.72;}
+.rem-item.done .rem-item-text{text-decoration:line-through;color:#9ca3af;}
+.rem-item-when.done{color:#16a34a;}
 .rem-item-body{flex:1;min-width:0;}
 .rem-item-when{font-size:.75rem;font-weight:700;color:var(--amber);margin-bottom:2px;}
 .rem-item-when.past{color:#9ca3af;}
@@ -470,9 +474,13 @@ body{display:flex;}
     <h5><i class="bi bi-alarm-fill me-2 text-warning"></i>Upcoming Reminders</h5>
     <div id="rem-upcoming"><div class="no-data">No upcoming reminders.</div></div>
   </div>
-  <div class="cs-card">
+  <div class="cs-card mb-3">
     <h5 style="color:var(--text-muted)"><i class="bi bi-clock-history me-2"></i>Past Reminders</h5>
     <div id="rem-past"><div class="no-data">No past reminders.</div></div>
+  </div>
+  <div class="cs-card">
+    <h5 style="color:#16a34a"><i class="bi bi-check-circle-fill me-2"></i>Completed</h5>
+    <div id="rem-completed"><div class="no-data">Nothing marked as complete yet.</div></div>
   </div>
 </div>
 
@@ -1680,7 +1688,9 @@ const DB = {
   nextEventId(){return 'ev_'+Date.now()+'_'+Math.random().toString(36).slice(2,6);},
   nextHistId(){return 'hist_'+Date.now()+'_'+Math.random().toString(36).slice(2,6);},
   reminders(){return DB.get('reminders')||[];},
-  nextReminderId(){return 'rem_'+Date.now()+'_'+Math.random().toString(36).slice(2,6);}
+  nextReminderId(){return 'rem_'+Date.now()+'_'+Math.random().toString(36).slice(2,6);},
+  dismissedAlerts(){return DB.get('dismissed_alerts')||{};},
+  completedAlerts(){return DB.get('completed_alerts')||[];}
 };
 
 function fmtDate(iso){if(!iso)return'—';const d=new Date(iso+'T12:00:00');if(isNaN(d))return'—';return d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});}
@@ -1691,6 +1701,7 @@ function fmtMoney(v){if(!v)return'—';const n=parseFloat(String(v).replace(/[^0
 function statusBadge(s){const c={pending:'badge-pending',sent:'badge-sent',received:'badge-received',complete:'badge-complete',unpaid:'badge-unpaid',paid:'badge-paid',overdue:'badge-overdue',open:'badge-open',resolved:'badge-resolved','in-progress':'badge-in-progress',assigned:'badge-assigned','parts-ordered':'badge-parts-ordered','pending-approval':'badge-pending-approval'};return`<span class="badge ${c[s]||'badge-pending'}">${s||'—'}</span>`;}
 function typeLabel(t){return{semi_annual:'Semi-Annual','semi-annual':'Semi-Annual','move-in':'Move-In','move-out':'Move-Out',compliance:'Compliance'}[t]||t;}
 function h(s){return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function alertKey(a){return[a.type,a.tenant_id||'',a.unit||'',a.name||''].join('|');}
 function avatarBg(name){const palette=['#2e6da4','#0d9488','#7c3aed','#b45309','#dc2626','#0284c7','#059669','#9333ea','#1d4ed8','#be185d'];const c=String(name||'?').toUpperCase().charCodeAt(0)||65;return palette[(c-65)%palette.length];}
 function debounce(fn,ms){let t;return function(...a){clearTimeout(t);t=setTimeout(()=>fn.apply(this,a),ms);};}
 const _debouncedRenderTenants=debounce(()=>renderTenants(),150);
@@ -1819,23 +1830,51 @@ function navigateInvoices(status){
 
 function renderRemindersPage(){
   const now=new Date();
-  // System alerts
-  const alerts=computeAlerts();
+  const dismissed=DB.dismissedAlerts();
+  const completedAlerts=DB.completedAlerts();
+  const completedAlertKeys=new Set(completedAlerts.map(c=>c.key));
+
+  // ── System Alerts ──
+  const allAlerts=computeAlerts();
+  const activeAlerts=allAlerts.filter(a=>!dismissed[alertKey(a)]&&!completedAlertKeys.has(alertKey(a)));
   const alertsEl=document.getElementById('rem-page-alerts');
   if(alertsEl){
-    if(alerts.length===0){alertsEl.innerHTML=`<div class="alert-row alert-row-ok"><span class="alert-icon text-success"><i class="bi bi-patch-check-fill"></i></span><div class="alert-body"><div class="alert-unit">All Clear</div><div class="alert-msg text-success">Everything looks great — no alerts right now.</div></div></div>`;}
-    else{alertsEl.innerHTML=alerts.map(a=>{const icon=a.level==='danger'?'<i class="bi bi-exclamation-circle-fill text-danger"></i>':a.level==='info'?'<i class="bi bi-heart-fill text-primary"></i>':'<i class="bi bi-exclamation-triangle-fill text-warning"></i>';let btn='';if(a.type==='birthday'||a.type==='anniversary'){btn=`<button class="btn btn-sm btn-outline-primary" onclick="openTenantFile(${a.tenant_id})"><i class="bi bi-person-fill"></i></button>`;}else if(a.type==='event_upcoming'){btn=`<button class="btn btn-sm btn-outline-secondary" onclick="showPage('events')"><i class="bi bi-calendar-heart-fill"></i></button>`;}else{btn=`<button class="btn btn-sm btn-navy" onclick="openInspectionModal(${a.tenant_id})"><i class="bi bi-plus-lg"></i></button>`;}return`<div class="alert-row alert-row-${a.level}"><span class="alert-icon">${icon}</span><div class="alert-body"><div class="alert-unit">Unit ${h(a.unit)} — ${h(a.name)}</div><div class="alert-msg">${h(a.msg)}</div><div class="alert-detail">${h(a.detail)}</div></div><div class="flex-shrink-0">${btn}</div></div>`;}).join('');}
+    if(activeAlerts.length===0){alertsEl.innerHTML=`<div class="alert-row alert-row-ok"><span class="alert-icon text-success"><i class="bi bi-patch-check-fill"></i></span><div class="alert-body"><div class="alert-unit">All Clear</div><div class="alert-msg text-success">Everything looks great — no active alerts.</div></div></div>`;}
+    else{alertsEl.innerHTML=activeAlerts.map(a=>{
+      const key=alertKey(a);
+      const icon=a.level==='danger'?'<i class="bi bi-exclamation-circle-fill text-danger"></i>':a.level==='info'?'<i class="bi bi-heart-fill text-primary"></i>':'<i class="bi bi-exclamation-triangle-fill text-warning"></i>';
+      let actionBtn='';
+      if(a.type==='birthday'||a.type==='anniversary'){actionBtn=`<button class="btn btn-sm btn-outline-primary" onclick="openTenantFile(${a.tenant_id})" title="Open tenant file"><i class="bi bi-person-fill"></i></button>`;}
+      else if(a.type==='event_upcoming'){actionBtn=`<button class="btn btn-sm btn-outline-secondary" onclick="showPage('events')" title="View events"><i class="bi bi-calendar-heart-fill"></i></button>`;}
+      else if(a.tenant_id){actionBtn=`<button class="btn btn-sm btn-navy" onclick="openInspectionModal(${a.tenant_id})" title="New inspection"><i class="bi bi-plus-lg"></i></button>`;}
+      return`<div class="alert-row alert-row-${a.level}"><span class="alert-icon">${icon}</span><div class="alert-body"><div class="alert-unit">${h(a.unit!=='Events'&&a.unit!=='Maint'&&a.unit!=='Bldg'?'Unit '+a.unit+' — ':'')}${h(a.name)}</div><div class="alert-msg">${h(a.msg)}</div><div class="alert-detail">${h(a.detail)}</div></div><div class="d-flex gap-1 flex-shrink-0">${actionBtn}<button class="btn btn-sm btn-outline-success" onclick="completeAlert('${key}','${h(a.msg)}')" title="Mark complete"><i class="bi bi-check-lg"></i></button><button class="btn btn-sm btn-outline-secondary" onclick="dismissAlert('${key}')" title="Dismiss"><i class="bi bi-x-lg"></i></button></div></div>`;
+    }).join('');}
   }
-  // Collect all reminders
+
+  // ── Reminders ──
   const upcoming=[],past=[];
-  DB.reminders().forEach(r=>{const when=new Date(r.reminder_at);(when>now?upcoming:past).push({id:r.id,text:r.text,when,reminder_at:r.reminder_at,tenant:null,type:'standalone'});});
-  DB.tenants().filter(t=>t.active!==false).forEach(t=>{(t.notes_log||[]).forEach(n=>{if(!n.reminder_at)return;const when=new Date(n.reminder_at);(when>now?upcoming:past).push({id:n.id,text:n.text,when,reminder_at:n.reminder_at,tenant:t,type:'note'});});});
+  DB.reminders().filter(r=>!r.completed_at).forEach(r=>{const when=new Date(r.reminder_at);(when>now?upcoming:past).push({id:r.id,text:r.text,when,reminder_at:r.reminder_at,tenant:null,type:'standalone'});});
+  DB.tenants().filter(t=>t.active!==false).forEach(t=>{(t.notes_log||[]).forEach(n=>{if(!n.reminder_at||n.reminder_completed_at)return;const when=new Date(n.reminder_at);(when>now?upcoming:past).push({id:n.id,text:n.text,when,reminder_at:n.reminder_at,tenant:t,type:'note'});});});
   upcoming.sort((a,b)=>a.when-b.when);past.sort((a,b)=>b.when-a.when);
+
   function fmtWhen(r){return r.when.toLocaleDateString(undefined,{weekday:'short',month:'short',day:'numeric'})+(r.reminder_at.includes('T')?' at '+r.when.toLocaleTimeString(undefined,{hour:'numeric',minute:'2-digit'}):'');}
-  function remRow(r,isPast){return`<div class="rem-item"><div class="rem-item-icon${isPast?' past':''}"><i class="bi bi-alarm-fill"></i></div><div class="rem-item-body"><div class="rem-item-when${isPast?' past':''}">${fmtWhen(r)}</div><div class="rem-item-text">${h(r.text)}</div><div class="rem-item-who">${r.tenant?'Unit '+h(r.tenant.unit_number)+' — '+h(r.tenant.name):'Personal reminder'}</div></div><div class="d-flex gap-1 flex-shrink-0">${r.tenant?`<button class="btn btn-sm btn-outline-secondary" onclick="openTenantFile(${r.tenant.id})" title="Open tenant file"><i class="bi bi-arrow-right"></i></button>`:''}<button class="btn btn-sm btn-outline-danger" onclick="dismissReminder('${r.type}','${r.id}',${r.tenant?r.tenant.id:'null'})" title="Dismiss"><i class="bi bi-x-lg"></i></button></div></div>`;}
+  function remRow(r,isPast){
+    const tid=r.tenant?r.tenant.id:'null';
+    return`<div class="rem-item"><div class="rem-item-icon${isPast?' past':''}"><i class="bi bi-alarm-fill"></i></div><div class="rem-item-body"><div class="rem-item-when${isPast?' past':''}">${fmtWhen(r)}</div><div class="rem-item-text">${h(r.text)}</div><div class="rem-item-who">${r.tenant?'Unit '+h(r.tenant.unit_number)+' — '+h(r.tenant.name):'Personal reminder'}</div></div><div class="d-flex gap-1 flex-shrink-0">${r.tenant?`<button class="btn btn-sm btn-outline-secondary" onclick="openTenantFile(${r.tenant.id})" title="Open tenant file"><i class="bi bi-arrow-right"></i></button>`:''}<button class="btn btn-sm btn-outline-success" onclick="completeReminder('${r.type}','${r.id}',${tid})" title="Mark complete"><i class="bi bi-check-lg"></i></button><button class="btn btn-sm btn-outline-danger" onclick="dismissReminder('${r.type}','${r.id}',${tid})" title="Dismiss"><i class="bi bi-x-lg"></i></button></div></div>`;
+  }
   const upEl=document.getElementById('rem-upcoming');if(upEl)upEl.innerHTML=upcoming.length?upcoming.map(r=>remRow(r,false)).join(''):'<div class="no-data">No upcoming reminders.</div>';
   const pastEl=document.getElementById('rem-past');if(pastEl)pastEl.innerHTML=past.length?past.map(r=>remRow(r,true)).join(''):'<div class="no-data">No past reminders.</div>';
-  // Pre-fill date to tomorrow
+
+  // ── Completed section ──
+  const doneItems=[];
+  completedAlerts.forEach(c=>doneItems.push({text:c.text,at:new Date(c.at),icon:'alert'}));
+  DB.reminders().filter(r=>r.completed_at).forEach(r=>doneItems.push({text:r.text,at:new Date(r.completed_at),icon:'reminder',who:'Personal reminder'}));
+  DB.tenants().filter(t=>t.active!==false).forEach(t=>{(t.notes_log||[]).forEach(n=>{if(n.reminder_completed_at)doneItems.push({text:n.text,at:new Date(n.reminder_completed_at),icon:'reminder',who:'Unit '+h(t.unit_number)+' — '+h(t.name)});});});
+  doneItems.sort((a,b)=>b.at-a.at);
+  const doneEl=document.getElementById('rem-completed');
+  if(doneEl){doneEl.innerHTML=doneItems.length?doneItems.map(d=>`<div class="rem-item done"><div class="rem-item-icon done"><i class="bi bi-check-circle-fill"></i></div><div class="rem-item-body"><div class="rem-item-when done">Completed ${d.at.toLocaleDateString(undefined,{weekday:'short',month:'short',day:'numeric'})}</div><div class="rem-item-text">${h(d.text)}</div>${d.who?`<div class="rem-item-who">${d.who}</div>`:''}</div></div>`).join(''):'<div class="no-data">Nothing marked as complete yet.</div>';}
+
+  // Pre-fill date
   const remDateEl=document.getElementById('rem-date');if(remDateEl&&!remDateEl.value){const d=new Date();d.setDate(d.getDate()+1);remDateEl.value=d.toISOString().slice(0,10);}
 }
 function addStandaloneReminder(){
@@ -1849,6 +1888,20 @@ function addStandaloneReminder(){
   document.getElementById('rem-text').value='';
   document.getElementById('rem-time').value='';
   renderRemindersPage();renderDashboard();showToast('Reminder added.');
+}
+function dismissAlert(key){
+  const d=DB.dismissedAlerts();d[key]=true;DB.set('dismissed_alerts',d);
+  renderRemindersPage();renderDashboard();showToast('Alert dismissed.');
+}
+function completeAlert(key,text){
+  const c=DB.completedAlerts();c.push({key,text,at:new Date().toISOString()});DB.set('completed_alerts',c);
+  const d=DB.dismissedAlerts();d[key]=true;DB.set('dismissed_alerts',d);
+  renderRemindersPage();renderDashboard();showToast('Marked as complete.');
+}
+function completeReminder(type,id,tenantId){
+  if(type==='standalone'){const rems=DB.reminders();const idx=rems.findIndex(r=>r.id===id);if(idx!==-1)rems[idx].completed_at=new Date().toISOString();DB.set('reminders',rems);}
+  else{const tenants=DB.tenants();const idx=tenants.findIndex(t=>t.id===tenantId);if(idx!==-1){const ni=(tenants[idx].notes_log||[]).findIndex(n=>n.id===id);if(ni!==-1)tenants[idx].notes_log[ni].reminder_completed_at=new Date().toISOString();DB.set('tenants',tenants);}}
+  renderRemindersPage();renderDashboard();showToast('Marked as complete.');
 }
 function dismissReminder(type,id,tenantId){
   if(type==='standalone'){DB.set('reminders',DB.reminders().filter(r=>r.id!==id));}
@@ -4885,7 +4938,7 @@ function resetTenantChecklist(tenantId,listKey){
 }
 
 /* ─── APP VERSION ─── */
-const APP_VERSION='20260315011';
+const APP_VERSION='20260315012';
 const APP_CHANGELOG='Reminders is now its own full page (sidebar → Reminders). Add personal reminders for anything, dismiss system alerts, view past reminders. Tenant profiles now support language, preferred contact method, and accessibility needs (Deaf/HH, low vision, mobility, cognitive) — shown as badges on the tenant file.';
 
 /* ─── VACANCIES ─── */
