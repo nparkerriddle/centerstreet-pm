@@ -20,7 +20,7 @@ body{display:flex;}
 #sidebar nav a.active{background:rgba(255,255,255,.12);color:#fff;border-left-color:var(--blue);}
 #sidebar nav a i{font-size:.95rem;width:16px;flex-shrink:0;}
 #sidebar .sidebar-divider{border-top:1px solid rgba(255,255,255,.1);margin:5px 0;}
-#sidebar .nav-lbl{font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:rgba(255,255,255,.3);padding:7px 16px 3px;}
+#sidebar .nav-lbl{font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:rgba(255,255,255,.45);padding:7px 16px 3px;}
 #main-content{flex:1;overflow-y:auto;padding:22px 26px;min-width:0;}
 .page-header{margin-bottom:18px;}
 .page-header h2{color:var(--navy);font-weight:700;margin-bottom:2px;font-size:1.4rem;}
@@ -43,7 +43,25 @@ body{display:flex;}
 .search-result-item:hover{background:#f0f4f8;}
 .quick-action-btn{display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 14px;border-radius:8px;border:1.5px solid #e5e7eb;background:#fff;cursor:pointer;transition:all .15s;font-size:.78rem;font-weight:600;color:var(--navy);min-width:80px;text-align:center;}
 .quick-action-btn:hover{border-color:var(--blue);background:#f0f4f8;color:var(--blue);}
-.quick-action-btn i{font-size:1.2rem;}
+.quick-action-btn i{font-size:1.15rem;width:38px;height:38px;border-radius:9px;display:flex;align-items:center;justify-content:center;transition:transform .15s;margin:0 auto;}
+.quick-action-btn:hover i{transform:scale(1.1);}
+.quick-action-btn i.text-primary{background:rgba(46,109,164,.1);}
+.quick-action-btn i.text-success{background:rgba(34,197,94,.11);}
+.quick-action-btn i.text-warning{background:rgba(245,158,11,.11);}
+.quick-action-btn i.text-danger{background:rgba(224,92,92,.11);}
+.quick-action-btn i.icon-bg-teal{background:rgba(13,148,136,.11);}
+.quick-action-btn i.icon-bg-purple{background:rgba(124,58,237,.11);}
+/* ── Stat card color accents ── */
+.stat-card:has(#stat-tenants){border-top:3px solid var(--blue);}
+.stat-card:has(#stat-pending){border-top:3px solid #9ca3af;}
+.stat-card:has(#stat-sent){border-top:3px solid var(--blue);}
+.stat-card:has(#stat-received){border-top:3px solid var(--warning);}
+.stat-card:has(#stat-complete){border-top:3px solid var(--success);}
+.stat-card:has(#stat-overdue){border-top:3px solid var(--danger);}
+.stat-card:has(#stat-unpaid-inv){border-top:3px solid var(--warning);}
+.stat-card:has(#stat-open-maint){border-top:3px solid var(--teal);}
+/* ── Page header icon tint ── */
+.page-header h2 > i:first-child{color:var(--blue);opacity:.85;}
 @media print{#sidebar,#global-search,.btn,.filter-bar,.page-header button,.no-print{display:none!important;}#main-content{padding:0;}body{display:block;}.cs-table thead th{background:#1a3a5c!important;-webkit-print-color-adjust:exact;}}
 .alert-row .alert-icon{font-size:1.1rem;flex-shrink:0;}
 .alert-row .alert-body{flex:1;min-width:0;}
@@ -72,7 +90,7 @@ body{display:flex;}
 .wo-card{background:#fff;border-radius:10px;border:1px solid #e5e7eb;padding:13px 15px;margin-bottom:8px;transition:box-shadow .15s;}
 .wo-card:hover{box-shadow:0 2px 8px rgba(0,0,0,.1);}
 .wo-card-hdr{display:flex;align-items:flex-start;gap:10px;flex-wrap:wrap;}
-.wo-num{font-size:.72rem;font-weight:700;color:#6b7280;letter-spacing:.04em;}
+.wo-num{font-size:.72rem;font-weight:700;color:var(--blue);letter-spacing:.04em;opacity:.8;}
 .wo-title{font-weight:600;color:#1f2937;font-size:.875rem;}
 .wo-meta{font-size:.76rem;color:#6b7280;margin-top:2px;}
 .wo-comment{display:flex;gap:9px;padding:8px 0;border-bottom:1px solid #f3f4f6;}
@@ -297,6 +315,15 @@ body{display:flex;}
 [data-theme="dark"] :root{--bg-card:#1f2937;--bg-subtle:#283548;--border:#374151;--text-muted:#9ca3af;}
 .events-ideas-card{background:linear-gradient(135deg,#fffbeb 0%,#fef9c3 100%);border:1px solid #fde68a;}
 [data-theme="dark"] .events-ideas-card{background:#292108;border-color:#44370a;}
+[data-theme="dark"] .quick-action-btn{background:#1f2937;border-color:#374151;color:#e5e7eb;}
+[data-theme="dark"] .quick-action-btn:hover{background:#283548;border-color:var(--blue);color:#60a5fa;}
+[data-theme="dark"] .quick-action-btn i.text-primary{background:rgba(46,109,164,.2);}
+[data-theme="dark"] .quick-action-btn i.text-success{background:rgba(34,197,94,.18);}
+[data-theme="dark"] .quick-action-btn i.text-warning{background:rgba(245,158,11,.18);}
+[data-theme="dark"] .quick-action-btn i.text-danger{background:rgba(224,92,92,.18);}
+[data-theme="dark"] .quick-action-btn i.icon-bg-teal{background:rgba(13,148,136,.2);}
+[data-theme="dark"] .quick-action-btn i.icon-bg-purple{background:rgba(124,58,237,.2);}
+[data-theme="dark"] .stat-card:has(#stat-tenants),[data-theme="dark"] .stat-card:has(#stat-sent),[data-theme="dark"] .stat-card:has(#stat-received),[data-theme="dark"] .stat-card:has(#stat-complete),[data-theme="dark"] .stat-card:has(#stat-overdue),[data-theme="dark"] .stat-card:has(#stat-unpaid-inv),[data-theme="dark"] .stat-card:has(#stat-open-maint),[data-theme="dark"] .stat-card:has(#stat-pending){border-top-width:3px;border-top-style:solid;}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;}}
 </style>
 </head>
@@ -357,10 +384,10 @@ body{display:flex;}
       <button class="quick-action-btn" onclick="openTenantModal()"><i class="bi bi-person-plus-fill text-primary"></i>Add Tenant</button>
       <button class="quick-action-btn" onclick="openInspectionModal()"><i class="bi bi-clipboard-plus text-success"></i>New Inspection</button>
       <button class="quick-action-btn" onclick="openInvoiceModal()"><i class="bi bi-receipt-cutoff text-warning"></i>Add Invoice</button>
-      <button class="quick-action-btn" onclick="showPage('maintenance')"><i class="bi bi-tools" style="color:var(--teal)"></i>Maintenance</button>
+      <button class="quick-action-btn" onclick="showPage('maintenance')"><i class="bi bi-tools icon-bg-teal" style="color:var(--teal)"></i>Maintenance</button>
       <button class="quick-action-btn" onclick="showPage('violations')"><i class="bi bi-exclamation-octagon-fill text-danger"></i>Violations</button>
       <button class="quick-action-btn" onclick="showPage('directory')"><i class="bi bi-telephone-fill text-primary"></i>Directory</button>
-      <button class="quick-action-btn" onclick="showPage('renewals')"><i class="bi bi-calendar-check-fill" style="color:#7c3aed"></i>Renewals</button>
+      <button class="quick-action-btn" onclick="showPage('renewals')"><i class="bi bi-calendar-check-fill icon-bg-purple" style="color:#7c3aed"></i>Renewals</button>
     </div>
   </div>
   <div class="cs-card mb-3" id="alerts-section"><h5><i class="bi bi-bell-fill me-2 text-warning"></i>Alerts</h5><div id="alerts-container"></div></div>
@@ -4679,8 +4706,8 @@ function resetTenantChecklist(tenantId,listKey){
 }
 
 /* ─── APP VERSION ─── */
-const APP_VERSION='20260315001';
-const APP_CHANGELOG='Quality & security update: XSS protection on all user data, full keyboard navigation in sidebar, skip-to-content link, ARIA labels on action buttons, mobile table scroll fix, touch target improvements, dark mode gaps fixed (chips, doc icons, events card), CSS tokens expanded, search debounce for smoother typing, prefers-reduced-motion support, backup/settings duplication cleaned up.';
+const APP_VERSION='20260315002';
+const APP_CHANGELOG='Visual polish: dashboard stat cards now have color-coded top borders per stat type, quick action icons get tinted pill backgrounds, sidebar labels brighter, page header icons blue-tinted, work order numbers styled in brand blue. Plus all previous security and accessibility fixes.';
 
 /* ─── VACANCIES ─── */
 const VAC_STATUS_LABELS={'vacant':'Vacant — Available Now','notice-given':'Notice Given','cleaning':'Cleaning / Turnover','repairs':'Under Repair','leased':'Leased — Not Occupied'};
