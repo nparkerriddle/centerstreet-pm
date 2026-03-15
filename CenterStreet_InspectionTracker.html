@@ -6,7 +6,7 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
 <style>
-:root{--navy:#1a3a5c;--blue:#2e6da4;--light:#f0f4f8;--teal:#0d9488;--amber:#d97706;}
+:root{--navy:#1a3a5c;--blue:#2e6da4;--light:#f0f4f8;--teal:#0d9488;--amber:#d97706;--success:#22c55e;--warning:#f59e0b;--danger:#e05c5c;--text-muted:#6b7280;--border:#e5e7eb;--bg-subtle:#f9fafb;--bg-card:#fff;}
 html,body{height:100%;margin:0;padding:0;font-family:'Segoe UI',Arial,sans-serif;background:var(--light);}
 body{display:flex;}
 #sidebar{width:220px;min-width:220px;background:var(--navy);color:#fff;display:flex;flex-direction:column;height:100vh;position:sticky;top:0;overflow-y:auto;}
@@ -50,8 +50,8 @@ body{display:flex;}
 .alert-row .alert-unit{font-weight:700;color:var(--navy);font-size:.85rem;}
 .alert-row .alert-msg{font-size:.8rem;color:#374151;}
 .alert-row .alert-detail{font-size:.74rem;color:#6b7280;}
-.cs-table{border-radius:10px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.08);background:#fff;}
-.cs-table table{margin:0;}
+.cs-table{border-radius:10px;overflow-x:auto;box-shadow:0 1px 4px rgba(0,0,0,.08);background:#fff;}
+.cs-table table{margin:0;min-width:500px;}
 .cs-table thead th{background:var(--navy);color:#fff;font-weight:600;font-size:.8rem;border:none;padding:9px 11px;}
 .cs-table tbody tr:hover{background:#f8fafc;}
 .cs-table td,.cs-table th{vertical-align:middle;font-size:.835rem;padding:7px 11px;}
@@ -240,6 +240,7 @@ body{display:flex;}
 [data-theme="dark"] .list-group-item{background:#283548;border-color:#374151;color:#e5e7eb;}
 [data-theme="dark"] .bg-light{background:#283548!important;}
 @media(max-width:768px){#sidebar{width:52px;min-width:52px;}#sidebar .brand-text,#sidebar nav a span,#sidebar .nav-lbl{display:none;}#main-content{padding:12px;}}
+@media(hover:none),(pointer:coarse){.btn-sm{min-height:38px;min-width:38px;}.cs-table td .btn-sm{min-height:36px;min-width:36px;padding:4px 8px;}}
 /* ── Documents ── */
 .doc-card{background:#fff;border-radius:8px;border:1px solid #e5e7eb;padding:13px 15px;display:flex;align-items:center;gap:12px;transition:box-shadow .15s;margin-bottom:8px;}
 .doc-card:hover{box-shadow:0 2px 8px rgba(0,0,0,.1);}
@@ -278,9 +279,29 @@ body{display:flex;}
 [data-theme="dark"] .cl-footer{border-color:#374151;}
 [data-theme="dark"] .cl-item-text{color:#d1d5db;}[data-theme="dark"] .cl-item-text.done{color:#6b7280;}
 [data-theme="dark"] .cl-title{color:#93c5fd;}
+/* ── Dark mode: previously missing components ── */
+[data-theme="dark"] .rec-item{background:#1e3a4a;border-color:#1d4e6e;}
+[data-theme="dark"] .rec-item .rec-name{color:#7dd3fc;}
+[data-theme="dark"] .rec-item .rec-meta{color:#38bdf8;}
+[data-theme="dark"] .chip-pets{background:rgba(245,158,11,.3);border-color:rgba(245,158,11,.5);color:#fcd34d;}
+[data-theme="dark"] .chip-parking{background:rgba(59,130,246,.3);border-color:rgba(59,130,246,.5);color:#93c5fd;}
+[data-theme="dark"] .chip-storage{background:rgba(107,114,128,.3);border-color:rgba(107,114,128,.4);color:#d1d5db;}
+[data-theme="dark"] .chip-mailbox{background:rgba(16,185,129,.3);border-color:rgba(16,185,129,.4);color:#6ee7b7;}
+[data-theme="dark"] .chip-vehicle{background:rgba(167,139,250,.3);border-color:rgba(167,139,250,.4);color:#c4b5fd;}
+[data-theme="dark"] .chip-violation{background:rgba(239,68,68,.3);border-color:rgba(239,68,68,.4);color:#fca5a5;}
+[data-theme="dark"] .doc-icon-lease{background:rgba(59,130,246,.2);color:#93c5fd;}
+[data-theme="dark"] .doc-icon-notice{background:rgba(245,158,11,.2);color:#fcd34d;}
+[data-theme="dark"] .doc-icon-policy{background:rgba(139,92,246,.2);color:#c4b5fd;}
+[data-theme="dark"] .doc-icon-template{background:rgba(16,185,129,.2);color:#6ee7b7;}
+[data-theme="dark"] .doc-icon-other{background:#283548;color:#9ca3af;}
+[data-theme="dark"] :root{--bg-card:#1f2937;--bg-subtle:#283548;--border:#374151;--text-muted:#9ca3af;}
+.events-ideas-card{background:linear-gradient(135deg,#fffbeb 0%,#fef9c3 100%);border:1px solid #fde68a;}
+[data-theme="dark"] .events-ideas-card{background:#292108;border-color:#44370a;}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;}}
 </style>
 </head>
 <body>
+<a href="#main-content" style="position:absolute;left:-9999px;top:4px;z-index:99999;background:#fff;color:#1a3a5c;padding:8px 16px;border-radius:6px;font-weight:600;font-size:.875rem;text-decoration:none;" onfocus="this.style.left='4px'" onblur="this.style.left='-9999px'">Skip to main content</a>
 
 <div id="sidebar">
   <div class="brand">
@@ -297,30 +318,30 @@ body{display:flex;}
   </div>
   <nav id="sidebar-nav">
     <div class="nav-lbl">Main</div>
-    <a id="nav-dashboard" onclick="showPage('dashboard')" class="active"><i class="bi bi-grid-1x2-fill"></i><span>Dashboard</span></a>
-    <a id="nav-tenants" onclick="showPage('tenants')"><i class="bi bi-people-fill"></i><span>Tenants</span></a>
-    <a id="nav-candidates" onclick="showPage('candidates')"><i class="bi bi-person-plus-fill" style="color:#a78bfa"></i><span>Candidates</span></a>
-    <a id="nav-prev-tenants" onclick="showPage('prev-tenants')"><i class="bi bi-person-dash-fill" style="color:#9ca3af"></i><span>Previous Tenants</span></a>
+    <a id="nav-dashboard" href="#" onclick="showPage('dashboard');return false" onkeydown="if(event.key==='Enter'||event.key===' '){showPage('dashboard');event.preventDefault();}" tabindex="0" class="active" title="Dashboard"><i class="bi bi-grid-1x2-fill"></i><span>Dashboard</span></a>
+    <a id="nav-tenants" href="#" onclick="showPage('tenants');return false" onkeydown="if(event.key==='Enter'||event.key===' '){showPage('tenants');event.preventDefault();}" tabindex="0" title="Tenants"><i class="bi bi-people-fill"></i><span>Tenants</span></a>
+    <a id="nav-candidates" href="#" onclick="showPage('candidates');return false" onkeydown="if(event.key==='Enter'||event.key===' '){showPage('candidates');event.preventDefault();}" tabindex="0" title="Candidates"><i class="bi bi-person-plus-fill" style="color:#a78bfa"></i><span>Candidates</span></a>
+    <a id="nav-prev-tenants" href="#" onclick="showPage('prev-tenants');return false" onkeydown="if(event.key==='Enter'||event.key===' '){showPage('prev-tenants');event.preventDefault();}" tabindex="0" title="Previous Tenants"><i class="bi bi-person-dash-fill" style="color:#9ca3af"></i><span>Previous Tenants</span></a>
     <div class="sidebar-divider"></div>
     <div class="nav-lbl">Records</div>
-    <a id="nav-inspections" onclick="showPage('inspections')"><i class="bi bi-clipboard-check-fill"></i><span>Inspections</span></a>
-    <a id="nav-invoices" onclick="showPage('invoices')"><i class="bi bi-receipt-cutoff"></i><span>Invoices</span></a>
-    <a id="nav-documents" onclick="showPage('documents')"><i class="bi bi-folder2-open"></i><span>Documents</span></a>
-    <a id="nav-checklists" onclick="showPage('checklists')"><i class="bi bi-check2-square"></i><span>Checklists</span></a>
-    <a id="nav-events" onclick="showPage('events')"><i class="bi bi-calendar-heart-fill" style="color:#f87171"></i><span>Events</span></a>
+    <a id="nav-inspections" href="#" onclick="showPage('inspections');return false" onkeydown="if(event.key==='Enter'||event.key===' '){showPage('inspections');event.preventDefault();}" tabindex="0" title="Inspections"><i class="bi bi-clipboard-check-fill"></i><span>Inspections</span></a>
+    <a id="nav-invoices" href="#" onclick="showPage('invoices');return false" onkeydown="if(event.key==='Enter'||event.key===' '){showPage('invoices');event.preventDefault();}" tabindex="0" title="Invoices"><i class="bi bi-receipt-cutoff"></i><span>Invoices</span></a>
+    <a id="nav-documents" href="#" onclick="showPage('documents');return false" onkeydown="if(event.key==='Enter'||event.key===' '){showPage('documents');event.preventDefault();}" tabindex="0" title="Documents"><i class="bi bi-folder2-open"></i><span>Documents</span></a>
+    <a id="nav-checklists" href="#" onclick="showPage('checklists');return false" onkeydown="if(event.key==='Enter'||event.key===' '){showPage('checklists');event.preventDefault();}" tabindex="0" title="Checklists"><i class="bi bi-check2-square"></i><span>Checklists</span></a>
+    <a id="nav-events" href="#" onclick="showPage('events');return false" onkeydown="if(event.key==='Enter'||event.key===' '){showPage('events');event.preventDefault();}" tabindex="0" title="Events"><i class="bi bi-calendar-heart-fill" style="color:#f87171"></i><span>Events</span></a>
     <div class="sidebar-divider"></div>
     <div class="nav-lbl">Views</div>
-    <a id="nav-maintenance" onclick="showPage('maintenance')"><i class="bi bi-tools"></i><span>Maintenance</span></a>
-    <a id="nav-violations" onclick="showPage('violations')"><i class="bi bi-exclamation-octagon-fill"></i><span>Violations</span></a>
-    <a id="nav-directory" onclick="showPage('directory')"><i class="bi bi-telephone-fill"></i><span>Directory</span></a>
-    <a id="nav-renewals" onclick="showPage('renewals')"><i class="bi bi-calendar-check-fill"></i><span>Renewals</span></a>
-    <a id="nav-vacancies" onclick="showPage('vacancies')"><i class="bi bi-door-open-fill" style="color:#f87171"></i><span>Vacancies</span></a>
+    <a id="nav-maintenance" href="#" onclick="showPage('maintenance');return false" onkeydown="if(event.key==='Enter'||event.key===' '){showPage('maintenance');event.preventDefault();}" tabindex="0" title="Maintenance"><i class="bi bi-tools"></i><span>Maintenance</span></a>
+    <a id="nav-violations" href="#" onclick="showPage('violations');return false" onkeydown="if(event.key==='Enter'||event.key===' '){showPage('violations');event.preventDefault();}" tabindex="0" title="Violations"><i class="bi bi-exclamation-octagon-fill"></i><span>Violations</span></a>
+    <a id="nav-directory" href="#" onclick="showPage('directory');return false" onkeydown="if(event.key==='Enter'||event.key===' '){showPage('directory');event.preventDefault();}" tabindex="0" title="Directory"><i class="bi bi-telephone-fill"></i><span>Directory</span></a>
+    <a id="nav-renewals" href="#" onclick="showPage('renewals');return false" onkeydown="if(event.key==='Enter'||event.key===' '){showPage('renewals');event.preventDefault();}" tabindex="0" title="Renewals"><i class="bi bi-calendar-check-fill"></i><span>Renewals</span></a>
+    <a id="nav-vacancies" href="#" onclick="showPage('vacancies');return false" onkeydown="if(event.key==='Enter'||event.key===' '){showPage('vacancies');event.preventDefault();}" tabindex="0" title="Vacancies"><i class="bi bi-door-open-fill" style="color:#f87171"></i><span>Vacancies</span></a>
     <div class="sidebar-divider"></div>
     <div class="nav-lbl">System</div>
-    <a id="nav-backup" onclick="showPage('backup')"><i class="bi bi-cloud-download-fill"></i><span>Backup</span></a>
-    <a id="nav-settings" onclick="showPage('settings')"><i class="bi bi-gear-fill"></i><span>Settings</span></a>
-    <a id="nav-help" onclick="startTutorial()"><i class="bi bi-question-circle-fill"></i><span>Help</span></a>
-    <a id="nav-feature-request" onclick="openFeatureRequestModal()" style="color:#a78bfa"><i class="bi bi-lightbulb-fill"></i><span>Feature Request</span></a>
+    <a id="nav-backup" href="#" onclick="showPage('backup');return false" onkeydown="if(event.key==='Enter'||event.key===' '){showPage('backup');event.preventDefault();}" tabindex="0" title="Backup & Export"><i class="bi bi-cloud-download-fill"></i><span>Backup</span></a>
+    <a id="nav-settings" href="#" onclick="showPage('settings');return false" onkeydown="if(event.key==='Enter'||event.key===' '){showPage('settings');event.preventDefault();}" tabindex="0" title="Settings"><i class="bi bi-gear-fill"></i><span>Settings</span></a>
+    <a id="nav-help" href="#" onclick="startTutorial();return false" onkeydown="if(event.key==='Enter'||event.key===' '){startTutorial();event.preventDefault();}" tabindex="0" title="Help / Tutorial"><i class="bi bi-question-circle-fill"></i><span>Help</span></a>
+    <a id="nav-feature-request" href="#" onclick="openFeatureRequestModal();return false" onkeydown="if(event.key==='Enter'||event.key===' '){openFeatureRequestModal();event.preventDefault();}" tabindex="0" title="Feature Request" style="color:#a78bfa"><i class="bi bi-lightbulb-fill"></i><span>Feature Request</span></a>
   </nav>
 </div>
 <div id="search-results-panel" class="search-results-panel"></div>
@@ -363,7 +384,7 @@ body{display:flex;}
     <button class="btn btn-navy" onclick="openTenantModal()"><i class="bi bi-plus-lg me-1"></i>Add Tenant</button>
   </div>
   <div class="filter-bar">
-    <input type="text" class="form-control" id="tenant-search" placeholder="Search name, unit, email..." style="max-width:220px" oninput="renderTenants()">
+    <input type="text" class="form-control" id="tenant-search" placeholder="Search name, unit, email..." style="max-width:220px" oninput="_debouncedRenderTenants()">
     <select class="form-select" id="tenant-pets-filter" style="max-width:130px" onchange="renderTenants()"><option value="">All Tenants</option><option value="yes">🐾 Has Pets</option><option value="no">No Pets</option></select>
     <select class="form-select" id="tenant-parking-filter" style="max-width:140px" onchange="renderTenants()"><option value="">All Parking</option><option value="yes">🅿️ Has Parking</option><option value="no">No Parking</option></select>
     <select class="form-select" id="tenant-lease-filter" style="max-width:150px" onchange="renderTenants()"><option value="">All Lease Status</option><option value="active">Active</option><option value="expiring">Expiring Soon</option><option value="expired">Expired</option></select>
@@ -386,7 +407,7 @@ body{display:flex;}
     <button class="btn btn-navy" onclick="openInspectionModal()"><i class="bi bi-plus-lg me-1"></i>New Inspection</button>
   </div>
   <div class="filter-bar">
-    <input type="text" class="form-control" id="insp-search" placeholder="Search unit or tenant..." style="max-width:220px" oninput="renderInspections()">
+    <input type="text" class="form-control" id="insp-search" placeholder="Search unit or tenant..." style="max-width:220px" oninput="_debouncedRenderInspections()">
     <select class="form-select" id="insp-status-filter" style="max-width:140px" onchange="renderInspections()"><option value="">All Statuses</option><option value="pending">Pending</option><option value="sent">Sent</option><option value="received">Received</option><option value="complete">Complete</option></select>
     <select class="form-select" id="insp-type-filter" style="max-width:160px" onchange="renderInspections()"><option value="">All Types</option><option value="semi-annual">Semi-Annual</option><option value="move-in">Move-In</option><option value="move-out">Move-Out</option><option value="compliance">Compliance</option></select>
   </div>
@@ -400,7 +421,7 @@ body{display:flex;}
     <button class="btn btn-navy" onclick="openCandidateModal()"><i class="bi bi-plus-lg me-1"></i>Add Candidate</button>
   </div>
   <div class="filter-bar">
-    <input type="text" class="form-control" id="cand-search" placeholder="Search name, unit, phone..." style="max-width:240px" oninput="renderCandidates()">
+    <input type="text" class="form-control" id="cand-search" placeholder="Search name, unit, phone..." style="max-width:240px" oninput="_debouncedRenderCandidates()">
     <select class="form-select" id="cand-status-filter" style="max-width:160px" onchange="renderCandidates()">
       <option value="">All Statuses</option>
       <option value="new">New</option>
@@ -418,7 +439,7 @@ body{display:flex;}
 <div id="page-prev-tenants" class="page" style="display:none">
   <div class="page-header"><h2><i class="bi bi-person-dash-fill me-2" style="color:#9ca3af"></i>Previous Tenants</h2><p>Archived tenant records — moved out or no longer active</p></div>
   <div class="filter-bar">
-    <input type="text" class="form-control" id="prev-search" placeholder="Search name, unit..." style="max-width:240px" oninput="renderPrevTenants()">
+    <input type="text" class="form-control" id="prev-search" placeholder="Search name, unit..." style="max-width:240px" oninput="_debouncedRenderPrevTenants()">
   </div>
   <div id="prev-tenants-container"></div>
 </div>
@@ -461,7 +482,7 @@ body{display:flex;}
   </div>
   <!-- Filters + Table -->
   <div class="filter-bar">
-    <input type="text" class="form-control" id="inv-search" placeholder="Search title, vendor, unit..." style="max-width:220px" oninput="renderInvoices()">
+    <input type="text" class="form-control" id="inv-search" placeholder="Search title, vendor, unit..." style="max-width:220px" oninput="_debouncedRenderInvoices()">
     <select class="form-select" id="inv-status-filter" style="max-width:130px" onchange="renderInvoices()"><option value="">All Status</option><option value="unpaid">Unpaid</option><option value="paid">Paid</option><option value="overdue">Overdue</option></select>
     <select class="form-select" id="inv-cat-filter" style="max-width:150px" onchange="renderInvoices()"><option value="">All Categories</option><option value="maintenance">Maintenance</option><option value="repair">Repair</option><option value="utilities">Utilities</option><option value="cleaning">Cleaning</option><option value="other">Other</option></select>
   </div>
@@ -475,7 +496,7 @@ body{display:flex;}
     <button class="btn btn-navy" onclick="openDocModal()"><i class="bi bi-plus-lg me-1"></i>Upload Document</button>
   </div>
   <div class="filter-bar">
-    <input type="text" class="form-control" id="doc-search" placeholder="Search documents..." style="max-width:220px" oninput="renderDocuments()">
+    <input type="text" class="form-control" id="doc-search" placeholder="Search documents..." style="max-width:220px" oninput="_debouncedRenderDocuments()">
     <select class="form-select" id="doc-cat-filter" style="max-width:150px" onchange="renderDocuments()">
       <option value="">All Categories</option>
       <option value="lease">Lease</option>
@@ -523,7 +544,7 @@ body{display:flex;}
       </div>
     </div>
     <div class="col-lg-5">
-      <div class="cs-card" style="height:100%;background:linear-gradient(135deg,#fffbeb 0%,#fef9c3 100%);border:1px solid #fde68a;">
+      <div class="cs-card events-ideas-card" style="height:100%;">
         <h5><i class="bi bi-lightbulb-fill me-2" style="color:#d97706"></i>Event Ideas</h5>
         <div id="events-ideas-panel">
           <p class="text-muted small mb-1">Click any event on the left to see ideas and inspiration for that occasion.</p>
@@ -623,7 +644,7 @@ body{display:flex;}
     <button class="btn btn-outline-secondary no-print" onclick="window.print()"><i class="bi bi-printer-fill me-1"></i>Print Directory</button>
   </div>
   <div class="filter-bar no-print">
-    <input type="text" class="form-control" id="dir-search" placeholder="Search name, unit, phone..." style="max-width:240px" oninput="renderDirectory()">
+    <input type="text" class="form-control" id="dir-search" placeholder="Search name, unit, phone..." style="max-width:240px" oninput="_debouncedRenderDirectory()">
   </div>
   <div id="directory-container"></div>
 </div>
@@ -685,17 +706,16 @@ body{display:flex;}
       </div>
     </div>
     <div class="cs-card" style="border-left:4px solid #22c55e;">
-      <h5><i class="bi bi-cloud-upload-fill me-2 text-success"></i>Import Tenants from CSV / Excel</h5>
-      <p class="text-muted mb-2" style="font-size:.83rem;">Bulk-add all your current tenants at once by uploading a spreadsheet. Download the template first to see the expected columns — column order and exact names are flexible. Existing tenants are <strong>not</strong> overwritten; only new rows are added.</p>
+      <h5><i class="bi bi-cloud-upload-fill me-2 text-success"></i>Import from Spreadsheet</h5>
+      <p class="text-muted mb-2" style="font-size:.83rem;">Bulk-import tenants or inspection records from CSV / Excel. For full import options including paper document OCR, see <a href="#" onclick="showPage('settings');return false">Settings → Import</a>.</p>
       <div class="d-flex gap-2 flex-wrap align-items-center mb-3">
-        <button class="btn btn-outline-secondary btn-sm" onclick="downloadTemplate('tenants')"><i class="bi bi-download me-1"></i>Download Tenant Template (.csv)</button>
-        <span class="text-muted" style="font-size:.78rem;">↑ Fill this in and upload it below</span>
+        <button class="btn btn-outline-secondary btn-sm" onclick="downloadTemplate('tenants')"><i class="bi bi-download me-1"></i>Tenant Template (.csv)</button>
+        <button class="btn btn-outline-secondary btn-sm" onclick="downloadTemplate('inspections')"><i class="bi bi-download me-1"></i>Inspection Template (.csv)</button>
       </div>
       <label class="btn btn-navy mb-0" style="cursor:pointer">
-        <i class="bi bi-upload me-1"></i>Choose CSV / Excel File to Import
+        <i class="bi bi-upload me-1"></i>Choose CSV / Excel File
         <input type="file" accept=".csv,.xlsx,.xls" style="display:none" onchange="openTenantCSVImport(this)">
       </label>
-      <div class="mt-2 text-muted" style="font-size:.77rem;">Supported columns: Unit, Name, Email, Phone, DOB, Rent, Deposit, Move-In, Lease Start, Lease End, Pets, Parking. A preview will appear before anything is saved.</div>
     </div>
     <div class="cs-card"><h5><i class="bi bi-hdd-stack-fill me-2"></i>Storage Usage</h5><div id="storage-usage-bar"></div></div>
     <div class="cs-card"><h5><i class="bi bi-clock-history me-2"></i>Backup Log</h5><div id="backup-log-container" style="font-size:.81rem;"></div></div>
@@ -737,13 +757,7 @@ body{display:flex;}
           <button class="btn btn-outline-secondary btn-sm" onclick="writeAutoBackup()" title="Save now"><i class="bi bi-save me-1"></i>Save Now</button>
           <button class="btn btn-outline-danger btn-sm" onclick="clearBackupFolder()" title="Forget folder"><i class="bi bi-x-lg me-1"></i>Clear</button>
         </div>
-        <hr style="margin:12px 0;">
-        <div class="fw-semibold mb-1" style="font-size:.83rem;">Restore from Backup</div>
-        <p class="text-muted mb-2" style="font-size:.8rem;">Load a previously saved <code>cs_auto_backup.json</code> or any manual backup file. <strong>This will overwrite current data.</strong></p>
-        <label class="btn btn-outline-secondary btn-sm mb-0" style="cursor:pointer;">
-          <i class="bi bi-upload me-1"></i>Load Backup File
-          <input type="file" accept=".json" style="display:none" onchange="restoreBackup(this)">
-        </label>
+        <div class="text-muted mt-2" style="font-size:.8rem;"><i class="bi bi-info-circle me-1"></i>To restore from a backup file, go to <a href="#" onclick="showPage('backup');return false">Backup &amp; Export</a>.</div>
       </div>
       <button class="btn btn-navy" onclick="saveSettings()"><i class="bi bi-check2-circle me-1"></i>Save Settings</button>
       <div id="settings-saved" class="text-success mt-2" style="display:none;font-size:.86rem;"><i class="bi bi-check-circle-fill me-1"></i>Settings saved!</div>
@@ -1569,7 +1583,16 @@ function daysDiff(a,b){return Math.round((new Date(b+'T12:00:00')-new Date(a+'T1
 function fmtMoney(v){if(!v)return'—';const n=parseFloat(String(v).replace(/[^0-9.]/g,''));return isNaN(n)?v:'$'+n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});}
 function statusBadge(s){const c={pending:'badge-pending',sent:'badge-sent',received:'badge-received',complete:'badge-complete',unpaid:'badge-unpaid',paid:'badge-paid',overdue:'badge-overdue',open:'badge-open',resolved:'badge-resolved','in-progress':'badge-in-progress',assigned:'badge-assigned','parts-ordered':'badge-parts-ordered','pending-approval':'badge-pending-approval'};return`<span class="badge ${c[s]||'badge-pending'}">${s||'—'}</span>`;}
 function typeLabel(t){return{semi_annual:'Semi-Annual','semi-annual':'Semi-Annual','move-in':'Move-In','move-out':'Move-Out',compliance:'Compliance'}[t]||t;}
-function showToast(msg,type='success'){const el=document.getElementById('toast-el');el.className=`toast align-items-center text-white border-0 bg-${type==='error'?'danger':'success'}`;document.getElementById('toast-body').textContent=msg;bootstrap.Toast.getOrCreateInstance(el,{delay:3000}).show();}
+function h(s){return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function debounce(fn,ms){let t;return function(...a){clearTimeout(t);t=setTimeout(()=>fn.apply(this,a),ms);};}
+const _debouncedRenderTenants=debounce(()=>renderTenants(),150);
+const _debouncedRenderInspections=debounce(()=>renderInspections(),150);
+const _debouncedRenderInvoices=debounce(()=>renderInvoices(),150);
+const _debouncedRenderDocuments=debounce(()=>renderDocuments(),150);
+const _debouncedRenderDirectory=debounce(()=>renderDirectory(),150);
+const _debouncedRenderCandidates=debounce(()=>renderCandidates(),150);
+const _debouncedRenderPrevTenants=debounce(()=>renderPrevTenants(),150);
+function showToast(msg,type='success'){const el=document.getElementById('toast-el');el.className=`toast align-items-center text-white border-0 bg-${type==='error'?'danger':'success'}`;document.getElementById('toast-body').textContent=(type==='error'?'✗ ':'✓ ')+msg;bootstrap.Toast.getOrCreateInstance(el,{delay:3000}).show();}
 
 function computeAlerts(){
   const tenants=DB.tenants().filter(t=>t.active!==false);
@@ -1644,6 +1667,8 @@ function showPage(name){
   document.querySelectorAll('#sidebar-nav a').forEach(a=>a.classList.remove('active'));
   const pg=document.getElementById('page-'+name);if(pg)pg.style.display='';
   const nav=document.getElementById('nav-'+name);if(nav)nav.classList.add('active');
+  const pageTitles={dashboard:'Dashboard',tenants:'Tenants',inspections:'Inspections',invoices:'Invoices',documents:'Documents',checklists:'Checklists',events:'Events',maintenance:'Maintenance',violations:'Violations',directory:'Directory',renewals:'Renewals',candidates:'Candidates','prev-tenants':'Previous Tenants',vacancies:'Vacancies',backup:'Backup & Export',settings:'Settings','tenant-file':'Tenant File',detail:'Inspection Detail'};
+  document.title=(pageTitles[name]||name)+' — Center Street PM';
   if(name==='dashboard')renderDashboard();
   if(name==='tenants')renderTenants();
   if(name==='inspections')renderInspections();
@@ -1697,10 +1722,10 @@ function renderDashboard(){
   document.getElementById('stat-open-maint').textContent=allMaint.length;
   const container=document.getElementById('alerts-container');
   if(alerts.length===0){container.innerHTML=`<div class="alert-row alert-row-ok"><span class="alert-icon text-success"><i class="bi bi-check-circle-fill"></i></span><div class="alert-body"><div class="alert-unit">All Clear</div><div class="alert-msg text-success">No alerts at this time. All tenants are up to date.</div></div></div>`;}
-  else{container.innerHTML=alerts.map(a=>{const icon=a.level==='danger'?'<i class="bi bi-exclamation-circle-fill text-danger"></i>':a.level==='info'?'<i class="bi bi-heart-fill text-primary"></i>':'<i class="bi bi-exclamation-triangle-fill text-warning"></i>';let btn='';if(a.type==='compliance_open'&&a.insp_id){btn=`<button class="btn btn-sm btn-outline-secondary" onclick="renderDetail(${a.insp_id});showPage('detail')"><i class="bi bi-eye"></i></button>`;}else if(a.type==='birthday'||a.type==='anniversary'){btn=`<button class="btn btn-sm btn-outline-primary" onclick="openTenantFile(${a.tenant_id})"><i class="bi bi-person-fill"></i></button>`;}else if(a.type==='event_upcoming'){btn=`<button class="btn btn-sm btn-outline-secondary" onclick="showPage('events')"><i class="bi bi-calendar-heart-fill"></i></button>`;}else{btn=`<button class="btn btn-sm btn-navy" onclick="openInspectionModal(${a.tenant_id})"><i class="bi bi-plus-lg"></i></button>`;}return`<div class="alert-row alert-row-${a.level}"><span class="alert-icon">${icon}</span><div class="alert-body"><div class="alert-unit">Unit ${a.unit} — ${a.name}</div><div class="alert-msg">${a.msg}</div><div class="alert-detail">${a.detail}</div></div><div class="flex-shrink-0">${btn}</div></div>`;}).join('');}
+  else{container.innerHTML=alerts.map(a=>{const icon=a.level==='danger'?'<i class="bi bi-exclamation-circle-fill text-danger"></i>':a.level==='info'?'<i class="bi bi-heart-fill text-primary"></i>':'<i class="bi bi-exclamation-triangle-fill text-warning"></i>';let btn='';if(a.type==='compliance_open'&&a.insp_id){btn=`<button class="btn btn-sm btn-outline-secondary" onclick="renderDetail(${a.insp_id});showPage('detail')"><i class="bi bi-eye"></i></button>`;}else if(a.type==='birthday'||a.type==='anniversary'){btn=`<button class="btn btn-sm btn-outline-primary" onclick="openTenantFile(${a.tenant_id})"><i class="bi bi-person-fill"></i></button>`;}else if(a.type==='event_upcoming'){btn=`<button class="btn btn-sm btn-outline-secondary" onclick="showPage('events')"><i class="bi bi-calendar-heart-fill"></i></button>`;}else{btn=`<button class="btn btn-sm btn-navy" onclick="openInspectionModal(${a.tenant_id})"><i class="bi bi-plus-lg"></i></button>`;}return`<div class="alert-row alert-row-${a.level}"><span class="alert-icon">${icon}</span><div class="alert-body"><div class="alert-unit">Unit ${h(a.unit)} — ${h(a.name)}</div><div class="alert-msg">${h(a.msg)}</div><div class="alert-detail">${h(a.detail)}</div></div><div class="flex-shrink-0">${btn}</div></div>`;}).join('');}
   const sorted=[...inspections].sort((a,b)=>((b.created_at||'')>(a.created_at||''))?1:-1).slice(0,8);
   const tbody=document.getElementById('recent-inspections-body');
-  tbody.innerHTML=sorted.length===0?`<tr><td colspan="6" class="no-data">No inspections yet.</td></tr>`:sorted.map(i=>`<tr><td><strong>${i.unit_number||'—'}</strong></td><td>${i.tenant_name||'—'}</td><td>${typeLabel(i.type)}</td><td>${statusBadge(i.status)}</td><td>${fmtDate(i.date_sent)}</td><td><button class="btn btn-sm btn-outline-secondary" onclick="renderDetail(${i.id});showPage('detail')"><i class="bi bi-eye"></i></button></td></tr>`).join('');
+  tbody.innerHTML=sorted.length===0?`<tr><td colspan="6" class="no-data">No inspections yet.</td></tr>`:sorted.map(i=>`<tr><td><strong>${h(i.unit_number)||'—'}</strong></td><td>${h(i.tenant_name)||'—'}</td><td>${typeLabel(i.type)}</td><td>${statusBadge(i.status)}</td><td>${fmtDate(i.date_sent)}</td><td><button class="btn btn-sm btn-outline-secondary" aria-label="View inspection for unit ${h(i.unit_number||'')}" onclick="renderDetail(${i.id});showPage('detail')"><i class="bi bi-eye"></i></button></td></tr>`).join('');
 }
 
 function renderTenants(){
@@ -1728,23 +1753,23 @@ function renderTenants(){
     const lastDate=completed[0]?(completed[0].inspection_date||completed[0].created_at?.slice(0,10)):null;
     const lastCell=lastDate?`<span class="text-success">${fmtDate(lastDate)}</span>`:`<span class="text-danger fw-semibold">None</span>`;
     const amenities=[];
-    if(t.has_pets)amenities.push(`<span class="chip-sm chip-sm-pets"><i class="bi bi-heart-fill"></i>${t.pet_type||'Pet'}</span>`);
-    if(t.has_parking_pass)amenities.push(`<span class="chip-sm chip-sm-parking"><i class="bi bi-p-square-fill"></i>${t.parking_stall||t.parking_pass_number||'Pass'}</span>`);
-    if(t.storage_unit)amenities.push(`<span class="chip-sm chip-sm-storage"><i class="bi bi-box-seam-fill"></i>${t.storage_unit}</span>`);
+    if(t.has_pets)amenities.push(`<span class="chip-sm chip-sm-pets"><i class="bi bi-heart-fill"></i>${h(t.pet_type||'Pet')}</span>`);
+    if(t.has_parking_pass)amenities.push(`<span class="chip-sm chip-sm-parking"><i class="bi bi-p-square-fill"></i>${h(t.parking_stall||t.parking_pass_number||'Pass')}</span>`);
+    if(t.storage_unit)amenities.push(`<span class="chip-sm chip-sm-storage"><i class="bi bi-box-seam-fill"></i>${h(t.storage_unit)}</span>`);
     return`<tr>
-      <td><strong>${t.unit_number}</strong></td>
-      <td>${t.name}</td>
-      <td><a href="mailto:${t.email}">${t.email||'—'}</a></td>
-      <td>${t.phone||'—'}</td>
+      <td><strong>${h(t.unit_number)}</strong></td>
+      <td>${h(t.name)}</td>
+      <td><a href="mailto:${h(t.email)}">${h(t.email)||'—'}</a></td>
+      <td>${h(t.phone)||'—'}</td>
       <td>${fmtMoney(t.rent_amount)}</td>
       <td>${fmtDate(t.lease_end)}</td>
       <td>${lastCell}</td>
       <td>${amenities.join(' ')||'—'}</td>
       <td>
-        <button class="btn btn-sm btn-outline-primary me-1" onclick="openTenantFile(${t.id})" title="Open File"><i class="bi bi-folder2-open"></i></button>
-        <button class="btn btn-sm btn-outline-secondary me-1" onclick="openTenantModal(${t.id})" title="Edit"><i class="bi bi-pencil-fill"></i></button>
-        <button class="btn btn-sm btn-outline-secondary me-1" onclick="archiveTenant(${t.id})" title="Move Out / Archive"><i class="bi bi-box-arrow-right"></i></button>
-        <button class="btn btn-sm btn-outline-danger" onclick="deleteTenant(${t.id})" title="Delete"><i class="bi bi-trash-fill"></i></button>
+        <button class="btn btn-sm btn-outline-primary me-1" onclick="openTenantFile(${t.id})" aria-label="Open file for ${h(t.name)}" title="Open File"><i class="bi bi-folder2-open"></i></button>
+        <button class="btn btn-sm btn-outline-secondary me-1" onclick="openTenantModal(${t.id})" aria-label="Edit ${h(t.name)}" title="Edit"><i class="bi bi-pencil-fill"></i></button>
+        <button class="btn btn-sm btn-outline-secondary me-1" onclick="archiveTenant(${t.id})" aria-label="Move out / archive ${h(t.name)}" title="Move Out / Archive"><i class="bi bi-box-arrow-right"></i></button>
+        <button class="btn btn-sm btn-outline-danger" onclick="deleteTenant(${t.id})" aria-label="Delete ${h(t.name)}" title="Delete"><i class="bi bi-trash-fill"></i></button>
       </td>
     </tr>`;
   }).join('');
@@ -1761,7 +1786,7 @@ function renderInspections(){
   inspections.sort((a,b)=>((b.created_at||'')>(a.created_at||''))?1:-1);
   const tbody=document.getElementById('inspections-body');
   if(inspections.length===0){tbody.innerHTML=`<tr><td colspan="7" class="no-data">No inspections match your filters.</td></tr>`;return;}
-  tbody.innerHTML=inspections.map(i=>`<tr><td><strong>${i.unit_number||'—'}</strong></td><td>${i.tenant_name||'—'}</td><td>${typeLabel(i.type)}</td><td>${statusBadge(i.status)}</td><td>${fmtDate(i.date_sent)}</td><td>${fmtDate(i.date_received)}</td><td><button class="btn btn-sm btn-outline-secondary me-1" title="Generate Form" onclick="generateForm(${i.id})"><i class="bi bi-file-earmark-arrow-down"></i></button><button class="btn btn-sm btn-outline-secondary" title="View" onclick="renderDetail(${i.id});showPage('detail')"><i class="bi bi-eye"></i></button></td></tr>`).join('');
+  tbody.innerHTML=inspections.map(i=>`<tr><td><strong>${h(i.unit_number)||'—'}</strong></td><td>${h(i.tenant_name)||'—'}</td><td>${typeLabel(i.type)}</td><td>${statusBadge(i.status)}</td><td>${fmtDate(i.date_sent)}</td><td>${fmtDate(i.date_received)}</td><td><button class="btn btn-sm btn-outline-secondary me-1" aria-label="Generate form for unit ${h(i.unit_number||'')}" title="Generate Form" onclick="generateForm(${i.id})"><i class="bi bi-file-earmark-arrow-down"></i></button><button class="btn btn-sm btn-outline-secondary" aria-label="View inspection for unit ${h(i.unit_number||'')}" title="View" onclick="renderDetail(${i.id});showPage('detail')"><i class="bi bi-eye"></i></button></td></tr>`).join('');
 }
 
 let _currentDetailId=null;
@@ -1822,18 +1847,18 @@ function renderInvoices(){
   const tenants=DB.tenants();
   tbody.innerHTML=invoices.map(inv=>{
     const tenant=tenants.find(t=>t.id===inv.tenant_id);
-    const unitTenant=inv.unit_number?(inv.unit_number+(tenant?` — ${tenant.name}`:'')):'—';
+    const unitTenant=inv.unit_number?(h(inv.unit_number)+(tenant?` — ${h(tenant.name)}`:'')):'—';
     return`<tr class="inv-${inv.status}">
-      <td><strong>${inv.title||'—'}</strong></td>
-      <td>${inv.vendor||'—'}</td>
+      <td><strong>${h(inv.title)||'—'}</strong></td>
+      <td>${h(inv.vendor)||'—'}</td>
       <td>${fmtMoney(inv.amount)}</td>
       <td>${fmtDate(inv.due_date)}</td>
       <td>${unitTenant}</td>
-      <td><span class="badge bg-secondary">${inv.category||'other'}</span></td>
+      <td><span class="badge bg-secondary">${h(inv.category||'other')}</span></td>
       <td>${statusBadge(inv.status)}</td>
       <td>
-        <button class="btn btn-sm btn-outline-secondary me-1" onclick="openInvoiceModal(${inv.id})" title="Edit"><i class="bi bi-pencil-fill"></i></button>
-        <button class="btn btn-sm btn-outline-danger" onclick="deleteInvoice(${inv.id})" title="Delete"><i class="bi bi-trash-fill"></i></button>
+        <button class="btn btn-sm btn-outline-secondary me-1" onclick="openInvoiceModal(${inv.id})" aria-label="Edit invoice: ${h(inv.title||'')}" title="Edit"><i class="bi bi-pencil-fill"></i></button>
+        <button class="btn btn-sm btn-outline-danger" onclick="deleteInvoice(${inv.id})" aria-label="Delete invoice: ${h(inv.title||'')}" title="Delete"><i class="bi bi-trash-fill"></i></button>
       </td>
     </tr>`;
   }).join('');
@@ -1925,8 +1950,8 @@ function renderTenantFile(tenantId){
     <div class="tenant-profile-hdr">
       <div class="tenant-avatar">${initials}</div>
       <div class="tenant-hdr-info">
-        <div class="tenant-hdr-name">${tenant.name}</div>
-        <div class="tenant-hdr-sub">Unit ${tenant.unit_number} &nbsp;·&nbsp; ${tenant.email||'—'} &nbsp;·&nbsp; ${tenant.phone||'—'}</div>
+        <div class="tenant-hdr-name">${h(tenant.name)}</div>
+        <div class="tenant-hdr-sub">Unit ${h(tenant.unit_number)} &nbsp;·&nbsp; ${h(tenant.email)||'—'} &nbsp;·&nbsp; ${h(tenant.phone)||'—'}</div>
         <div class="tenant-hdr-badges">${badges.join('')||'<span class="chip chip-storage" style="opacity:.5">No amenities on file</span>'}</div>
       </div>
       <div class="d-flex flex-column gap-2 align-items-end ms-auto">
@@ -1974,27 +1999,27 @@ function renderProfileTab(t){
     const cls=daysLeft<30?'lease-bar-danger':daysLeft<90?'lease-bar-warn':'lease-bar-good';
     leaseBar=`<div class="lease-bar-wrap"><div class="lease-bar-fill ${cls}" style="width:${pct}%"></div></div><div style="font-size:.73rem;color:#6b7280;margin-top:3px;">${daysLeft>0?daysLeft+' days remaining':'Expired'}</div>`;
   }
-  const pet=t.has_pets?`<div class="cs-card"><h5><i class="bi bi-heart-fill text-warning me-2"></i>Pet Information</h5><div class="info-grid"><span class="info-lbl">Type/Breed:</span><span class="info-val">${[t.pet_type,t.pet_breed].filter(Boolean).join(' — ')||'—'}</span><span class="info-lbl">Weight:</span><span class="info-val">${t.pet_weight_lbs?t.pet_weight_lbs+' lbs':'—'}</span><span class="info-lbl">Deposit:</span><span class="info-val">${t.pet_deposit_paid?'<span class="badge bg-success">Collected</span>':'<span class="badge bg-warning text-dark">Not collected</span>'}</span>${t.pet_notes?`<span class="info-lbl">Notes:</span><span class="info-val">${t.pet_notes}</span>`:''}</div></div>`:'';
-  const parking=t.has_parking_pass?`<div class="cs-card"><h5><i class="bi bi-p-square-fill text-primary me-2"></i>Parking Pass</h5><div class="info-grid"><span class="info-lbl">Pass #:</span><span class="info-val fw-semibold">${t.parking_pass_number||'—'}</span><span class="info-lbl">Stall:</span><span class="info-val fw-semibold">${t.parking_stall||'—'}</span></div></div>`:'';
+  const pet=t.has_pets?`<div class="cs-card"><h5><i class="bi bi-heart-fill text-warning me-2"></i>Pet Information</h5><div class="info-grid"><span class="info-lbl">Type/Breed:</span><span class="info-val">${h([t.pet_type,t.pet_breed].filter(Boolean).join(' — '))||'—'}</span><span class="info-lbl">Weight:</span><span class="info-val">${t.pet_weight_lbs?h(t.pet_weight_lbs)+' lbs':'—'}</span><span class="info-lbl">Deposit:</span><span class="info-val">${t.pet_deposit_paid?'<span class="badge bg-success">Collected</span>':'<span class="badge bg-warning text-dark">Not collected</span>'}</span>${t.pet_notes?`<span class="info-lbl">Notes:</span><span class="info-val">${h(t.pet_notes)}</span>`:''}</div></div>`:'';
+  const parking=t.has_parking_pass?`<div class="cs-card"><h5><i class="bi bi-p-square-fill text-primary me-2"></i>Parking Pass</h5><div class="info-grid"><span class="info-lbl">Pass #:</span><span class="info-val fw-semibold">${h(t.parking_pass_number)||'—'}</span><span class="info-lbl">Stall:</span><span class="info-val fw-semibold">${h(t.parking_stall)||'—'}</span></div></div>`:'';
   return`<div class="row g-3">
     <div class="col-lg-6">
       <div class="cs-card"><h5><i class="bi bi-person-vcard-fill me-2"></i>Contact & Lease</h5><div class="info-grid">
-        <span class="info-lbl">Unit:</span><span class="info-val fw-bold">${t.unit_number}</span>
-        <span class="info-lbl">Name:</span><span class="info-val">${t.name}</span>
-        <span class="info-lbl">Email:</span><span class="info-val"><a href="mailto:${t.email}">${t.email||'—'}</a></span>
-        <span class="info-lbl">Phone:</span><span class="info-val">${t.phone||'—'}</span>
+        <span class="info-lbl">Unit:</span><span class="info-val fw-bold">${h(t.unit_number)}</span>
+        <span class="info-lbl">Name:</span><span class="info-val">${h(t.name)}</span>
+        <span class="info-lbl">Email:</span><span class="info-val"><a href="mailto:${h(t.email)}">${h(t.email)||'—'}</a></span>
+        <span class="info-lbl">Phone:</span><span class="info-val">${h(t.phone)||'—'}</span>
         <span class="info-lbl">DOB:</span><span class="info-val">${fmtDate(t.dob)}</span>
         <span class="info-lbl">Rent:</span><span class="info-val fw-semibold text-navy">${fmtMoney(t.rent_amount)}/mo</span>
         <span class="info-lbl">Deposit:</span><span class="info-val">${fmtMoney(t.deposit_amount)}</span>
         <span class="info-lbl">Move-In:</span><span class="info-val">${fmtDate(t.move_in_date)}</span>
         <span class="info-lbl">Lease:</span><span class="info-val">${fmtDate(t.lease_start)} → ${fmtDate(t.lease_end)}</span>
-      </div>${leaseBar}${t.notes?`<div class="mt-3 p-2 rounded" style="background:#f8fafc;font-size:.83rem;color:#374151;font-style:italic;">${t.notes}</div>`:''}</div>
-      ${t.emergency_name?`<div class="cs-card"><h5><i class="bi bi-telephone-fill text-danger me-2"></i>Emergency Contact</h5><div class="info-grid"><span class="info-lbl">Name:</span><span class="info-val fw-semibold">${t.emergency_name}</span><span class="info-lbl">Phone:</span><span class="info-val">${t.emergency_phone||'—'}</span><span class="info-lbl">Relation:</span><span class="info-val">${t.emergency_relation||'—'}</span></div></div>`:''}
+      </div>${leaseBar}${t.notes?`<div class="mt-3 p-2 rounded" style="background:#f8fafc;font-size:.83rem;color:#374151;font-style:italic;">${h(t.notes)}</div>`:''}</div>
+      ${t.emergency_name?`<div class="cs-card"><h5><i class="bi bi-telephone-fill text-danger me-2"></i>Emergency Contact</h5><div class="info-grid"><span class="info-lbl">Name:</span><span class="info-val fw-semibold">${h(t.emergency_name)}</span><span class="info-lbl">Phone:</span><span class="info-val">${h(t.emergency_phone)||'—'}</span><span class="info-lbl">Relation:</span><span class="info-val">${h(t.emergency_relation)||'—'}</span></div></div>`:''}
     </div>
     <div class="col-lg-6">
       ${pet}${parking}
-      ${(t.storage_unit||t.mailbox_number||t.door_code)?`<div class="cs-card"><h5><i class="bi bi-building me-2"></i>Amenities</h5><div class="info-grid">${t.storage_unit?`<span class="info-lbl"><i class="bi bi-box-seam-fill me-1"></i>Storage:</span><span class="info-val fw-semibold">${t.storage_unit}</span>`:''}${t.mailbox_number?`<span class="info-lbl"><i class="bi bi-mailbox-fill me-1"></i>Mailbox:</span><span class="info-val fw-semibold">${t.mailbox_number}</span>`:''}${t.door_code?`<span class="info-lbl"><i class="bi bi-shield-lock-fill me-1" style="color:#dc2626"></i>Door PIN:</span><span class="info-val fw-semibold" style="letter-spacing:.1em;color:#dc2626">${t.door_code}</span>`:''}</div></div>`:''}
-      ${(t.vehicle_make||t.vehicle_plate)?`<div class="cs-card"><h5><i class="bi bi-car-front-fill me-2" style="color:#7c3aed;"></i>Vehicle</h5><div class="info-grid"><span class="info-lbl">Vehicle:</span><span class="info-val">${[t.vehicle_color,t.vehicle_make,t.vehicle_model].filter(Boolean).join(' ')||'—'}</span><span class="info-lbl">Plate:</span><span class="info-val fw-semibold">${t.vehicle_plate||'—'}</span></div></div>`:''}
+      ${(t.storage_unit||t.mailbox_number||t.door_code)?`<div class="cs-card"><h5><i class="bi bi-building me-2"></i>Amenities</h5><div class="info-grid">${t.storage_unit?`<span class="info-lbl"><i class="bi bi-box-seam-fill me-1"></i>Storage:</span><span class="info-val fw-semibold">${h(t.storage_unit)}</span>`:''}${t.mailbox_number?`<span class="info-lbl"><i class="bi bi-mailbox-fill me-1"></i>Mailbox:</span><span class="info-val fw-semibold">${h(t.mailbox_number)}</span>`:''}${t.door_code?`<span class="info-lbl"><i class="bi bi-shield-lock-fill me-1" style="color:#dc2626"></i>Door PIN:</span><span class="info-val fw-semibold" style="letter-spacing:.1em;color:#dc2626">${h(t.door_code)}</span>`:''}</div></div>`:''}
+      ${(t.vehicle_make||t.vehicle_plate)?`<div class="cs-card"><h5><i class="bi bi-car-front-fill me-2" style="color:#7c3aed;"></i>Vehicle</h5><div class="info-grid"><span class="info-lbl">Vehicle:</span><span class="info-val">${h([t.vehicle_color,t.vehicle_make,t.vehicle_model].filter(Boolean).join(' '))||'—'}</span><span class="info-lbl">Plate:</span><span class="info-val fw-semibold">${h(t.vehicle_plate)||'—'}</span></div></div>`:''}
     </div>
   </div>`;
 }
@@ -2007,8 +2032,8 @@ function renderDocsTab(t){
     <div class="d-flex align-items-center gap-2 py-2 border-bottom">
       <i class="bi bi-file-earmark-fill text-primary" style="font-size:1.3rem;flex-shrink:0;"></i>
       <div style="flex:1;min-width:0;">
-        <div class="fw-semibold" style="font-size:.855rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${d.filename}">${d.filename}</div>
-        <div class="text-muted" style="font-size:.76rem;">${d.doc_type||'Other'} &bull; ${d.size_label} &bull; Uploaded ${fmtDate(d.uploaded_at?.slice(0,10))}</div>
+        <div class="fw-semibold" style="font-size:.855rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${h(d.filename)}">${h(d.filename)}</div>
+        <div class="text-muted" style="font-size:.76rem;">${h(d.doc_type||'Other')} &bull; ${h(d.size_label)} &bull; Uploaded ${fmtDate(d.uploaded_at?.slice(0,10))}</div>
       </div>
       <a class="btn btn-sm btn-outline-secondary" href="${d.data_url}" download="${d.filename}" title="Download"><i class="bi bi-download"></i></a>
       <button class="btn btn-sm btn-outline-danger" onclick="deleteDocFromTenant(${t.id},'${d.id}')" title="Remove"><i class="bi bi-trash-fill"></i></button>
@@ -4170,9 +4195,9 @@ function renderMaintenance(){
               <span class="wo-num">${m.id||'—'}</span>${statusBadge(m.status)}
               <span class="badge" style="background:${prioColors[m.priority]||'#6b7280'};color:#fff;font-size:.68rem">${m.priority}</span>
             </div>
-            <div class="wo-title">${m.description?.slice(0,60)||'—'}${(m.description?.length||0)>60?'…':''}</div>
-            <div class="wo-meta">${MAINT_ICONS[m.category]||'📋'} ${m.category} · ${m.location_type==='building'?`Building${m.location_detail?' / '+m.location_detail:''}`:`Unit ${m.unit_number||'—'}${t?' · '+t.name:''}`}</div>
-            ${m.assigned_to?`<div class="wo-meta"><i class="bi bi-person-fill me-1"></i>${m.assigned_to}</div>`:''}
+            <div class="wo-title">${h(m.description?.slice(0,60))||'—'}${(m.description?.length||0)>60?'…':''}</div>
+            <div class="wo-meta">${MAINT_ICONS[m.category]||'📋'} ${h(m.category)} · ${m.location_type==='building'?`Building${m.location_detail?' / '+h(m.location_detail):''}`:`Unit ${h(m.unit_number||'—')}${t?' · '+h(t.name):''}`}</div>
+            ${m.assigned_to?`<div class="wo-meta"><i class="bi bi-person-fill me-1"></i>${h(m.assigned_to)}</div>`:''}
             ${m.date_due?`<div class="wo-meta" style="color:${m.date_due<todayISO()&&m.status!=='complete'?'#dc2626':'#6b7280'}"><i class="bi bi-calendar me-1"></i>Due ${fmtDate(m.date_due)}</div>`:''}
           </div>
         </div>
@@ -4189,14 +4214,14 @@ function renderMaintenance(){
       <thead><tr><th>WO#</th><th>Priority</th><th>Location</th><th>Category</th><th>Description</th><th>Assigned</th><th>Due</th><th>Status</th><th>Action</th></tr></thead>
       <tbody>${items.map(m=>{
         const t=tenantMap[m.tenant_id];
-        const loc=m.location_type==='building'?`<span class="text-muted">Bldg${m.location_detail?' – '+m.location_detail:''}</span>`:`<strong>${m.unit_number||'—'}</strong>${t?`<div style="font-size:.75rem;color:#6b7280">${t.name}</div>`:''}`;
+        const loc=m.location_type==='building'?`<span class="text-muted">Bldg${m.location_detail?' – '+h(m.location_detail):''}</span>`:`<strong>${h(m.unit_number||'—')}</strong>${t?`<div style="font-size:.75rem;color:#6b7280">${h(t.name)}</div>`:''}`;
         return`<tr>
-          <td><span style="font-size:.72rem;font-weight:700;color:#6b7280">${m.id||'—'}</span></td>
-          <td><span class="fw-bold" style="color:${prioColors[m.priority]||'#6b7280'};font-size:.82rem">${m.priority||'—'}</span></td>
+          <td><span style="font-size:.72rem;font-weight:700;color:#6b7280">${h(m.id)||'—'}</span></td>
+          <td><span class="fw-bold" style="color:${prioColors[m.priority]||'#6b7280'};font-size:.82rem">${h(m.priority)||'—'}</span></td>
           <td>${loc}</td>
-          <td>${MAINT_ICONS[m.category]||'📋'} ${m.category||'—'}</td>
-          <td style="max-width:200px"><span style="font-size:.83rem">${m.description?.slice(0,60)||'—'}${(m.description?.length||0)>60?'…':''}</span></td>
-          <td style="font-size:.8rem">${m.assigned_to||'<span class="text-muted">Unassigned</span>'}</td>
+          <td>${MAINT_ICONS[m.category]||'📋'} ${h(m.category||'—')}</td>
+          <td style="max-width:200px"><span style="font-size:.83rem">${h(m.description?.slice(0,60))||'—'}${(m.description?.length||0)>60?'…':''}</span></td>
+          <td style="font-size:.8rem">${m.assigned_to?h(m.assigned_to):'<span class="text-muted">Unassigned</span>'}</td>
           <td style="white-space:nowrap;font-size:.8rem">${m.date_due?`<span style="color:${m.date_due<todayISO()&&m.status!=='complete'?'#dc2626':'inherit'}">${fmtDate(m.date_due)}</span>`:'—'}</td>
           <td>${statusBadge(m.status||'open')}</td>
           <td style="white-space:nowrap">
@@ -4462,18 +4487,18 @@ function renderCandidates(){
   el.innerHTML=`<div class="cs-table"><table class="table mb-0">
     <thead><tr><th>Name</th><th>Phone</th><th>Email</th><th>Unit Interest</th><th>Move-In Needed</th><th>Status</th><th>Date</th><th>Special Offers / Notes</th><th>Action</th></tr></thead>
     <tbody>${cands.map(c=>`<tr>
-      <td><strong>${c.name||'—'}</strong>${c.source?`<div style="font-size:.73rem;color:#9ca3af">${c.source}</div>`:''}</td>
-      <td>${c.phone||'—'}</td>
-      <td style="font-size:.8rem">${c.email?`<a href="mailto:${c.email}">${c.email}</a>`:'—'}</td>
-      <td>${(()=>{const vacMatch=DB.vacancies().find(v=>v.unit_number&&c.unit_interest&&v.unit_number.trim().toLowerCase()===c.unit_interest.trim().toLowerCase());return (c.unit_interest||'—')+(vacMatch?`<div style="margin-top:3px"><span class="badge" style="background:#16a34a;color:#fff;font-size:.68rem"><i class="bi bi-door-open-fill me-1"></i>Vacant${vacMatch.asking_rent?' · '+fmtMoney(vacMatch.asking_rent):''}</span></div>`:'')})()} </td>
+      <td><strong>${h(c.name)||'—'}</strong>${c.source?`<div style="font-size:.73rem;color:#9ca3af">${h(c.source)}</div>`:''}</td>
+      <td>${h(c.phone)||'—'}</td>
+      <td style="font-size:.8rem">${c.email?`<a href="mailto:${h(c.email)}">${h(c.email)}</a>`:'—'}</td>
+      <td>${(()=>{const vacMatch=DB.vacancies().find(v=>v.unit_number&&c.unit_interest&&v.unit_number.trim().toLowerCase()===c.unit_interest.trim().toLowerCase());return h(c.unit_interest||'—')+(vacMatch?`<div style="margin-top:3px"><span class="badge" style="background:#16a34a;color:#fff;font-size:.68rem"><i class="bi bi-door-open-fill me-1"></i>Vacant${vacMatch.asking_rent?' · '+fmtMoney(vacMatch.asking_rent):''}</span></div>`:'')})()} </td>
       <td>${c.move_in_needed?fmtDate(c.move_in_needed):'—'}</td>
-      <td><span class="badge" style="background:${CAND_STATUS_COLORS[c.status]||'#9ca3af'};color:#fff">${c.status||'new'}</span></td>
+      <td><span class="badge" style="background:${CAND_STATUS_COLORS[c.status]||'#9ca3af'};color:#fff">${h(c.status||'new')}</span></td>
       <td style="white-space:nowrap;font-size:.8rem">${fmtDate(c.inquiry_date)}</td>
-      <td style="max-width:200px;font-size:.8rem">${c.notes||'—'}</td>
+      <td style="max-width:200px;font-size:.8rem">${h(c.notes)||'—'}</td>
       <td style="white-space:nowrap">
-        <button class="btn btn-sm btn-outline-secondary me-1" onclick="openCandidateModal('${c.id}')" title="Edit"><i class="bi bi-pencil-fill"></i></button>
-        <button class="btn btn-sm btn-outline-success me-1" onclick="convertCandidateToTenant('${c.id}')" title="Convert to Tenant"><i class="bi bi-person-check-fill"></i></button>
-        <button class="btn btn-sm btn-outline-danger" onclick="deleteCandidate('${c.id}')" title="Delete"><i class="bi bi-trash-fill"></i></button>
+        <button class="btn btn-sm btn-outline-secondary me-1" onclick="openCandidateModal('${c.id}')" aria-label="Edit candidate ${h(c.name||'')}" title="Edit"><i class="bi bi-pencil-fill"></i></button>
+        <button class="btn btn-sm btn-outline-success me-1" onclick="convertCandidateToTenant('${c.id}')" aria-label="Convert ${h(c.name||'')} to tenant" title="Convert to Tenant"><i class="bi bi-person-check-fill"></i></button>
+        <button class="btn btn-sm btn-outline-danger" onclick="deleteCandidate('${c.id}')" aria-label="Delete candidate ${h(c.name||'')}" title="Delete"><i class="bi bi-trash-fill"></i></button>
       </td>
     </tr>`).join('')}</tbody></table></div>`;
 }
@@ -4654,8 +4679,8 @@ function resetTenantChecklist(tenantId,listKey){
 }
 
 /* ─── APP VERSION ─── */
-const APP_VERSION='20260313003';
-const APP_CHANGELOG='New Feature Request button added to the sidebar — click it anytime to send a feature idea directly to your developer.';
+const APP_VERSION='20260315001';
+const APP_CHANGELOG='Quality & security update: XSS protection on all user data, full keyboard navigation in sidebar, skip-to-content link, ARIA labels on action buttons, mobile table scroll fix, touch target improvements, dark mode gaps fixed (chips, doc icons, events card), CSS tokens expanded, search debounce for smoother typing, prefers-reduced-motion support, backup/settings duplication cleaned up.';
 
 /* ─── VACANCIES ─── */
 const VAC_STATUS_LABELS={'vacant':'Vacant — Available Now','notice-given':'Notice Given','cleaning':'Cleaning / Turnover','repairs':'Under Repair','leased':'Leased — Not Occupied'};
