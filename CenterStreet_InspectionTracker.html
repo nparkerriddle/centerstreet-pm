@@ -141,6 +141,20 @@ body{display:flex;}
 .chip-storage{background:rgba(107,114,128,.25);border:1px solid rgba(107,114,128,.5);color:#d1d5db;}
 .chip-mailbox{background:rgba(16,185,129,.25);border:1px solid rgba(16,185,129,.5);color:#6ee7b7;}
 .chip-vehicle{background:rgba(167,139,250,.25);border:1px solid rgba(167,139,250,.5);color:#c4b5fd;}
+.chip-lang{background:rgba(59,130,246,.2);border:1px solid rgba(59,130,246,.5);color:#1e40af;}
+.chip-comm{background:rgba(245,158,11,.2);border:1px solid rgba(245,158,11,.5);color:#92400e;}
+.chip-access{background:rgba(236,72,153,.2);border:1px solid rgba(236,72,153,.4);color:#9d174d;}
+.rem-item{display:flex;align-items:flex-start;gap:12px;padding:11px 0;border-bottom:1px solid var(--border);}
+.rem-item:last-child{border-bottom:none;}
+.rem-item-icon{width:36px;height:36px;border-radius:9px;background:rgba(217,119,6,.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--amber);font-size:1rem;}
+.rem-item-icon.past{background:rgba(156,163,175,.12);color:#9ca3af;}
+.rem-item-body{flex:1;min-width:0;}
+.rem-item-when{font-size:.75rem;font-weight:700;color:var(--amber);margin-bottom:2px;}
+.rem-item-when.past{color:#9ca3af;}
+.rem-item-text{font-size:.875rem;color:#1f2937;line-height:1.4;}
+.rem-item-who{font-size:.74rem;color:var(--text-muted);margin-top:2px;}
+.acc-card{background:#fdf4ff;border:1px solid #e9d5ff;border-radius:10px;padding:14px 16px;}
+[data-theme="dark"] .acc-card{background:#1e1030;border-color:#4c1d95;}
 .chip-violation{background:rgba(239,68,68,.25);border:1px solid rgba(239,68,68,.5);color:#fca5a5;}
 .chip-sm{padding:2px 6px;font-size:.68rem;border-radius:10px;display:inline-flex;align-items:center;gap:3px;font-weight:600;}
 .chip-sm-pets{background:#fef3c7;color:#92400e;border:1px solid #fde68a;}
@@ -324,6 +338,11 @@ body{display:flex;}
 [data-theme="dark"] .chip-storage{background:rgba(107,114,128,.3);border-color:rgba(107,114,128,.4);color:#d1d5db;}
 [data-theme="dark"] .chip-mailbox{background:rgba(16,185,129,.3);border-color:rgba(16,185,129,.4);color:#6ee7b7;}
 [data-theme="dark"] .chip-vehicle{background:rgba(167,139,250,.3);border-color:rgba(167,139,250,.4);color:#c4b5fd;}
+[data-theme="dark"] .chip-lang{background:rgba(59,130,246,.25);border-color:rgba(59,130,246,.4);color:#93c5fd;}
+[data-theme="dark"] .chip-comm{background:rgba(245,158,11,.25);border-color:rgba(245,158,11,.4);color:#fcd34d;}
+[data-theme="dark"] .chip-access{background:rgba(236,72,153,.2);border-color:rgba(236,72,153,.35);color:#f9a8d4;}
+[data-theme="dark"] .rem-item-icon{background:rgba(217,119,6,.2);}
+[data-theme="dark"] .rem-item-text{color:#d1d5db;}
 [data-theme="dark"] .chip-violation{background:rgba(239,68,68,.3);border-color:rgba(239,68,68,.4);color:#fca5a5;}
 [data-theme="dark"] .doc-icon-lease{background:rgba(59,130,246,.2);color:#93c5fd;}
 [data-theme="dark"] .doc-icon-notice{background:rgba(245,158,11,.2);color:#fcd34d;}
@@ -372,7 +391,7 @@ body{display:flex;}
   <nav id="sidebar-nav">
     <div class="nav-lbl">Main</div>
     <a id="nav-dashboard" href="#" onclick="showPage('dashboard');return false" onkeydown="if(event.key==='Enter'||event.key===' '){showPage('dashboard');event.preventDefault();}" tabindex="0" class="active" title="Dashboard"><i class="bi bi-grid-1x2-fill"></i><span>Dashboard</span></a>
-    <a id="nav-alerts" href="#" onclick="showAlerts();return false" onkeydown="if(event.key==='Enter'||event.key===' '){showAlerts();event.preventDefault();}" tabindex="0" title="Alerts"><i class="bi bi-bell-fill" style="color:#f59e0b"></i><span>Alerts <span id="nav-alerts-count" style="background:#e05c5c;color:#fff;font-size:.62rem;padding:1px 6px;border-radius:10px;font-weight:700;vertical-align:middle;display:none;">0</span></span></a>
+    <a id="nav-reminders" href="#" onclick="showPage('reminders');return false" onkeydown="if(event.key==='Enter'||event.key===' '){showPage('reminders');event.preventDefault();}" tabindex="0" title="Reminders"><i class="bi bi-bell-fill" style="color:#f59e0b"></i><span>Reminders <span id="nav-alerts-count" style="background:#e05c5c;color:#fff;font-size:.62rem;padding:1px 6px;border-radius:10px;font-weight:700;vertical-align:middle;display:none;">0</span></span></a>
     <a id="nav-tenants" href="#" onclick="showPage('tenants');return false" onkeydown="if(event.key==='Enter'||event.key===' '){showPage('tenants');event.preventDefault();}" tabindex="0" title="Tenants"><i class="bi bi-people-fill"></i><span>Tenants</span></a>
     <a id="nav-candidates" href="#" onclick="showPage('candidates');return false" onkeydown="if(event.key==='Enter'||event.key===' '){showPage('candidates');event.preventDefault();}" tabindex="0" title="Candidates"><i class="bi bi-person-plus-fill" style="color:#a78bfa"></i><span>Candidates</span></a>
     <a id="nav-prev-tenants" href="#" onclick="showPage('prev-tenants');return false" onkeydown="if(event.key==='Enter'||event.key===' '){showPage('prev-tenants');event.preventDefault();}" tabindex="0" title="Previous Tenants"><i class="bi bi-person-dash-fill" style="color:#9ca3af"></i><span>Previous Tenants</span></a>
@@ -417,15 +436,6 @@ body{display:flex;}
       <button class="quick-action-btn" onclick="showPage('renewals')"><i class="bi bi-calendar-check-fill icon-bg-purple" style="color:#7c3aed"></i>Renewals</button>
     </div>
   </div>
-  <div class="cs-card mb-3 p-0 overflow-hidden" id="alerts-section">
-    <div class="d-flex align-items-center justify-content-between px-3 py-2" style="cursor:pointer;user-select:none;" data-bs-toggle="collapse" data-bs-target="#alerts-collapse" aria-expanded="false" aria-controls="alerts-collapse">
-      <h5 class="mb-0"><i class="bi bi-bell-fill me-2 text-warning"></i>Alerts <span id="alerts-badge" class="badge rounded-pill ms-2" style="background:#9ca3af;font-size:.72rem;vertical-align:middle;">…</span></h5>
-      <i class="bi bi-chevron-down" id="alerts-chevron" style="transition:transform .25s;color:#6b7280;font-size:.85rem;"></i>
-    </div>
-    <div class="collapse" id="alerts-collapse">
-      <div class="px-3 pb-3" id="alerts-container"></div>
-    </div>
-  </div>
   <div class="row g-3 mb-3" id="stats-row">
     <div class="col-6 col-md-3 col-lg-2"><div class="stat-card clickable" onclick="showPage('tenants')" title="View Tenants"><div class="stat-num" id="stat-tenants">0</div><div class="stat-label">Tenants</div></div></div>
     <div class="col-6 col-md-3 col-lg-2"><div class="stat-card clickable" onclick="navigateInspections('pending')" title="View Pending Inspections"><div class="stat-num text-secondary" id="stat-pending">0</div><div class="stat-label">Pending</div></div></div>
@@ -435,13 +445,35 @@ body{display:flex;}
     <div class="col-6 col-md-3 col-lg-2"><div class="stat-card clickable" onclick="navigateInspections('overdue')" title="View Overdue Inspections"><div class="stat-num text-danger" id="stat-overdue">0</div><div class="stat-label">Overdue</div></div></div>
     <div class="col-6 col-md-3 col-lg-2"><div class="stat-card clickable" onclick="navigateInvoices('unpaid')" title="View Unpaid Invoices"><div class="stat-num text-warning" id="stat-unpaid-inv">0</div><div class="stat-label">Unpaid Invoices</div></div></div>
     <div class="col-6 col-md-3 col-lg-2"><div class="stat-card clickable" onclick="showPage('maintenance')" title="View Open Maintenance"><div class="stat-num" style="color:var(--teal)" id="stat-open-maint">0</div><div class="stat-label">Open Maintenance</div></div></div>
-    <div class="col-6 col-md-3 col-lg-2"><div class="stat-card clickable" onclick="document.getElementById('reminders-card').scrollIntoView({behavior:'smooth',block:'start'})" title="View Upcoming Reminders"><div class="stat-num" style="color:var(--amber)" id="stat-reminders">0</div><div class="stat-label">Reminders</div></div></div>
-  </div>
-  <div class="cs-card mb-3" id="reminders-card">
-    <h5><i class="bi bi-alarm-fill me-2 text-warning"></i>Upcoming Reminders</h5>
-    <div id="reminders-container"><div class="no-data">No upcoming reminders.</div></div>
+    <div class="col-6 col-md-3 col-lg-2"><div class="stat-card clickable" onclick="showPage('reminders')" title="View Reminders & Alerts"><div class="stat-num" style="color:var(--amber)" id="stat-reminders">0</div><div class="stat-label">Reminders</div></div></div>
   </div>
   <div class="cs-card"><h5><i class="bi bi-clock-history me-2"></i>Recent Inspections</h5><div class="cs-table"><table class="table table-hover mb-0"><thead><tr><th>Unit</th><th>Tenant</th><th>Type</th><th>Status</th><th>Date Sent</th><th>Action</th></tr></thead><tbody id="recent-inspections-body"></tbody></table></div></div>
+</div>
+
+<!-- REMINDERS & ALERTS -->
+<div id="page-reminders" class="page" style="display:none">
+  <div class="page-header"><h2><i class="bi bi-bell-fill me-2"></i>Reminders</h2><p>Personal reminders and system alerts in one place</p></div>
+  <div class="cs-card mb-3">
+    <h5><i class="bi bi-plus-circle-fill me-2" style="color:var(--blue)"></i>Add Reminder</h5>
+    <div class="row g-2 align-items-end">
+      <div class="col-12 col-md-5"><input type="text" class="form-control" id="rem-text" placeholder="What do you need to follow up on?"></div>
+      <div class="col-6 col-md-3"><label class="form-label mb-1" style="font-size:.78rem;">Date</label><input type="date" class="form-control" id="rem-date"></div>
+      <div class="col-6 col-md-2"><label class="form-label mb-1" style="font-size:.78rem;">Time (optional)</label><input type="time" class="form-control" id="rem-time"></div>
+      <div class="col-12 col-md-2"><button class="btn btn-navy w-100" onclick="addStandaloneReminder()"><i class="bi bi-plus-lg me-1"></i>Add</button></div>
+    </div>
+  </div>
+  <div class="cs-card mb-3">
+    <h5><i class="bi bi-exclamation-triangle-fill me-2 text-warning"></i>System Alerts</h5>
+    <div id="rem-page-alerts"><div class="no-data">No system alerts.</div></div>
+  </div>
+  <div class="cs-card mb-3">
+    <h5><i class="bi bi-alarm-fill me-2 text-warning"></i>Upcoming Reminders</h5>
+    <div id="rem-upcoming"><div class="no-data">No upcoming reminders.</div></div>
+  </div>
+  <div class="cs-card">
+    <h5 style="color:var(--text-muted)"><i class="bi bi-clock-history me-2"></i>Past Reminders</h5>
+    <div id="rem-past"><div class="no-data">No past reminders.</div></div>
+  </div>
 </div>
 
 <!-- TENANTS -->
@@ -893,6 +925,11 @@ body{display:flex;}
               <div class="col-md-4"><label class="form-label">Date of Birth</label><input type="date" class="form-control" id="t-dob"></div>
               <div class="col-md-4"><label class="form-label">Monthly Rent ($)</label><input type="text" class="form-control" id="t-rent" placeholder="e.g. 1250"></div>
               <div class="col-md-4"><label class="form-label">Security Deposit ($)</label><input type="text" class="form-control" id="t-deposit" placeholder="e.g. 1250"></div>
+              <div class="col-12"><hr class="my-2"><p class="text-muted fw-semibold mb-2" style="font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;">Communication &amp; Accessibility</p></div>
+              <div class="col-md-6"><label class="form-label">Primary Language</label><input type="text" class="form-control" id="t-language" placeholder="e.g. Spanish, Mandarin, French"></div>
+              <div class="col-md-6"><label class="form-label">Preferred Contact Method</label><select class="form-select" id="t-preferred-contact"><option value="any">Any (No Preference)</option><option value="phone">Phone Call</option><option value="text">Text Message</option><option value="email">Email Only</option><option value="in-person">In-Person Only</option><option value="written">Written / Mail</option></select></div>
+              <div class="col-12"><label class="form-label">Accessibility Needs</label><div class="d-flex flex-wrap gap-3"><div class="form-check"><input class="form-check-input" type="checkbox" id="t-acc-deaf"><label class="form-check-label" for="t-acc-deaf">Deaf / Hard of Hearing</label></div><div class="form-check"><input class="form-check-input" type="checkbox" id="t-acc-vision"><label class="form-check-label" for="t-acc-vision">Blind / Low Vision</label></div><div class="form-check"><input class="form-check-input" type="checkbox" id="t-acc-mobility"><label class="form-check-label" for="t-acc-mobility">Mobility Impairment</label></div><div class="form-check"><input class="form-check-input" type="checkbox" id="t-acc-cognitive"><label class="form-check-label" for="t-acc-cognitive">Cognitive / Memory</label></div><div class="form-check"><input class="form-check-input" type="checkbox" id="t-acc-other"><label class="form-check-label" for="t-acc-other">Other</label></div></div></div>
+              <div class="col-12"><label class="form-label">Accessibility Notes</label><textarea class="form-control" id="t-accessibility-notes" rows="2" placeholder="e.g. Prefers large-print documents, uses TTY, requires wheelchair-accessible entrance…"></textarea></div>
             </div>
           </div>
           <div class="tab-pane fade" id="tmt-lease">
@@ -1641,7 +1678,9 @@ const DB = {
   events(){return DB.get('events')||[];},
   eventHistory(){return DB.get('event_history')||[];},
   nextEventId(){return 'ev_'+Date.now()+'_'+Math.random().toString(36).slice(2,6);},
-  nextHistId(){return 'hist_'+Date.now()+'_'+Math.random().toString(36).slice(2,6);}
+  nextHistId(){return 'hist_'+Date.now()+'_'+Math.random().toString(36).slice(2,6);},
+  reminders(){return DB.get('reminders')||[];},
+  nextReminderId(){return 'rem_'+Date.now()+'_'+Math.random().toString(36).slice(2,6);}
 };
 
 function fmtDate(iso){if(!iso)return'—';const d=new Date(iso+'T12:00:00');if(isNaN(d))return'—';return d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});}
@@ -1736,7 +1775,7 @@ function showPage(name){
   document.querySelectorAll('#sidebar-nav a').forEach(a=>a.classList.remove('active'));
   const pg=document.getElementById('page-'+name);if(pg)pg.style.display='';
   const nav=document.getElementById('nav-'+name);if(nav)nav.classList.add('active');
-  const pageTitles={dashboard:'Dashboard',tenants:'Tenants',inspections:'Inspections',invoices:'Invoices',documents:'Documents',checklists:'Checklists',events:'Events',maintenance:'Maintenance',violations:'Violations',directory:'Directory',renewals:'Renewals',candidates:'Candidates','prev-tenants':'Previous Tenants',vacancies:'Vacancies',backup:'Backup & Export',settings:'Settings','tenant-file':'Tenant File',detail:'Inspection Detail'};
+  const pageTitles={dashboard:'Dashboard',tenants:'Tenants',inspections:'Inspections',invoices:'Invoices',documents:'Documents',checklists:'Checklists',events:'Events',maintenance:'Maintenance',violations:'Violations',directory:'Directory',renewals:'Renewals',candidates:'Candidates','prev-tenants':'Previous Tenants',vacancies:'Vacancies',backup:'Backup & Export',settings:'Settings','tenant-file':'Tenant File',detail:'Inspection Detail',reminders:'Reminders'};
   document.title=(pageTitles[name]||name)+' — Center Street PM';
   if(name==='dashboard')renderDashboard();
   if(name==='tenants')renderTenants();
@@ -1755,6 +1794,7 @@ function showPage(name){
   if(name==='candidates')renderCandidates();
   if(name==='prev-tenants')renderPrevTenants();
   if(name==='vacancies')renderVacancies();
+  if(name==='reminders')renderRemindersPage();
 }
 
 function navigateInspections(status){
@@ -1777,13 +1817,43 @@ function navigateInvoices(status){
   },50);
 }
 
-function showAlerts(){
-  showPage('dashboard');
-  document.querySelectorAll('#sidebar-nav a').forEach(a=>a.classList.remove('active'));
-  document.getElementById('nav-alerts')?.classList.add('active');
-  const el=document.getElementById('alerts-collapse');
-  if(el)bootstrap.Collapse.getOrCreateInstance(el,{toggle:false}).show();
-  setTimeout(()=>document.getElementById('alerts-section')?.scrollIntoView({behavior:'smooth',block:'start'}),150);
+function renderRemindersPage(){
+  const now=new Date();
+  // System alerts
+  const alerts=computeAlerts();
+  const alertsEl=document.getElementById('rem-page-alerts');
+  if(alertsEl){
+    if(alerts.length===0){alertsEl.innerHTML=`<div class="alert-row alert-row-ok"><span class="alert-icon text-success"><i class="bi bi-patch-check-fill"></i></span><div class="alert-body"><div class="alert-unit">All Clear</div><div class="alert-msg text-success">Everything looks great — no alerts right now.</div></div></div>`;}
+    else{alertsEl.innerHTML=alerts.map(a=>{const icon=a.level==='danger'?'<i class="bi bi-exclamation-circle-fill text-danger"></i>':a.level==='info'?'<i class="bi bi-heart-fill text-primary"></i>':'<i class="bi bi-exclamation-triangle-fill text-warning"></i>';let btn='';if(a.type==='birthday'||a.type==='anniversary'){btn=`<button class="btn btn-sm btn-outline-primary" onclick="openTenantFile(${a.tenant_id})"><i class="bi bi-person-fill"></i></button>`;}else if(a.type==='event_upcoming'){btn=`<button class="btn btn-sm btn-outline-secondary" onclick="showPage('events')"><i class="bi bi-calendar-heart-fill"></i></button>`;}else{btn=`<button class="btn btn-sm btn-navy" onclick="openInspectionModal(${a.tenant_id})"><i class="bi bi-plus-lg"></i></button>`;}return`<div class="alert-row alert-row-${a.level}"><span class="alert-icon">${icon}</span><div class="alert-body"><div class="alert-unit">Unit ${h(a.unit)} — ${h(a.name)}</div><div class="alert-msg">${h(a.msg)}</div><div class="alert-detail">${h(a.detail)}</div></div><div class="flex-shrink-0">${btn}</div></div>`;}).join('');}
+  }
+  // Collect all reminders
+  const upcoming=[],past=[];
+  DB.reminders().forEach(r=>{const when=new Date(r.reminder_at);(when>now?upcoming:past).push({id:r.id,text:r.text,when,reminder_at:r.reminder_at,tenant:null,type:'standalone'});});
+  DB.tenants().filter(t=>t.active!==false).forEach(t=>{(t.notes_log||[]).forEach(n=>{if(!n.reminder_at)return;const when=new Date(n.reminder_at);(when>now?upcoming:past).push({id:n.id,text:n.text,when,reminder_at:n.reminder_at,tenant:t,type:'note'});});});
+  upcoming.sort((a,b)=>a.when-b.when);past.sort((a,b)=>b.when-a.when);
+  function fmtWhen(r){return r.when.toLocaleDateString(undefined,{weekday:'short',month:'short',day:'numeric'})+(r.reminder_at.includes('T')?' at '+r.when.toLocaleTimeString(undefined,{hour:'numeric',minute:'2-digit'}):'');}
+  function remRow(r,isPast){return`<div class="rem-item"><div class="rem-item-icon${isPast?' past':''}"><i class="bi bi-alarm-fill"></i></div><div class="rem-item-body"><div class="rem-item-when${isPast?' past':''}">${fmtWhen(r)}</div><div class="rem-item-text">${h(r.text)}</div><div class="rem-item-who">${r.tenant?'Unit '+h(r.tenant.unit_number)+' — '+h(r.tenant.name):'Personal reminder'}</div></div><div class="d-flex gap-1 flex-shrink-0">${r.tenant?`<button class="btn btn-sm btn-outline-secondary" onclick="openTenantFile(${r.tenant.id})" title="Open tenant file"><i class="bi bi-arrow-right"></i></button>`:''}<button class="btn btn-sm btn-outline-danger" onclick="dismissReminder('${r.type}','${r.id}',${r.tenant?r.tenant.id:'null'})" title="Dismiss"><i class="bi bi-x-lg"></i></button></div></div>`;}
+  const upEl=document.getElementById('rem-upcoming');if(upEl)upEl.innerHTML=upcoming.length?upcoming.map(r=>remRow(r,false)).join(''):'<div class="no-data">No upcoming reminders.</div>';
+  const pastEl=document.getElementById('rem-past');if(pastEl)pastEl.innerHTML=past.length?past.map(r=>remRow(r,true)).join(''):'<div class="no-data">No past reminders.</div>';
+  // Pre-fill date to tomorrow
+  const remDateEl=document.getElementById('rem-date');if(remDateEl&&!remDateEl.value){const d=new Date();d.setDate(d.getDate()+1);remDateEl.value=d.toISOString().slice(0,10);}
+}
+function addStandaloneReminder(){
+  const text=document.getElementById('rem-text')?.value.trim();
+  const date=document.getElementById('rem-date')?.value;
+  if(!text||!date){showToast('Enter reminder text and a date.','error');return;}
+  const time=document.getElementById('rem-time')?.value||'';
+  const rems=DB.reminders();
+  rems.push({id:DB.nextReminderId(),text,reminder_at:date+(time?'T'+time:''),created_at:new Date().toISOString()});
+  DB.set('reminders',rems);
+  document.getElementById('rem-text').value='';
+  document.getElementById('rem-time').value='';
+  renderRemindersPage();renderDashboard();showToast('Reminder added.');
+}
+function dismissReminder(type,id,tenantId){
+  if(type==='standalone'){DB.set('reminders',DB.reminders().filter(r=>r.id!==id));}
+  else{const tenants=DB.tenants();const idx=tenants.findIndex(t=>t.id===tenantId);if(idx!==-1){const ni=(tenants[idx].notes_log||[]).findIndex(n=>n.id===id);if(ni!==-1)delete tenants[idx].notes_log[ni].reminder_at;DB.set('tenants',tenants);}}
+  renderRemindersPage();renderDashboard();showToast('Reminder dismissed.');
 }
 function renderDashboard(){
   const tenants=DB.tenants();const inspections=DB.inspections();const invoices=DB.invoices();
@@ -1795,45 +1865,16 @@ function renderDashboard(){
   document.getElementById('stat-received').textContent=inspections.filter(i=>i.status==='received').length;
   document.getElementById('stat-complete').textContent=inspections.filter(i=>i.status==='complete').length;
   const alerts=computeAlerts();
-  const alertBadge=document.getElementById('alerts-badge');
-  if(alertBadge){if(alerts.length===0){alertBadge.textContent='All clear';alertBadge.style.background='#22c55e';}else{alertBadge.textContent=alerts.length+' alert'+(alerts.length===1?'':'s');alertBadge.style.background=alerts.some(a=>a.level==='danger')?'#e05c5c':'#f59e0b';}}
+  const now=new Date();
+  const upcomingRem=[...DB.reminders().filter(r=>new Date(r.reminder_at)>now)];
+  DB.tenants().filter(t=>t.active!==false).forEach(t=>{(t.notes_log||[]).forEach(n=>{if(n.reminder_at&&new Date(n.reminder_at)>now)upcomingRem.push(n);});});
+  document.getElementById('stat-reminders').textContent=upcomingRem.length;
   const navCount=document.getElementById('nav-alerts-count');
-  if(navCount){navCount.textContent=alerts.length;navCount.style.display=alerts.length?'inline':'none';navCount.style.background=alerts.some(a=>a.level==='danger')?'#e05c5c':'#f59e0b';}
-  const alertsCollapse=document.getElementById('alerts-collapse');
-  if(alertsCollapse&&!alertsCollapse._cinit){alertsCollapse._cinit=true;alertsCollapse.addEventListener('show.bs.collapse',()=>{const ch=document.getElementById('alerts-chevron');if(ch)ch.style.transform='rotate(180deg)';});alertsCollapse.addEventListener('hide.bs.collapse',()=>{const ch=document.getElementById('alerts-chevron');if(ch)ch.style.transform='rotate(0deg)';});}
+  if(navCount){const total=upcomingRem.length+alerts.length;navCount.textContent=total;navCount.style.display=total?'inline':'none';navCount.style.background=alerts.some(a=>a.level==='danger')?'#e05c5c':'#f59e0b';}
   document.getElementById('stat-overdue').textContent=alerts.filter(a=>a.type==='overdue_inspection').length;
   document.getElementById('stat-unpaid-inv').textContent=invoices.filter(i=>i.status!=='paid').length;
   const allMaint=DB.maintenanceWOs().filter(m=>m.status!=='complete'&&m.status!=='resolved');
   document.getElementById('stat-open-maint').textContent=allMaint.length;
-  // Reminders
-  const now=new Date();
-  const reminders=[];
-  DB.tenants().filter(t=>t.active!==false).forEach(t=>{
-    (t.notes_log||[]).forEach(n=>{
-      if(n.reminder_at&&new Date(n.reminder_at)>now)reminders.push({tenant:t,note:n,when:new Date(n.reminder_at)});
-    });
-  });
-  reminders.sort((a,b)=>a.when-b.when);
-  document.getElementById('stat-reminders').textContent=reminders.length;
-  const rc=document.getElementById('reminders-container');
-  if(rc){
-    if(reminders.length===0){rc.innerHTML=`<div class="no-data">No upcoming reminders.</div>`;}
-    else{rc.innerHTML=reminders.map(r=>{
-      const when=r.when.toLocaleDateString(undefined,{weekday:'short',month:'short',day:'numeric'})+(r.note.reminder_at.includes('T')?' at '+r.when.toLocaleTimeString(undefined,{hour:'numeric',minute:'2-digit'}):'');
-      return`<div class="reminder-item">
-        <div class="reminder-item-icon"><i class="bi bi-alarm-fill"></i></div>
-        <div class="reminder-item-body">
-          <div class="reminder-item-when">${when}</div>
-          <div class="reminder-item-note">${h(r.note.text)}</div>
-          <div class="reminder-item-who">Unit ${h(r.tenant.unit_number)} &mdash; ${h(r.tenant.name)}</div>
-        </div>
-        <button class="btn btn-sm btn-outline-secondary flex-shrink-0" onclick="openTenantFile(${r.tenant.id})" title="Open tenant notes"><i class="bi bi-arrow-right"></i></button>
-      </div>`;
-    }).join('');}
-  }
-  const container=document.getElementById('alerts-container');
-  if(alerts.length===0){container.innerHTML=`<div class="alert-row alert-row-ok"><span class="alert-icon text-success"><i class="bi bi-patch-check-fill"></i></span><div class="alert-body"><div class="alert-unit">All Clear</div><div class="alert-msg text-success">Everything looks great — no alerts right now. Enjoy the quiet!</div></div></div>`;}
-  else{container.innerHTML=alerts.map(a=>{const icon=a.level==='danger'?'<i class="bi bi-exclamation-circle-fill text-danger"></i>':a.level==='info'?'<i class="bi bi-heart-fill text-primary"></i>':'<i class="bi bi-exclamation-triangle-fill text-warning"></i>';let btn='';if(a.type==='compliance_open'&&a.insp_id){btn=`<button class="btn btn-sm btn-outline-secondary" onclick="renderDetail(${a.insp_id});showPage('detail')"><i class="bi bi-eye"></i></button>`;}else if(a.type==='birthday'||a.type==='anniversary'){btn=`<button class="btn btn-sm btn-outline-primary" onclick="openTenantFile(${a.tenant_id})"><i class="bi bi-person-fill"></i></button>`;}else if(a.type==='event_upcoming'){btn=`<button class="btn btn-sm btn-outline-secondary" onclick="showPage('events')"><i class="bi bi-calendar-heart-fill"></i></button>`;}else{btn=`<button class="btn btn-sm btn-navy" onclick="openInspectionModal(${a.tenant_id})"><i class="bi bi-plus-lg"></i></button>`;}return`<div class="alert-row alert-row-${a.level}"><span class="alert-icon">${icon}</span><div class="alert-body"><div class="alert-unit">Unit ${h(a.unit)} — ${h(a.name)}</div><div class="alert-msg">${h(a.msg)}</div><div class="alert-detail">${h(a.detail)}</div></div><div class="flex-shrink-0">${btn}</div></div>`;}).join('');}
   const sorted=[...inspections].sort((a,b)=>((b.created_at||'')>(a.created_at||''))?1:-1).slice(0,8);
   const tbody=document.getElementById('recent-inspections-body');
   tbody.innerHTML=sorted.length===0?`<tr><td colspan="6" class="no-data">No inspections yet.</td></tr>`:sorted.map(i=>`<tr><td><strong>${h(i.unit_number)||'—'}</strong></td><td>${h(i.tenant_name)||'—'}</td><td>${typeLabel(i.type)}</td><td>${statusBadge(i.status)}</td><td>${fmtDate(i.date_sent)}</td><td><button class="btn btn-sm btn-outline-secondary" aria-label="View inspection for unit ${h(i.unit_number||'')}" onclick="renderDetail(${i.id});showPage('detail')"><i class="bi bi-eye"></i></button></td></tr>`).join('');
@@ -2044,6 +2085,11 @@ function renderTenantFile(tenantId){
   if(tenant.mailbox_number)badges.push(`<span class="chip chip-mailbox"><i class="bi bi-mailbox-fill me-1"></i>Box ${tenant.mailbox_number}</span>`);
   if(tenant.vehicle_plate)badges.push(`<span class="chip chip-vehicle"><i class="bi bi-car-front-fill me-1"></i>${tenant.vehicle_plate}</span>`);
   if(openViol>0)badges.push(`<span class="chip chip-violation"><i class="bi bi-exclamation-octagon-fill me-1"></i>${openViol} Violation${openViol>1?'s':''}</span>`);
+  if(tenant.language)badges.push(`<span class="chip chip-lang"><i class="bi bi-translate me-1"></i>${h(tenant.language)}</span>`);
+  const commLabels={phone:'📞 Phone Only',text:'📱 Text Only',email:'📧 Email Only','in-person':'🤝 In-Person','written':'📬 Written/Mail'};
+  if(tenant.preferred_contact&&tenant.preferred_contact!=='any')badges.push(`<span class="chip chip-comm">${commLabels[tenant.preferred_contact]||h(tenant.preferred_contact)}</span>`);
+  const accLabels={deaf:'🦻 Deaf/HH',vision:'👁 Low Vision',mobility:'♿ Mobility',cognitive:'🧠 Cognitive',other:'⚕ Accessibility'};
+  (tenant.accessibility||[]).forEach(a=>badges.push(`<span class="chip chip-access">${accLabels[a]||h(a)}</span>`));
   const tabs=[
     {id:'profile',label:'Profile',icon:'bi-person-fill',count:null},
     {id:'documents',label:'Documents',icon:'bi-folder-fill',count:docs.length},
@@ -2131,6 +2177,7 @@ function renderProfileTab(t){
       ${pet}${parking}
       ${(t.storage_unit||t.mailbox_number||t.door_code)?`<div class="cs-card"><h5><i class="bi bi-building me-2"></i>Amenities</h5><div class="info-grid">${t.storage_unit?`<span class="info-lbl"><i class="bi bi-box-seam-fill me-1"></i>Storage:</span><span class="info-val fw-semibold">${h(t.storage_unit)}</span>`:''}${t.mailbox_number?`<span class="info-lbl"><i class="bi bi-mailbox-fill me-1"></i>Mailbox:</span><span class="info-val fw-semibold">${h(t.mailbox_number)}</span>`:''}${t.door_code?`<span class="info-lbl"><i class="bi bi-shield-lock-fill me-1" style="color:#dc2626"></i>Door PIN:</span><span class="info-val fw-semibold" style="letter-spacing:.1em;color:#dc2626">${h(t.door_code)}</span>`:''}</div></div>`:''}
       ${(t.vehicle_make||t.vehicle_plate)?`<div class="cs-card"><h5><i class="bi bi-car-front-fill me-2" style="color:#7c3aed;"></i>Vehicle</h5><div class="info-grid"><span class="info-lbl">Vehicle:</span><span class="info-val">${h([t.vehicle_color,t.vehicle_make,t.vehicle_model].filter(Boolean).join(' '))||'—'}</span><span class="info-lbl">Plate:</span><span class="info-val fw-semibold">${h(t.vehicle_plate)||'—'}</span></div></div>`:''}
+      ${(t.language||t.preferred_contact&&t.preferred_contact!=='any'||(t.accessibility||[]).length||t.accessibility_notes)?`<div class="cs-card acc-card"><h5><i class="bi bi-universal-access me-2" style="color:#9333ea"></i>Communication &amp; Accessibility</h5><div class="info-grid">${t.language?`<span class="info-lbl">Language:</span><span class="info-val"><span class="chip chip-lang"><i class="bi bi-translate me-1"></i>${h(t.language)}</span></span>`:''}${t.preferred_contact&&t.preferred_contact!=='any'?`<span class="info-lbl">Contact Pref.:</span><span class="info-val"><span class="chip chip-comm">${{phone:'📞 Phone Only',text:'📱 Text Only',email:'📧 Email Only','in-person':'🤝 In-Person',written:'📬 Written/Mail'}[t.preferred_contact]||h(t.preferred_contact)}</span></span>`:''}${(t.accessibility||[]).length?`<span class="info-lbl">Needs:</span><span class="info-val d-flex flex-wrap gap-1">${(t.accessibility||[]).map(a=>`<span class="chip chip-access">${{deaf:'🦻 Deaf/HH',vision:'👁 Low Vision',mobility:'♿ Mobility',cognitive:'🧠 Cognitive',other:'⚕ Other'}[a]||h(a)}</span>`).join('')}</span>`:''}${t.accessibility_notes?`<span class="info-lbl">Notes:</span><span class="info-val" style="font-style:italic">${h(t.accessibility_notes)}</span>`:''}</div></div>`:''}
     </div>
   </div>`;
 }
@@ -2274,9 +2321,10 @@ function openTenantModal(editId){
   const isEdit=!!editId;
   document.getElementById('tenantModalTitle').textContent=isEdit?'Edit Tenant':'Add Tenant';
   document.getElementById('tenant-modal-error').style.display='none';
-  const fields=['t-name','t-email','t-unit','t-phone','t-dob','t-rent','t-deposit','t-movein','t-moveout','t-lease-start','t-lease-end','t-parking-num','t-parking-stall','t-storage','t-mailbox','t-door-code','t-pet-type','t-pet-breed','t-pet-weight','t-pet-notes','t-emerg-name','t-emerg-phone','t-emerg-relation','t-vehicle-make','t-vehicle-model','t-vehicle-plate','t-vehicle-color','t-notes'];
+  const fields=['t-name','t-email','t-unit','t-phone','t-dob','t-rent','t-deposit','t-movein','t-moveout','t-lease-start','t-lease-end','t-parking-num','t-parking-stall','t-storage','t-mailbox','t-door-code','t-pet-type','t-pet-breed','t-pet-weight','t-pet-notes','t-emerg-name','t-emerg-phone','t-emerg-relation','t-vehicle-make','t-vehicle-model','t-vehicle-plate','t-vehicle-color','t-notes','t-language','t-accessibility-notes'];
   fields.forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
-  ['t-parking','t-has-storage','t-pets','t-pet-deposit'].forEach(id=>{const el=document.getElementById(id);if(el)el.checked=false;});
+  ['t-parking','t-has-storage','t-pets','t-pet-deposit','t-acc-deaf','t-acc-vision','t-acc-mobility','t-acc-cognitive','t-acc-other'].forEach(id=>{const el=document.getElementById(id);if(el)el.checked=false;});
+  const pcEl=document.getElementById('t-preferred-contact');if(pcEl)pcEl.value='any';
   document.getElementById('parking-fields').style.display='none';
   document.getElementById('storage-fields').style.display='none';
   document.getElementById('pet-fields').style.display='none';
@@ -2298,6 +2346,9 @@ function openTenantModal(editId){
       set('t-emerg-name',t.emergency_name);set('t-emerg-phone',t.emergency_phone);set('t-emerg-relation',t.emergency_relation);
       set('t-vehicle-make',t.vehicle_make);set('t-vehicle-model',t.vehicle_model);set('t-vehicle-plate',t.vehicle_plate);set('t-vehicle-color',t.vehicle_color);
       set('t-notes',t.notes);
+      set('t-language',t.language);set('t-accessibility-notes',t.accessibility_notes);
+      const pcEl=document.getElementById('t-preferred-contact');if(pcEl)pcEl.value=t.preferred_contact||'any';
+      ['deaf','vision','mobility','cognitive','other'].forEach(f=>{const el=document.getElementById('t-acc-'+f);if(el)el.checked=!!(t.accessibility||[]).includes(f);});
       document.getElementById('t-parking').checked=!!t.has_parking_pass;
       document.getElementById('parking-fields').style.display=t.has_parking_pass?'flex':'none';
       const hasStorage=!!(t.has_storage_unit||t.storage_unit);
@@ -2338,7 +2389,11 @@ function saveTenantFromModal(){
     pet_deposit_paid:document.getElementById('t-pet-deposit').checked,pet_notes:g('t-pet-notes'),
     emergency_name:g('t-emerg-name'),emergency_phone:g('t-emerg-phone'),emergency_relation:g('t-emerg-relation'),
     vehicle_make:g('t-vehicle-make'),vehicle_model:g('t-vehicle-model'),vehicle_plate:g('t-vehicle-plate'),vehicle_color:g('t-vehicle-color'),
-    notes:g('t-notes'),active:true
+    notes:g('t-notes'),active:true,
+    language:g('t-language'),
+    preferred_contact:document.getElementById('t-preferred-contact')?.value||'any',
+    accessibility:['deaf','vision','mobility','cognitive','other'].filter(f=>document.getElementById('t-acc-'+f)?.checked),
+    accessibility_notes:g('t-accessibility-notes')
   };
   if(editId){
     const idx=tenants.findIndex(t=>t.id===parseInt(editId));
@@ -4830,8 +4885,8 @@ function resetTenantChecklist(tenantId,listKey){
 }
 
 /* ─── APP VERSION ─── */
-const APP_VERSION='20260315009';
-const APP_CHANGELOG='New Reminders tile on the dashboard. Shows all upcoming note reminders sorted by date, with a quick link to the tenant file. Stat card shows total count.';
+const APP_VERSION='20260315010';
+const APP_CHANGELOG='Reminders is now its own full page (sidebar → Reminders). Add personal reminders for anything, dismiss system alerts, view past reminders. Tenant profiles now support language, preferred contact method, and accessibility needs (Deaf/HH, low vision, mobility, cognitive) — shown as badges on the tenant file.';
 
 /* ─── VACANCIES ─── */
 const VAC_STATUS_LABELS={'vacant':'Vacant — Available Now','notice-given':'Notice Given','cleaning':'Cleaning / Turnover','repairs':'Under Repair','leased':'Leased — Not Occupied'};
