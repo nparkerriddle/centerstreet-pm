@@ -941,6 +941,8 @@ body{display:flex;}
               <div class="col-md-6"><label class="form-label">Preferred Contact Method</label><select class="form-select" id="t-preferred-contact"><option value="any">Any (No Preference)</option><option value="phone">Phone Call</option><option value="text">Text Message</option><option value="email">Email Only</option><option value="in-person">In-Person Only</option><option value="written">Written / Mail</option></select></div>
               <div class="col-12"><label class="form-label">Accessibility Needs</label><div class="d-flex flex-wrap gap-3"><div class="form-check"><input class="form-check-input" type="checkbox" id="t-acc-deaf"><label class="form-check-label" for="t-acc-deaf">Deaf / Hard of Hearing</label></div><div class="form-check"><input class="form-check-input" type="checkbox" id="t-acc-vision"><label class="form-check-label" for="t-acc-vision">Blind / Low Vision</label></div><div class="form-check"><input class="form-check-input" type="checkbox" id="t-acc-mobility"><label class="form-check-label" for="t-acc-mobility">Mobility Impairment</label></div><div class="form-check"><input class="form-check-input" type="checkbox" id="t-acc-cognitive"><label class="form-check-label" for="t-acc-cognitive">Cognitive / Memory</label></div><div class="form-check"><input class="form-check-input" type="checkbox" id="t-acc-other"><label class="form-check-label" for="t-acc-other">Other</label></div></div></div>
               <div class="col-12"><label class="form-label">Accessibility Notes</label><textarea class="form-control" id="t-accessibility-notes" rows="2" placeholder="e.g. Prefers large-print documents, uses TTY, requires wheelchair-accessible entrance…"></textarea></div>
+              <div class="col-12"><hr class="my-2"><p class="text-muted fw-semibold mb-2" style="font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;">Work Schedule</p></div>
+              <div class="col-12"><div class="form-check form-switch"><input class="form-check-input" type="checkbox" id="t-grave-shift"><label class="form-check-label fw-semibold" for="t-grave-shift"><i class="bi bi-moon-stars-fill text-indigo me-1" style="color:#6366f1"></i>Works Grave Shift (Night Shift)</label></div><div class="text-muted mt-1" style="font-size:.78rem;margin-left:2.5rem;">Schedule inspections during daytime hours only (after they've had time to sleep).</div></div>
             </div>
           </div>
           <div class="tab-pane fade" id="tmt-lease">
@@ -2142,6 +2144,7 @@ function renderTenantFile(tenantId){
   if(tenant.mailbox_number)badges.push(`<span class="chip chip-mailbox"><i class="bi bi-mailbox-fill me-1"></i>Box ${tenant.mailbox_number}</span>`);
   if(tenant.vehicle_plate)badges.push(`<span class="chip chip-vehicle"><i class="bi bi-car-front-fill me-1"></i>${tenant.vehicle_plate}</span>`);
   if(openViol>0)badges.push(`<span class="chip chip-violation"><i class="bi bi-exclamation-octagon-fill me-1"></i>${openViol} Violation${openViol>1?'s':''}</span>`);
+  if(tenant.grave_shift)badges.push(`<span class="chip" style="background:#312e81;color:#e0e7ff;"><i class="bi bi-moon-stars-fill me-1"></i>Grave Shift</span>`);
   if(tenant.language)badges.push(`<span class="chip chip-lang"><i class="bi bi-translate me-1"></i>${h(tenant.language)}</span>`);
   const commLabels={phone:'📞 Phone Only',text:'📱 Text Only',email:'📧 Email Only','in-person':'🤝 In-Person','written':'📬 Written/Mail'};
   if(tenant.preferred_contact&&tenant.preferred_contact!=='any')badges.push(`<span class="chip chip-comm">${commLabels[tenant.preferred_contact]||h(tenant.preferred_contact)}</span>`);
@@ -2234,7 +2237,7 @@ function renderProfileTab(t){
       ${pet}${parking}
       ${(t.storage_unit||t.mailbox_number||t.door_code)?`<div class="cs-card"><h5><i class="bi bi-building me-2"></i>Amenities</h5><div class="info-grid">${t.storage_unit?`<span class="info-lbl"><i class="bi bi-box-seam-fill me-1"></i>Storage:</span><span class="info-val fw-semibold">${h(t.storage_unit)}</span>`:''}${t.mailbox_number?`<span class="info-lbl"><i class="bi bi-mailbox-fill me-1"></i>Mailbox:</span><span class="info-val fw-semibold">${h(t.mailbox_number)}</span>`:''}${t.door_code?`<span class="info-lbl"><i class="bi bi-shield-lock-fill me-1" style="color:#dc2626"></i>Door PIN:</span><span class="info-val fw-semibold" style="letter-spacing:.1em;color:#dc2626">${h(t.door_code)}</span>`:''}</div></div>`:''}
       ${(t.vehicle_make||t.vehicle_plate)?`<div class="cs-card"><h5><i class="bi bi-car-front-fill me-2" style="color:#7c3aed;"></i>Vehicle</h5><div class="info-grid"><span class="info-lbl">Vehicle:</span><span class="info-val">${h([t.vehicle_color,t.vehicle_make,t.vehicle_model].filter(Boolean).join(' '))||'—'}</span><span class="info-lbl">Plate:</span><span class="info-val fw-semibold">${h(t.vehicle_plate)||'—'}</span></div></div>`:''}
-      ${(t.language||t.preferred_contact&&t.preferred_contact!=='any'||(t.accessibility||[]).length||t.accessibility_notes)?`<div class="cs-card acc-card"><h5><i class="bi bi-universal-access me-2" style="color:#9333ea"></i>Communication &amp; Accessibility</h5><div class="info-grid">${t.language?`<span class="info-lbl">Language:</span><span class="info-val"><span class="chip chip-lang"><i class="bi bi-translate me-1"></i>${h(t.language)}</span></span>`:''}${t.preferred_contact&&t.preferred_contact!=='any'?`<span class="info-lbl">Contact Pref.:</span><span class="info-val"><span class="chip chip-comm">${{phone:'📞 Phone Only',text:'📱 Text Only',email:'📧 Email Only','in-person':'🤝 In-Person',written:'📬 Written/Mail'}[t.preferred_contact]||h(t.preferred_contact)}</span></span>`:''}${(t.accessibility||[]).length?`<span class="info-lbl">Needs:</span><span class="info-val d-flex flex-wrap gap-1">${(t.accessibility||[]).map(a=>`<span class="chip chip-access">${{deaf:'🦻 Deaf/HH',vision:'👁 Low Vision',mobility:'♿ Mobility',cognitive:'🧠 Cognitive',other:'⚕ Other'}[a]||h(a)}</span>`).join('')}</span>`:''}${t.accessibility_notes?`<span class="info-lbl">Notes:</span><span class="info-val" style="font-style:italic">${h(t.accessibility_notes)}</span>`:''}</div></div>`:''}
+      ${(t.language||t.preferred_contact&&t.preferred_contact!=='any'||(t.accessibility||[]).length||t.accessibility_notes||t.grave_shift)?`<div class="cs-card acc-card"><h5><i class="bi bi-universal-access me-2" style="color:#9333ea"></i>Communication &amp; Accessibility</h5><div class="info-grid">${t.grave_shift?`<span class="info-lbl"><i class="bi bi-moon-stars-fill me-1" style="color:#6366f1"></i>Schedule:</span><span class="info-val"><span class="chip" style="background:#312e81;color:#e0e7ff;"><i class="bi bi-moon-stars-fill me-1"></i>Grave Shift — inspect during daytime</span></span>`:''}${t.language?`<span class="info-lbl">Language:</span><span class="info-val"><span class="chip chip-lang"><i class="bi bi-translate me-1"></i>${h(t.language)}</span></span>`:''}${t.preferred_contact&&t.preferred_contact!=='any'?`<span class="info-lbl">Contact Pref.:</span><span class="info-val"><span class="chip chip-comm">${{phone:'📞 Phone Only',text:'📱 Text Only',email:'📧 Email Only','in-person':'🤝 In-Person',written:'📬 Written/Mail'}[t.preferred_contact]||h(t.preferred_contact)}</span></span>`:''}${(t.accessibility||[]).length?`<span class="info-lbl">Needs:</span><span class="info-val d-flex flex-wrap gap-1">${(t.accessibility||[]).map(a=>`<span class="chip chip-access">${{deaf:'🦻 Deaf/HH',vision:'👁 Low Vision',mobility:'♿ Mobility',cognitive:'🧠 Cognitive',other:'⚕ Other'}[a]||h(a)}</span>`).join('')}</span>`:''}${t.accessibility_notes?`<span class="info-lbl">Notes:</span><span class="info-val" style="font-style:italic">${h(t.accessibility_notes)}</span>`:''}</div></div>`:''}
     </div>
   </div>`;
 }
@@ -2380,7 +2383,7 @@ function openTenantModal(editId){
   document.getElementById('tenant-modal-error').style.display='none';
   const fields=['t-name','t-email','t-unit','t-phone','t-dob','t-rent','t-deposit','t-movein','t-moveout','t-lease-start','t-lease-end','t-parking-num','t-parking-stall','t-storage','t-mailbox','t-door-code','t-pet-type','t-pet-breed','t-pet-weight','t-pet-notes','t-emerg-name','t-emerg-phone','t-emerg-relation','t-vehicle-make','t-vehicle-model','t-vehicle-plate','t-vehicle-color','t-notes','t-language','t-accessibility-notes'];
   fields.forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
-  ['t-parking','t-has-storage','t-pets','t-pet-deposit','t-acc-deaf','t-acc-vision','t-acc-mobility','t-acc-cognitive','t-acc-other'].forEach(id=>{const el=document.getElementById(id);if(el)el.checked=false;});
+  ['t-parking','t-has-storage','t-pets','t-pet-deposit','t-acc-deaf','t-acc-vision','t-acc-mobility','t-acc-cognitive','t-acc-other','t-grave-shift'].forEach(id=>{const el=document.getElementById(id);if(el)el.checked=false;});
   const pcEl=document.getElementById('t-preferred-contact');if(pcEl)pcEl.value='any';
   document.getElementById('parking-fields').style.display='none';
   document.getElementById('storage-fields').style.display='none';
@@ -2406,6 +2409,7 @@ function openTenantModal(editId){
       set('t-language',t.language);set('t-accessibility-notes',t.accessibility_notes);
       const pcEl=document.getElementById('t-preferred-contact');if(pcEl)pcEl.value=t.preferred_contact||'any';
       ['deaf','vision','mobility','cognitive','other'].forEach(f=>{const el=document.getElementById('t-acc-'+f);if(el)el.checked=!!(t.accessibility||[]).includes(f);});
+      document.getElementById('t-grave-shift').checked=!!t.grave_shift;
       document.getElementById('t-parking').checked=!!t.has_parking_pass;
       document.getElementById('parking-fields').style.display=t.has_parking_pass?'flex':'none';
       const hasStorage=!!(t.has_storage_unit||t.storage_unit);
@@ -2450,7 +2454,8 @@ function saveTenantFromModal(){
     language:g('t-language'),
     preferred_contact:document.getElementById('t-preferred-contact')?.value||'any',
     accessibility:['deaf','vision','mobility','cognitive','other'].filter(f=>document.getElementById('t-acc-'+f)?.checked),
-    accessibility_notes:g('t-accessibility-notes')
+    accessibility_notes:g('t-accessibility-notes'),
+    grave_shift:document.getElementById('t-grave-shift')?.checked||false
   };
   if(editId){
     const idx=tenants.findIndex(t=>t.id===parseInt(editId));
@@ -4942,8 +4947,8 @@ function resetTenantChecklist(tenantId,listKey){
 }
 
 /* ─── APP VERSION ─── */
-const APP_VERSION='20260315013';
-const APP_CHANGELOG='Polish pass: maintenance alerts now link to the maintenance page, fixed unit prefix on non-unit alerts, improved reminder empty states, and minor alignment fixes throughout.';
+const APP_VERSION='20260317001';
+const APP_CHANGELOG='Added grave shift indicator to tenant file — toggle in Basic Info tab, badge chip in tenant header, and note in profile tab so you know to schedule inspections during daytime hours.';
 
 /* ─── VACANCIES ─── */
 const VAC_STATUS_LABELS={'vacant':'Vacant — Available Now','notice-given':'Notice Given','cleaning':'Cleaning / Turnover','repairs':'Under Repair','leased':'Leased — Not Occupied'};
