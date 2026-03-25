@@ -519,12 +519,6 @@ body{display:flex;}
     <select class="form-select" id="insp-type-filter" style="max-width:160px" onchange="renderInspections()"><option value="">All Types</option><option value="semi-annual">Semi-Annual</option><option value="move-in">Move-In</option><option value="move-out">Move-Out</option><option value="compliance">Compliance</option></select>
   </div>
   <div class="cs-table"><table class="table table-hover mb-0"><thead><tr><th>Unit</th><th>Tenant</th><th>Type</th><th>Status</th><th>Date Sent</th><th>Date Received</th><th>Actions</th></tr></thead><tbody id="inspections-body"></tbody></table></div>
-  <div class="cs-card mt-3">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-      <h5 class="mb-0"><i class="bi bi-file-earmark-pdf-fill me-2 text-danger"></i>Saved Inspection Forms</h5>
-    </div>
-    <div class="cs-table"><table class="table table-hover mb-0"><thead><tr><th>Unit</th><th>Tenant</th><th>Type</th><th>Saved On</th><th>Actions</th></tr></thead><tbody id="insp-docs-body"><tr><td colspan="5" class="no-data">No saved forms yet. Open a form from any inspection to save it here.</td></tr></tbody></table></div>
-  </div>
 </div>
 
 <!-- CANDIDATES -->
@@ -1801,7 +1795,7 @@ function showPage(name){
   document.title=(pageTitles[name]||name)+' — Center Street PM';
   if(name==='dashboard')renderDashboard();
   if(name==='tenants')renderTenants();
-  if(name==='inspections'){renderInspections();renderInspectionDocs();}
+  if(name==='inspections')renderInspections();
   if(name==='invoices')renderInvoices();
   if(name==='settings')renderSettings();
   if(name==='backup')renderBackup();
@@ -2040,7 +2034,7 @@ function renderInspections(){
   inspections.sort((a,b)=>((b.created_at||'')>(a.created_at||''))?1:-1);
   const tbody=document.getElementById('inspections-body');
   if(inspections.length===0){tbody.innerHTML=`<tr><td colspan="7" class="no-data">No inspections match your filters.</td></tr>`;return;}
-  tbody.innerHTML=inspections.map(i=>`<tr><td><strong>${h(i.unit_number)||'—'}</strong></td><td>${h(i.tenant_name)||'—'}</td><td>${typeLabel(i.type)}</td><td>${statusBadge(i.status)}</td><td>${fmtDate(i.date_sent)}</td><td>${fmtDate(i.date_received)}</td><td><button class="btn btn-sm btn-outline-secondary me-1" aria-label="Generate form for unit ${h(i.unit_number||'')}" title="Generate Form" onclick="generateForm(${i.id})"><i class="bi bi-file-earmark-arrow-down"></i></button><button class="btn btn-sm btn-outline-secondary me-1" aria-label="View inspection for unit ${h(i.unit_number||'')}" title="View" onclick="renderDetail(${i.id});showPage('detail')"><i class="bi bi-eye"></i></button><button class="btn btn-sm btn-outline-danger" aria-label="Delete inspection for unit ${h(i.unit_number||'')}" title="Delete" onclick="if(confirm('Permanently delete this inspection record?')){DB.set('inspections',DB.inspections().filter(x=>x.id!==${i.id}));showToast('Inspection deleted.');renderInspections();renderInspectionDocs();}"><i class="bi bi-trash"></i></button></td></tr>`).join('');
+  tbody.innerHTML=inspections.map(i=>`<tr><td><strong>${h(i.unit_number)||'—'}</strong></td><td>${h(i.tenant_name)||'—'}</td><td>${typeLabel(i.type)}</td><td>${statusBadge(i.status)}</td><td>${fmtDate(i.date_sent)}</td><td>${fmtDate(i.date_received)}</td><td><button class="btn btn-sm btn-outline-secondary me-1" title="Generate Form" onclick="generateForm(${i.id})"><i class="bi bi-file-earmark-arrow-down"></i></button>${i.saved_form_html?`<button class="btn btn-sm btn-danger me-1" title="View Saved Form" onclick="viewSavedForm(${i.id})"><i class="bi bi-file-earmark-pdf-fill"></i></button>`:''}<button class="btn btn-sm btn-outline-secondary me-1" title="View Detail" onclick="renderDetail(${i.id});showPage('detail')"><i class="bi bi-eye"></i></button><button class="btn btn-sm btn-outline-danger" title="Delete" onclick="if(confirm('Permanently delete this inspection record?')){DB.set('inspections',DB.inspections().filter(x=>x.id!==${i.id}));showToast('Inspection deleted.');renderInspections();}"><i class="bi bi-trash"></i></button></td></tr>`).join('');
 }
 
 function viewSavedForm(inspId){const insp=DB.inspections().find(i=>i.id===inspId);if(!insp||!insp.saved_form_html){showToast('No saved form found. Generate the form first.','warning');return;}const blob=new Blob([insp.saved_form_html],{type:'text/html'});window.open(URL.createObjectURL(blob),'_blank');}
@@ -2889,8 +2883,11 @@ function updateSavedFormHtml(inspId,html){
   if(idx===-1)return;
   insps[idx].saved_form_html=html;
   insps[idx].form_saved_at=new Date().toISOString();
+  insps[idx].status='complete';
+  if(!insps[idx].inspection_date)insps[idx].inspection_date=todayISO();
+  if(!insps[idx].date_received)insps[idx].date_received=todayISO();
   DB.set('inspections',insps);
-  if(typeof renderInspectionDocs==='function')renderInspectionDocs();
+  renderInspections();
 }
 
 /* ─── INVOICE CRUD ─── */
@@ -3109,7 +3106,7 @@ async function savePDF(){const btn=event.target;btn.textContent='Saving...';btn.
     while(rem>0){if(y>0)pdf.addPage();const sh=Math.min(rem,ph);const srcY=(imgH-rem)/imgH*c.height;const tc=document.createElement('canvas');tc.width=c.width;tc.height=sh/imgH*c.height;tc.getContext('2d').drawImage(c,0,srcY,c.width,tc.height,0,0,c.width,tc.height);pdf.addImage(tc.toDataURL('image/png'),'PNG',0,0,pw,sh);rem-=sh;y++;}
     const unitVal=document.getElementById('f-unit')?.value||'unit';
     pdf.save('Inspection_'+unitVal+'_'+new Date().toISOString().slice(0,10)+'.pdf');
-    setTimeout(()=>{if(window.parent&&typeof window.parent.showPage==='function')window.parent.showPage('tenant-file');if(window.parent&&typeof window.parent.closeFormModal==='function')window.parent.closeFormModal();},600);
+    setTimeout(()=>{if(window.parent&&typeof window.parent.closeFormModal==='function')window.parent.closeFormModal();},600);
   }catch(err){alert('Save failed: '+err.message);}
   btn.textContent='Save as PDF';btn.disabled=false;
 }
@@ -3117,7 +3114,6 @@ function saveWord(){const content=document.getElementById('form-content').innerH
 function resetForm(){if(!confirm('Reset all form fields?'))return;document.querySelectorAll('input[type=radio]').forEach(r=>r.checked=false);document.querySelectorAll('input[type=text],input[type=date],textarea').forEach(el=>{if(!['f-date','f-unit','f-inspector','sig-tenant-name'].includes(el.id))el.value='';});clearSig();}
 <\/script></body></html>`;
   const iframe=document.getElementById('form-iframe');iframe.srcdoc=formHTML;document.getElementById('form-overlay').style.display='block';
-  const _insps=DB.inspections();const _idx=_insps.findIndex(i=>i.id===inspId);if(_idx!==-1){_insps[_idx].saved_form_html=formHTML;_insps[_idx].form_saved_at=new Date().toISOString();DB.set('inspections',_insps);if(typeof renderInspectionDocs==='function')renderInspectionDocs();if(typeof _currentTenantFileId!=='undefined'&&_currentTenantFileId&&document.getElementById('page-tenant-file')?.style.display!=='none')renderTenantFile(_currentTenantFileId);}
 }
 
 function sendInspectionEmail(inspId){
@@ -3133,7 +3129,7 @@ function sendInspectionEmail(inspId){
   if(idx>-1){
     insps[idx].status='sent';
     if(!insps[idx].date_sent)insps[idx].date_sent=todayISO();
-    DB.set('cs_inspections',insps);
+    DB.set('inspections',insps);
     renderDetail(inspId);
   }
 
