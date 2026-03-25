@@ -2040,7 +2040,7 @@ function renderInspections(){
   inspections.sort((a,b)=>((b.created_at||'')>(a.created_at||''))?1:-1);
   const tbody=document.getElementById('inspections-body');
   if(inspections.length===0){tbody.innerHTML=`<tr><td colspan="7" class="no-data">No inspections match your filters.</td></tr>`;return;}
-  tbody.innerHTML=inspections.map(i=>`<tr><td><strong>${h(i.unit_number)||'—'}</strong></td><td>${h(i.tenant_name)||'—'}</td><td>${typeLabel(i.type)}</td><td>${statusBadge(i.status)}</td><td>${fmtDate(i.date_sent)}</td><td>${fmtDate(i.date_received)}</td><td><button class="btn btn-sm btn-outline-secondary me-1" aria-label="Generate form for unit ${h(i.unit_number||'')}" title="Generate Form" onclick="generateForm(${i.id})"><i class="bi bi-file-earmark-arrow-down"></i></button><button class="btn btn-sm btn-outline-secondary" aria-label="View inspection for unit ${h(i.unit_number||'')}" title="View" onclick="renderDetail(${i.id});showPage('detail')"><i class="bi bi-eye"></i></button></td></tr>`).join('');
+  tbody.innerHTML=inspections.map(i=>`<tr><td><strong>${h(i.unit_number)||'—'}</strong></td><td>${h(i.tenant_name)||'—'}</td><td>${typeLabel(i.type)}</td><td>${statusBadge(i.status)}</td><td>${fmtDate(i.date_sent)}</td><td>${fmtDate(i.date_received)}</td><td><button class="btn btn-sm btn-outline-secondary me-1" aria-label="Generate form for unit ${h(i.unit_number||'')}" title="Generate Form" onclick="generateForm(${i.id})"><i class="bi bi-file-earmark-arrow-down"></i></button><button class="btn btn-sm btn-outline-secondary me-1" aria-label="View inspection for unit ${h(i.unit_number||'')}" title="View" onclick="renderDetail(${i.id});showPage('detail')"><i class="bi bi-eye"></i></button><button class="btn btn-sm btn-outline-danger" aria-label="Delete inspection for unit ${h(i.unit_number||'')}" title="Delete" onclick="if(confirm('Permanently delete this inspection record?')){DB.set('inspections',DB.inspections().filter(x=>x.id!==${i.id}));showToast('Inspection deleted.');renderInspections();renderInspectionDocs();}"><i class="bi bi-trash"></i></button></td></tr>`).join('');
 }
 
 function viewSavedForm(inspId){const insp=DB.inspections().find(i=>i.id===inspId);if(!insp||!insp.saved_form_html){showToast('No saved form found. Generate the form first.','warning');return;}const blob=new Blob([insp.saved_form_html],{type:'text/html'});window.open(URL.createObjectURL(blob),'_blank');}
@@ -2883,6 +2883,15 @@ function deleteInspectionConfirm(id){
   DB.set('inspections',DB.inspections().filter(i=>i.id!==id));
   showToast('Inspection deleted.');showPage('inspections');
 }
+function updateSavedFormHtml(inspId,html){
+  const insps=DB.inspections();
+  const idx=insps.findIndex(i=>i.id===inspId);
+  if(idx===-1)return;
+  insps[idx].saved_form_html=html;
+  insps[idx].form_saved_at=new Date().toISOString();
+  DB.set('inspections',insps);
+  if(typeof renderInspectionDocs==='function')renderInspectionDocs();
+}
 
 /* ─── INVOICE CRUD ─── */
 function openInvoiceModal(editId, prefill){
@@ -3069,7 +3078,41 @@ canvas.addEventListener('touchstart',e=>{e.preventDefault();drawing=true;const p
 canvas.addEventListener('touchmove',e=>{e.preventDefault();if(!drawing)return;const p=getPos(e,canvas);ctx.beginPath();ctx.moveTo(lastX,lastY);ctx.lineTo(p.x,p.y);ctx.strokeStyle='#1a3a5c';ctx.lineWidth=2;ctx.lineCap='round';ctx.stroke();lastX=p.x;lastY=p.y;},{passive:false});
 canvas.addEventListener('touchend',()=>drawing=false);
 function clearSig(){ctx.clearRect(0,0,canvas.width,canvas.height);}
-async function savePDF(){const btn=event.target;btn.textContent='Generating...';btn.disabled=true;try{const{jsPDF}=window.jspdf;const el=document.getElementById('form-content');const c=await html2canvas(el,{scale:2,useCORS:true,logging:false});const imgData=c.toDataURL('image/png');const pdf=new jsPDF({orientation:'p',unit:'mm',format:'a4'});const pw=pdf.internal.pageSize.getWidth(),ph=pdf.internal.pageSize.getHeight();const ratio=c.height/c.width;const imgH=pw*ratio;let y=0,rem=imgH;while(rem>0){if(y>0)pdf.addPage();const sh=Math.min(rem,ph);const srcY=(imgH-rem)/imgH*c.height;const tc=document.createElement('canvas');tc.width=c.width;tc.height=sh/imgH*c.height;tc.getContext('2d').drawImage(c,0,srcY,c.width,tc.height,0,0,c.width,tc.height);pdf.addImage(tc.toDataURL('image/png'),'PNG',0,0,pw,sh);rem-=sh;y++;}const unitVal=document.getElementById('f-unit')?.value||'unit';pdf.save('Inspection_'+unitVal+'_'+new Date().toISOString().slice(0,10)+'.pdf');setTimeout(()=>{if(window.parent&&typeof window.parent.showPage==='function')window.parent.showPage('tenant-file');if(window.parent&&typeof window.parent.closeFormModal==='function')window.parent.closeFormModal();},600);}catch(err){alert('PDF generation failed: '+err.message);}btn.textContent='Save as PDF';btn.disabled=false;}
+async function savePDF(){const btn=event.target;btn.textContent='Saving...';btn.disabled=true;
+  try{
+    // --- Serialize filled form and save to DB ---
+    const radios={};
+    document.querySelectorAll('input[type=radio]').forEach(r=>{if(r.checked)radios[r.name]=r.value;});
+    const sigData=document.getElementById('sig-pad').toDataURL('image/png');
+    const el=document.getElementById('form-content');
+    const clone=el.cloneNode(true);
+    const liveText=Array.from(el.querySelectorAll('input[type=text],input[type=date]'));
+    clone.querySelectorAll('input[type=text],input[type=date]').forEach((inp,i)=>{const d=document.createElement('div');d.textContent=liveText[i].value;d.style.cssText='border-bottom:1px solid #9ca3af;padding:5px 2px;min-height:26px;font-size:.9rem;font-family:inherit;word-break:break-word;';inp.parentNode.replaceChild(d,inp);});
+    const liveTA=Array.from(el.querySelectorAll('textarea'));
+    clone.querySelectorAll('textarea').forEach((ta,i)=>{const d=document.createElement('div');d.textContent=liveTA[i].value;d.style.cssText='border:1px solid #9ca3af;border-radius:4px;padding:7px 9px;min-height:54px;font-size:.9rem;font-family:inherit;white-space:pre-wrap;word-break:break-word;';ta.parentNode.replaceChild(d,ta);});
+    clone.querySelectorAll('input[type=radio]').forEach(r=>{const s=document.createElement('span');s.textContent=(radios[r.name]===r.value)?'\u25cf':'\u25cb';s.style.cssText='font-size:1rem;color:#1a3a5c;vertical-align:middle;line-height:1;';r.parentNode.replaceChild(s,r);});
+    const cloneSig=clone.querySelector('#sig-pad');
+    if(cloneSig){const img=document.createElement('img');img.src=sigData;img.style.cssText='width:100%;height:140px;border:1px solid #9ca3af;border-radius:6px;display:block;';cloneSig.parentNode.replaceChild(img,cloneSig);}
+    clone.querySelectorAll('button,.btn-row').forEach(b=>b.style.display='none');
+    const styles=Array.from(document.querySelectorAll('style')).map(s=>s.outerHTML).join('');
+    const headerEl=document.querySelector('.header');
+    const headerHTML=headerEl?headerEl.outerHTML:'';
+    const filledHTML='<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8">'+styles+'</head><body>'+headerHTML+clone.outerHTML+'</body></html>';
+    // Push filled HTML to parent so the View button shows the completed form
+    if(window.parent&&typeof window.parent.updateSavedFormHtml==='function'){window.parent.updateSavedFormHtml(${inspId},filledHTML);}
+    // --- PDF download via html2canvas ---
+    const{jsPDF}=window.jspdf;
+    const c=await html2canvas(el,{scale:2,useCORS:true,logging:false});
+    const pdf=new jsPDF({orientation:'p',unit:'mm',format:'a4'});
+    const pw=pdf.internal.pageSize.getWidth(),ph=pdf.internal.pageSize.getHeight();
+    const ratio=c.height/c.width;const imgH=pw*ratio;let y=0,rem=imgH;
+    while(rem>0){if(y>0)pdf.addPage();const sh=Math.min(rem,ph);const srcY=(imgH-rem)/imgH*c.height;const tc=document.createElement('canvas');tc.width=c.width;tc.height=sh/imgH*c.height;tc.getContext('2d').drawImage(c,0,srcY,c.width,tc.height,0,0,c.width,tc.height);pdf.addImage(tc.toDataURL('image/png'),'PNG',0,0,pw,sh);rem-=sh;y++;}
+    const unitVal=document.getElementById('f-unit')?.value||'unit';
+    pdf.save('Inspection_'+unitVal+'_'+new Date().toISOString().slice(0,10)+'.pdf');
+    setTimeout(()=>{if(window.parent&&typeof window.parent.showPage==='function')window.parent.showPage('tenant-file');if(window.parent&&typeof window.parent.closeFormModal==='function')window.parent.closeFormModal();},600);
+  }catch(err){alert('Save failed: '+err.message);}
+  btn.textContent='Save as PDF';btn.disabled=false;
+}
 function saveWord(){const content=document.getElementById('form-content').innerHTML;const html=\`<!DOCTYPE html><html><head><meta charset="UTF-8"><style>body{font-family:Arial,sans-serif;margin:40px;}canvas{display:none;}</style></head><body>\${content}</body></html>\`;const blob=new Blob([html],{type:'application/msword'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='Inspection_Unit_${unitNum}_'+new Date().toISOString().slice(0,10)+'.doc';a.click();}
 function resetForm(){if(!confirm('Reset all form fields?'))return;document.querySelectorAll('input[type=radio]').forEach(r=>r.checked=false);document.querySelectorAll('input[type=text],input[type=date],textarea').forEach(el=>{if(!['f-date','f-unit','f-inspector','sig-tenant-name'].includes(el.id))el.value='';});clearSig();}
 <\/script></body></html>`;
