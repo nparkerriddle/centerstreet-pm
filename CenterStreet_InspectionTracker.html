@@ -2067,7 +2067,7 @@ function renderDetail(inspId){
       </div></div>
     </div>
     <div class="col-lg-5">
-      <div class="cs-card mb-3" style="border-left:4px solid var(--navy)"><h5><i class="bi bi-file-earmark-check-fill me-2"></i>Inspection Form</h5><p class="text-muted" style="font-size:.85rem;">Generate a fillable, signable inspection form pre-filled with tenant info.</p><button class="btn btn-navy w-100" onclick="generateForm(${insp.id})"><i class="bi bi-file-earmark-arrow-down me-1"></i>Generate Inspection Form</button>${emailBtn}</div>
+      <div class="cs-card mb-3" style="border-left:4px solid var(--navy)"><h5><i class="bi bi-file-earmark-check-fill me-2"></i>Inspection Form</h5><p class="text-muted" style="font-size:.85rem;">Generate a fillable, signable inspection form pre-filled with tenant info.</p><button class="btn btn-navy w-100 mb-2" onclick="generateForm(${insp.id})"><i class="bi bi-file-earmark-arrow-down me-1"></i>Generate Inspection Form</button>${emailBtn}${insp.saved_form_html?`<button class="btn btn-danger w-100 mt-2" onclick="viewSavedForm(${insp.id})"><i class="bi bi-file-earmark-pdf-fill me-1"></i>View Inspection PDF</button>`:''}</div>
       <div class="cs-card mb-3"><h5>Timeline</h5><div class="timeline">
         <div class="tl-item"><div class="tl-dot ${insp.created_at?'filled':''}"></div><div><div class="tl-label">Record Created</div><div class="tl-date">${fmtDate(insp.created_at?.slice(0,10))}</div></div></div>
         <div class="tl-item"><div class="tl-dot ${insp.date_sent?'filled':''}"></div><div><div class="tl-label">Form Sent</div><div class="tl-date">${fmtDate(insp.date_sent)}</div></div></div>
