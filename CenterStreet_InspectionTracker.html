@@ -490,7 +490,7 @@ body{display:flex;}
   <div class="filter-bar">
     <input type="text" class="form-control" id="tenant-search" placeholder="Search name, unit, email..." style="max-width:220px" oninput="_debouncedRenderTenants()">
     <select class="form-select" id="tenant-pets-filter" style="max-width:130px" onchange="renderTenants()"><option value="">All Tenants</option><option value="yes">🐾 Has Pets</option><option value="no">No Pets</option></select>
-    <select class="form-select" id="tenant-parking-filter" style="max-width:140px" onchange="renderTenants()"><option value="">All Parking</option><option value="yes">🅿️ Has Parking</option><option value="no">No Parking</option></select>
+    <select class="form-select" id="tenant-parking-filter" style="max-width:140px" onchange="renderTenants()"><option value="">All Parking</option><option value="open">Open</option><option value="stall">Stall</option><option value="no-parking">No Parking</option></select>
     <select class="form-select" id="tenant-lease-filter" style="max-width:150px" onchange="renderTenants()"><option value="">All Lease Status</option><option value="active">Active</option><option value="expiring">Expiring Soon</option><option value="expired">Expired</option></select>
   </div>
   <div class="cs-table"><table class="table table-hover mb-0"><thead><tr><th>Unit</th><th>Name</th><th>Email</th><th>Phone</th><th>Rent</th><th>Lease End</th><th>Last Insp.</th><th>Amenities</th><th>Actions</th></tr></thead><tbody id="tenants-body"></tbody></table></div>
@@ -1908,8 +1908,7 @@ function renderTenants(){
   if(search)tenants=tenants.filter(t=>(t.name||'').toLowerCase().includes(search)||(t.unit_number||'').toLowerCase().includes(search)||(t.email||'').toLowerCase().includes(search));
   if(petsF==='yes')tenants=tenants.filter(t=>t.has_pets);
   if(petsF==='no')tenants=tenants.filter(t=>!t.has_pets);
-  if(parkF==='yes')tenants=tenants.filter(t=>{const pt=t.parking_type||(t.has_parking_pass?'stall':null);return pt==='stall'||pt==='open';});
-  if(parkF==='no')tenants=tenants.filter(t=>{const pt=t.parking_type||(t.has_parking_pass?'stall':'no-parking');return pt==='no-vehicle'||pt==='no-parking';});
+  if(parkF)tenants=tenants.filter(t=>{const pt=t.parking_type||(t.has_parking_pass?'stall':'no-parking');return pt===parkF;});
   if(leaseF==='active')tenants=tenants.filter(t=>t.lease_end&&t.lease_end>=today&&daysDiff(today,t.lease_end)>s.lease_expiry_warn_days);
   if(leaseF==='expiring')tenants=tenants.filter(t=>t.lease_end&&t.lease_end>=today&&daysDiff(today,t.lease_end)<=s.lease_expiry_warn_days);
   if(leaseF==='expired')tenants=tenants.filter(t=>t.lease_end&&t.lease_end<today);
