@@ -402,7 +402,6 @@ body{display:flex;}
     <div class="sidebar-divider"></div>
     <div class="nav-lbl">Records</div>
     <a id="nav-inspections" href="#" onclick="showPage('inspections');return false" onkeydown="if(event.key==='Enter'||event.key===' '){showPage('inspections');event.preventDefault();}" tabindex="0" title="Inspections"><i class="bi bi-clipboard-check-fill"></i><span>Inspections</span></a>
-    <a id="nav-invoices" href="#" onclick="showPage('invoices');return false" onkeydown="if(event.key==='Enter'||event.key===' '){showPage('invoices');event.preventDefault();}" tabindex="0" title="Invoices"><i class="bi bi-receipt-cutoff"></i><span>Invoices</span></a>
     <a id="nav-documents" href="#" onclick="showPage('documents');return false" onkeydown="if(event.key==='Enter'||event.key===' '){showPage('documents');event.preventDefault();}" tabindex="0" title="Documents"><i class="bi bi-folder2-open"></i><span>Documents</span></a>
     <a id="nav-checklists" href="#" onclick="showPage('checklists');return false" onkeydown="if(event.key==='Enter'||event.key===' '){showPage('checklists');event.preventDefault();}" tabindex="0" title="Checklists"><i class="bi bi-check2-square"></i><span>Checklists</span></a>
     <a id="nav-events" href="#" onclick="showPage('events');return false" onkeydown="if(event.key==='Enter'||event.key===' '){showPage('events');event.preventDefault();}" tabindex="0" title="Events"><i class="bi bi-calendar-heart-fill" style="color:#f87171"></i><span>Events</span></a>
@@ -433,7 +432,6 @@ body{display:flex;}
     <div class="d-flex gap-2 flex-wrap">
       <button class="quick-action-btn" onclick="openTenantModal()"><i class="bi bi-person-plus-fill text-primary"></i>Add Tenant</button>
       <button class="quick-action-btn" onclick="openInspectionModal()"><i class="bi bi-clipboard-plus text-success"></i>New Inspection</button>
-      <button class="quick-action-btn" onclick="openInvoiceModal()"><i class="bi bi-receipt-cutoff text-warning"></i>Add Invoice</button>
       <button class="quick-action-btn" onclick="showPage('maintenance')"><i class="bi bi-tools icon-bg-teal" style="color:var(--teal)"></i>Maintenance</button>
       <button class="quick-action-btn" onclick="showPage('violations')"><i class="bi bi-exclamation-octagon-fill text-danger"></i>Violations</button>
       <button class="quick-action-btn" onclick="showPage('directory')"><i class="bi bi-telephone-fill text-primary"></i>Directory</button>
@@ -447,7 +445,6 @@ body{display:flex;}
     <div class="col-6 col-md-3 col-lg-2"><div class="stat-card clickable" onclick="navigateInspections('received')" title="View Received Inspections"><div class="stat-num text-warning" id="stat-received">0</div><div class="stat-label">Received</div></div></div>
     <div class="col-6 col-md-3 col-lg-2"><div class="stat-card clickable" onclick="navigateInspections('complete')" title="View Completed Inspections"><div class="stat-num text-success" id="stat-complete">0</div><div class="stat-label">Complete</div></div></div>
     <div class="col-6 col-md-3 col-lg-2"><div class="stat-card clickable" onclick="navigateInspections('overdue')" title="View Overdue Inspections"><div class="stat-num text-danger" id="stat-overdue">0</div><div class="stat-label">Overdue</div></div></div>
-    <div class="col-6 col-md-3 col-lg-2"><div class="stat-card clickable" onclick="navigateInvoices('unpaid')" title="View Unpaid Invoices"><div class="stat-num text-warning" id="stat-unpaid-inv">0</div><div class="stat-label">Unpaid Invoices</div></div></div>
     <div class="col-6 col-md-3 col-lg-2"><div class="stat-card clickable" onclick="showPage('maintenance')" title="View Open Maintenance"><div class="stat-num" style="color:var(--teal)" id="stat-open-maint">0</div><div class="stat-label">Open Maintenance</div></div></div>
     <div class="col-6 col-md-3 col-lg-2"><div class="stat-card clickable" onclick="showPage('reminders')" title="View Alerts & Reminders"><div class="stat-num" style="color:var(--amber)" id="stat-reminders">0</div><div class="stat-label">Alerts &amp; Reminders</div></div></div>
   </div>
@@ -560,41 +557,6 @@ body{display:flex;}
   <div class="row g-4" id="detail-content"></div>
 </div>
 
-<!-- INVOICES -->
-<div id="page-invoices" class="page" style="display:none">
-  <div class="page-header d-flex justify-content-between align-items-start">
-    <div><h2><i class="bi bi-receipt-cutoff me-2"></i>Invoices</h2><p>Track vendor invoices and payment status</p></div>
-    <button class="btn btn-navy" onclick="openInvoiceModal()"><i class="bi bi-plus-lg me-1"></i>Add Invoice</button>
-  </div>
-  <!-- Parse Panel -->
-  <div class="cs-card mb-3" style="border-left:4px solid var(--blue);">
-    <div class="d-flex align-items-center justify-content-between" style="cursor:pointer;" onclick="toggleInvParsePanel()">
-      <h5 class="mb-0"><i class="bi bi-file-earmark-arrow-up me-2"></i>Parse Invoice Document <span class="badge bg-secondary fw-normal ms-1" style="font-size:.7rem;vertical-align:middle;">OCR</span></h5>
-      <i class="bi bi-chevron-down text-muted" id="inv-parse-chevron" style="font-size:.85rem;"></i>
-    </div>
-    <div id="inv-parse-body" style="display:none;margin-top:12px;">
-      <p class="text-muted mb-2" style="font-size:.83rem;">Drop or upload a photo/PDF of an invoice — fields will be extracted and pre-filled for you to review before saving.</p>
-      <div class="parse-drop-zone" id="inv-drop-zone"
-           onclick="document.getElementById('inv-parse-file').click()"
-           ondragover="event.preventDefault();this.classList.add('drag-over')"
-           ondragleave="this.classList.remove('drag-over')"
-           ondrop="handleInvDrop(event)">
-        <i class="bi bi-receipt fs-2 d-block mb-1 text-muted"></i>
-        <div>Drop invoice file here, or <strong>click to browse</strong></div>
-        <div class="text-muted" style="font-size:.78rem;margin-top:3px;">PDF, JPG, PNG supported</div>
-        <input type="file" id="inv-parse-file" accept=".pdf,.jpg,.jpeg,.png" style="display:none" onchange="parseInvoiceDocument(this)">
-      </div>
-      <div id="inv-parse-status" style="display:none;font-size:.83rem;margin-top:8px;"></div>
-    </div>
-  </div>
-  <!-- Filters + Table -->
-  <div class="filter-bar">
-    <input type="text" class="form-control" id="inv-search" placeholder="Search title, vendor, invoice#..." style="max-width:220px" oninput="_debouncedRenderInvoices()">
-    <select class="form-select" id="inv-status-filter" style="max-width:130px" onchange="renderInvoices()"><option value="">All Status</option><option value="unpaid">Unpaid</option><option value="paid">Paid</option><option value="overdue">Overdue</option></select>
-    <select class="form-select" id="inv-cat-filter" style="max-width:150px" onchange="renderInvoices()"><option value="">All Categories</option><option value="maintenance">Maintenance</option><option value="repair">Repair</option><option value="utilities">Utilities</option><option value="cleaning">Cleaning</option><option value="other">Other</option></select>
-  </div>
-  <div class="cs-table"><table class="table table-hover mb-0"><thead><tr><th>Title</th><th>Vendor</th><th>Amount</th><th>Due Date</th><th>Invoice #</th><th>Category</th><th>Status</th><th>Actions</th></tr></thead><tbody id="invoices-body"></tbody></table></div>
-</div>
 
 <!-- DOCUMENTS -->
 <div id="page-documents" class="page" style="display:none">
@@ -809,7 +771,6 @@ body{display:flex;}
       <div class="d-flex gap-2 flex-wrap">
         <button class="btn btn-blue btn-sm" onclick="exportCSV('inspections')"><i class="bi bi-table me-1"></i>Inspections</button>
         <button class="btn btn-blue btn-sm" onclick="exportCSV('tenants')"><i class="bi bi-table me-1"></i>Tenants</button>
-        <button class="btn btn-blue btn-sm" onclick="exportCSV('invoices')"><i class="bi bi-table me-1"></i>Invoices</button>
       </div>
     </div>
     <div class="cs-card" style="border-left:4px solid #22c55e;">
@@ -1031,31 +992,6 @@ body{display:flex;}
   </div>
 </div>
 
-<!-- ═══ INVOICE MODAL ═══ -->
-<div class="modal fade" id="invoiceModal" tabindex="-1">
-  <div class="modal-dialog modal-lg">
-    <div class="modal-content">
-      <div class="modal-header" style="background:var(--navy);color:#fff;"><h5 class="modal-title" id="invoiceModalTitle">Add Invoice</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
-      <div class="modal-body">
-        <input type="hidden" id="inv-edit-id">
-        <div class="row g-3">
-          <div class="col-md-8"><label class="form-label">Invoice Title <span class="text-danger">*</span></label><input type="text" class="form-control" id="inv-title" placeholder="e.g. HVAC Repair - Unit 204"></div>
-          <div class="col-md-4"><label class="form-label">Amount ($) <span class="text-danger">*</span></label><input type="text" class="form-control" id="inv-amount" placeholder="e.g. 350.00"></div>
-          <div class="col-md-6"><label class="form-label">Vendor</label><input type="text" class="form-control" id="inv-vendor" placeholder="e.g. Ace Plumbing"></div>
-          <div class="col-md-3"><label class="form-label">Due Date</label><input type="date" class="form-control" id="inv-due"></div>
-          <div class="col-md-3"><label class="form-label">Paid Date</label><input type="date" class="form-control" id="inv-paid-date"></div>
-          <div class="col-md-4"><label class="form-label">Status</label><select class="form-select" id="inv-status"><option value="unpaid">Unpaid</option><option value="paid">Paid</option><option value="overdue">Overdue</option></select></div>
-          <div class="col-md-4"><label class="form-label">Category</label><select class="form-select" id="inv-category"><option value="maintenance">Maintenance</option><option value="repair">Repair</option><option value="utilities">Utilities</option><option value="cleaning">Cleaning</option><option value="other">Other</option></select></div>
-          <div class="col-md-4"><label class="form-label">Link to Tenant</label><select class="form-select" id="inv-tenant-select"><option value="">— None —</option></select></div>
-          <div class="col-md-4"><label class="form-label">Invoice #</label><input type="text" class="form-control" id="inv-invoice-num" placeholder="e.g. INV-001"></div>
-          <div class="col-12"><label class="form-label">Notes</label><textarea class="form-control" id="inv-notes" rows="2"></textarea></div>
-        </div>
-        <div id="inv-modal-error" class="text-danger mt-2" style="display:none;font-size:.83rem;"></div>
-      </div>
-      <div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button class="btn btn-navy" onclick="saveInvoiceFromModal()">Save Invoice</button></div>
-    </div>
-  </div>
-</div>
 
 <!-- ═══ MAINTENANCE / WO MODAL ═══ -->
 <div class="modal fade" id="maintModal" tabindex="-1">
@@ -1660,11 +1596,9 @@ const DB = {
   set(k,v){localStorage.setItem('cs_'+k,JSON.stringify(v));if(typeof scheduleAutoBackup==='function')scheduleAutoBackup();},
   tenants(){return DB.get('tenants')||[];},
   inspections(){return DB.get('inspections')||[];},
-  invoices(){return DB.get('invoices')||[];},
   settings(){return Object.assign({manager_name:'',manager_email:'',company_name:'Center Street Property Management',inspection_interval_days:180,alert_lead_days:30,lease_expiry_warn_days:60},DB.get('settings')||{});},
   nextTenantId(){const n=DB.get('next_tenant_id')||1;DB.set('next_tenant_id',n+1);return n;},
   nextInspId(){const n=DB.get('next_inspection_id')||1;DB.set('next_inspection_id',n+1);return n;},
-  nextInvoiceId(){const n=DB.get('next_invoice_id')||1;DB.set('next_invoice_id',n+1);return n;},
   nextDocId(){const n=DB.get('next_doc_id')||1;DB.set('next_doc_id',n+1);return n;},
   nextClId(){const n=DB.get('next_cl_id')||1;DB.set('next_cl_id',n+1);return n;},
   nextClItemId(){const n=DB.get('next_cl_item_id')||1;DB.set('next_cl_item_id',n+1);return n;},
@@ -1711,7 +1645,6 @@ function avatarBg(name){const palette=['#2e6da4','#0d9488','#7c3aed','#b45309','
 function debounce(fn,ms){let t;return function(...a){clearTimeout(t);t=setTimeout(()=>fn.apply(this,a),ms);};}
 const _debouncedRenderTenants=debounce(()=>renderTenants(),150);
 const _debouncedRenderInspections=debounce(()=>renderInspections(),150);
-const _debouncedRenderInvoices=debounce(()=>renderInvoices(),150);
 const _debouncedRenderDocuments=debounce(()=>renderDocuments(),150);
 const _debouncedRenderDirectory=debounce(()=>renderDirectory(),150);
 const _debouncedRenderCandidates=debounce(()=>renderCandidates(),150);
@@ -1746,9 +1679,6 @@ function computeAlerts(){
     }
     const openViol=(t.violations||[]).filter(v=>!v.resolved).length;
     if(openViol){alerts.push({level:'warning',type:'open_violations',unit,name,tenant_id:tid,msg:`${openViol} open violation${openViol>1?'s':''}`,detail:'Review violations in tenant file.'});}
-  });
-  invoices.filter(i=>i.status==='overdue').slice(0,3).forEach(i=>{
-    alerts.push({level:'danger',type:'invoice_overdue',unit:i.invoice_number||'—',name:i.vendor||i.title,msg:`Overdue invoice: ${i.title}`,detail:`Amount: ${fmtMoney(i.amount)} — Due ${fmtDate(i.due_date)}`});
   });
   computeUpcomingEvents(14).forEach(ev=>{
     const d=ev.daysUntil===0?'Today!':ev.daysUntil===1?'Tomorrow':ev.daysUntil+' days away';
@@ -1791,12 +1721,11 @@ function showPage(name){
   document.querySelectorAll('#sidebar-nav a').forEach(a=>a.classList.remove('active'));
   const pg=document.getElementById('page-'+name);if(pg)pg.style.display='';
   const nav=document.getElementById('nav-'+name);if(nav)nav.classList.add('active');
-  const pageTitles={dashboard:'Dashboard',tenants:'Tenants',inspections:'Inspections',invoices:'Invoices',documents:'Documents',checklists:'Checklists',events:'Events',maintenance:'Maintenance',violations:'Violations',directory:'Directory',renewals:'Renewals',candidates:'Candidates','prev-tenants':'Previous Tenants',vacancies:'Vacancies',backup:'Backup & Export',settings:'Settings','tenant-file':'Tenant File',detail:'Inspection Detail',reminders:'Alerts & Reminders'};
+  const pageTitles={dashboard:'Dashboard',tenants:'Tenants',inspections:'Inspections',documents:'Documents',checklists:'Checklists',events:'Events',maintenance:'Maintenance',violations:'Violations',directory:'Directory',renewals:'Renewals',candidates:'Candidates','prev-tenants':'Previous Tenants',vacancies:'Vacancies',backup:'Backup & Export',settings:'Settings','tenant-file':'Tenant File',detail:'Inspection Detail',reminders:'Alerts & Reminders'};
   document.title=(pageTitles[name]||name)+' — Center Street PM';
   if(name==='dashboard')renderDashboard();
   if(name==='tenants')renderTenants();
   if(name==='inspections')renderInspections();
-  if(name==='invoices')renderInvoices();
   if(name==='settings')renderSettings();
   if(name==='backup')renderBackup();
   if(name==='tenant-file')renderTenantFile(_currentTenantFileId);
@@ -1823,13 +1752,6 @@ function navigateInspections(status){
       else{sel.value=status;}
       renderInspections();
     }
-  },50);
-}
-function navigateInvoices(status){
-  showPage('invoices');
-  setTimeout(()=>{
-    const sel=document.getElementById('inv-status-filter');
-    if(sel){sel.value=status==='unpaid'?'unpaid':'';renderInvoices();}
   },50);
 }
 
@@ -1915,7 +1837,7 @@ function dismissReminder(type,id,tenantId){
   renderRemindersPage();renderDashboard();showToast('Reminder dismissed.');
 }
 function renderDashboard(){
-  const tenants=DB.tenants();const inspections=DB.inspections();const invoices=DB.invoices();
+  const tenants=DB.tenants();const inspections=DB.inspections();
   const quoteEl=document.getElementById('dash-quote');
   if(quoteEl){const QUOTES=[
     {text:'I can do all things through Christ who strengthens me.',ref:'Philippians 4:13'},
@@ -1968,7 +1890,6 @@ function renderDashboard(){
   const navCount=document.getElementById('nav-alerts-count');
   if(navCount){const total=upcomingRem.length+alerts.length;navCount.textContent=total;navCount.style.display=total?'inline':'none';navCount.style.background=alerts.some(a=>a.level==='danger')?'#e05c5c':'#f59e0b';}
   document.getElementById('stat-overdue').textContent=alerts.filter(a=>a.type==='overdue_inspection').length;
-  document.getElementById('stat-unpaid-inv').textContent=invoices.filter(i=>i.status!=='paid').length;
   const allMaint=DB.maintenanceWOs().filter(m=>m.status!=='complete'&&m.status!=='resolved');
   document.getElementById('stat-open-maint').textContent=allMaint.length;
   const sorted=[...inspections].sort((a,b)=>((b.created_at||'')>(a.created_at||''))?1:-1).slice(0,8);
@@ -2090,36 +2011,6 @@ function saveDetailUpdate(){
   DB.set('inspections',inspections);showToast('Inspection updated!');renderDetail(_currentDetailId);
 }
 
-function renderInvoices(){
-  let invoices=DB.invoices();
-  const search=(document.getElementById('inv-search')?.value||'').toLowerCase();
-  const statusF=document.getElementById('inv-status-filter')?.value||'';
-  const catF=document.getElementById('inv-cat-filter')?.value||'';
-  if(search)invoices=invoices.filter(i=>(i.title||'').toLowerCase().includes(search)||(i.vendor||'').toLowerCase().includes(search)||(i.invoice_number||'').toLowerCase().includes(search));
-  if(statusF)invoices=invoices.filter(i=>i.status===statusF);
-  if(catF)invoices=invoices.filter(i=>i.category===catF);
-  invoices.sort((a,b)=>((b.created_at||'')>(a.created_at||''))?1:-1);
-  const tbody=document.getElementById('invoices-body');
-  if(invoices.length===0){tbody.innerHTML=`<tr><td colspan="8" class="no-data">No invoices found. Click "Add Invoice" to create one.</td></tr>`;return;}
-  const tenants=DB.tenants();
-  tbody.innerHTML=invoices.map(inv=>{
-    const tenant=tenants.find(t=>t.id===inv.tenant_id);
-    const unitTenant=inv.invoice_number?h(inv.invoice_number):'—';
-    return`<tr class="inv-${inv.status}">
-      <td><strong>${h(inv.title)||'—'}</strong></td>
-      <td>${h(inv.vendor)||'—'}</td>
-      <td>${fmtMoney(inv.amount)}</td>
-      <td>${fmtDate(inv.due_date)}</td>
-      <td>${unitTenant}</td>
-      <td><span class="badge bg-secondary">${h(inv.category||'other')}</span></td>
-      <td>${statusBadge(inv.status)}</td>
-      <td>
-        <button class="btn btn-sm btn-outline-secondary me-1" onclick="openInvoiceModal(${inv.id})" aria-label="Edit invoice: ${h(inv.title||'')}" title="Edit"><i class="bi bi-pencil-fill"></i></button>
-        <button class="btn btn-sm btn-outline-danger" onclick="deleteInvoice(${inv.id})" aria-label="Delete invoice: ${h(inv.title||'')}" title="Delete"><i class="bi bi-trash-fill"></i></button>
-      </td>
-    </tr>`;
-  }).join('');
-}
 
 function renderSettings(){
   const s=DB.settings();
@@ -2153,7 +2044,7 @@ function renderBackup(){
   document.getElementById('last-backup-info').textContent=lastBackup?`Last backup: ${fmtDate(lastBackup.slice(0,10))}`:'No backup recorded yet.';
   const log=DB.get('backup_log')||[];
   const logEl=document.getElementById('backup-log-container');
-  logEl.innerHTML=log.length===0?'<span class="text-muted">No backups logged yet.</span>':[...log].reverse().slice(0,20).map(e=>`<div class="border-bottom py-1">${fmtDate(e.date?.slice(0,10))} — ${e.tenants} tenant(s), ${e.inspections} inspection(s), ${e.invoices||0} invoice(s)</div>`).join('');
+  logEl.innerHTML=log.length===0?'<span class="text-muted">No backups logged yet.</span>':[...log].reverse().slice(0,20).map(e=>`<div class="border-bottom py-1">${fmtDate(e.date?.slice(0,10))} — ${e.tenants} tenant(s), ${e.inspections} inspection(s)</div>`).join('');
   // Storage usage
   let used=0;try{for(let k in localStorage){if(k.startsWith('cs_'))used+=localStorage[k].length*2;}}catch{}
   const pct=Math.min(100,Math.round(used/(5*1024*1024)*100));
@@ -2890,87 +2781,15 @@ function updateSavedFormHtml(inspId,html){
   renderInspections();
 }
 
-/* ─── INVOICE CRUD ─── */
-function openInvoiceModal(editId, prefill){
-  const isEdit=!!editId;
-  document.getElementById('invoiceModalTitle').textContent=isEdit?'Edit Invoice':(prefill?'Review Parsed Invoice':'Add Invoice');
-  document.getElementById('inv-modal-error').style.display='none';
-  document.getElementById('inv-edit-id').value=editId||'';
-  const fields=['inv-title','inv-vendor','inv-amount','inv-invoice-num','inv-notes'];
-  fields.forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
-  document.getElementById('inv-due').value='';
-  document.getElementById('inv-paid-date').value='';
-  document.getElementById('inv-status').value='unpaid';
-  document.getElementById('inv-category').value='maintenance';
-  const tenants=DB.tenants().filter(t=>t.active!==false);
-  const sel=document.getElementById('inv-tenant-select');
-  sel.innerHTML=`<option value="">— None —</option>`+tenants.map(t=>`<option value="${t.id}" data-unit="${t.unit||t.unit_number}">${t.name} (Unit ${t.unit||t.unit_number})</option>`).join('');
-  if(isEdit){
-    const inv=DB.invoices().find(i=>i.id===editId);
-    if(inv){
-      document.getElementById('inv-title').value=inv.title||'';
-      document.getElementById('inv-vendor').value=inv.vendor||'';
-      document.getElementById('inv-amount').value=inv.amount||'';
-      document.getElementById('inv-due').value=inv.due_date||'';
-      document.getElementById('inv-paid-date').value=inv.paid_date||'';
-      document.getElementById('inv-status').value=inv.status||'unpaid';
-      document.getElementById('inv-category').value=inv.category||'other';
-      document.getElementById('inv-invoice-num').value=inv.invoice_number||'';
-      document.getElementById('inv-notes').value=inv.notes||'';
-      if(inv.tenant_id)sel.value=inv.tenant_id;
-    }
-  } else if(prefill){
-    // Pre-fill from OCR extraction — user reviews before saving
-    if(prefill.title)document.getElementById('inv-title').value=prefill.title;
-    if(prefill.vendor)document.getElementById('inv-vendor').value=prefill.vendor;
-    if(prefill.amount)document.getElementById('inv-amount').value=prefill.amount;
-    if(prefill.due_date)document.getElementById('inv-due').value=prefill.due_date;
-    if(prefill.invoice_number)document.getElementById('inv-invoice-num').value=prefill.invoice_number;
-    if(prefill.notes)document.getElementById('inv-notes').value=prefill.notes;
-    // Show a banner inside modal
-    const errEl=document.getElementById('inv-modal-error');
-    errEl.style.display='';
-    errEl.className='text-info mt-2';
-    errEl.style.fontSize='.83rem';
-    errEl.innerHTML='<i class="bi bi-magic me-1"></i><strong>Auto-filled from scanned document.</strong> Please review and correct any fields before saving.';
-  }
-  bootstrap.Modal.getOrCreateInstance(document.getElementById('invoiceModal')).show();
-}
-function saveInvoiceFromModal(){
-  const errEl=document.getElementById('inv-modal-error');errEl.style.display='none';
-  const title=document.getElementById('inv-title').value.trim();
-  const amount=document.getElementById('inv-amount').value.trim();
-  if(!title||!amount){errEl.textContent='Title and Amount are required.';errEl.style.display='block';return;}
-  const editId=document.getElementById('inv-edit-id').value;
-  const invoices=DB.invoices();
-  const tenantId=document.getElementById('inv-tenant-select').value;
-  const data={title,vendor:document.getElementById('inv-vendor').value.trim(),amount,due_date:document.getElementById('inv-due').value||null,paid_date:document.getElementById('inv-paid-date').value||null,status:document.getElementById('inv-status').value,category:document.getElementById('inv-category').value,invoice_number:document.getElementById('inv-invoice-num').value.trim(),tenant_id:tenantId?parseInt(tenantId):null,notes:document.getElementById('inv-notes').value.trim()};
-  if(editId){
-    const idx=invoices.findIndex(i=>i.id===parseInt(editId));
-    if(idx!==-1)Object.assign(invoices[idx],data);
-    showToast('Invoice updated!');
-  } else {
-    data.id=DB.nextInvoiceId();data.created_at=new Date().toISOString();
-    invoices.push(data);showToast('Invoice added!');
-  }
-  DB.set('invoices',invoices);
-  bootstrap.Modal.getInstance(document.getElementById('invoiceModal')).hide();
-  renderInvoices();
-}
-function deleteInvoice(id){
-  if(!confirm('Delete this invoice?'))return;
-  DB.set('invoices',DB.invoices().filter(i=>i.id!==id));
-  showToast('Invoice deleted.');renderInvoices();
-}
 
 /* ─── BACKUP / EXPORT ─── */
 function downloadBackup(){
-  const backup={_version:6,_exported:new Date().toISOString(),tenants:DB.tenants(),inspections:DB.inspections(),invoices:DB.invoices(),documents:DB.documents(),checklists:DB.checklists(),events:DB.events(),event_history:DB.eventHistory(),maintenance:DB.maintenanceWOs(),recurring_maint:DB.recurringMaint(),candidates:DB.candidates(),prev_tenants:DB.prevTenants(),vacancies:DB.vacancies(),settings:DB.settings(),next_tenant_id:DB.get('next_tenant_id')||1,next_inspection_id:DB.get('next_inspection_id')||1,next_invoice_id:DB.get('next_invoice_id')||1,next_doc_id:DB.get('next_doc_id')||1,next_cl_id:DB.get('next_cl_id')||1,next_cl_item_id:DB.get('next_cl_item_id')||1,wo_counter:DB.get('wo_counter')||null};
+  const backup={_version:6,_exported:new Date().toISOString(),tenants:DB.tenants(),inspections:DB.inspections(),documents:DB.documents(),checklists:DB.checklists(),events:DB.events(),event_history:DB.eventHistory(),maintenance:DB.maintenanceWOs(),recurring_maint:DB.recurringMaint(),candidates:DB.candidates(),prev_tenants:DB.prevTenants(),vacancies:DB.vacancies(),settings:DB.settings(),next_tenant_id:DB.get('next_tenant_id')||1,next_inspection_id:DB.get('next_inspection_id')||1,next_doc_id:DB.get('next_doc_id')||1,next_cl_id:DB.get('next_cl_id')||1,next_cl_item_id:DB.get('next_cl_item_id')||1,wo_counter:DB.get('wo_counter')||null};
   const dateStr=new Date().toISOString().slice(0,10);
   const blob=new Blob([JSON.stringify(backup,null,2)],{type:'application/json'});
   const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`CenterStreet_Backup_${dateStr}.json`;a.click();
   const log=DB.get('backup_log')||[];
-  log.push({date:new Date().toISOString(),tenants:backup.tenants.length,inspections:backup.inspections.length,invoices:backup.invoices.length});
+  log.push({date:new Date().toISOString(),tenants:backup.tenants.length,inspections:backup.inspections.length});
   DB.set('backup_log',log);localStorage.setItem('cs_last_backup',new Date().toISOString());
   showToast('Backup downloaded!');
   if(document.getElementById('page-backup').style.display!=='none')renderBackup();
@@ -2984,11 +2803,9 @@ function restoreBackup(input){
       if(!data.tenants||!data.inspections)throw new Error('Invalid backup file format.');
       if(!confirm(`Restore backup from ${fmtDate(data._exported?.slice(0,10))}? This will overwrite current data.`))return;
       DB.set('tenants',data.tenants);DB.set('inspections',data.inspections);
-      if(data.invoices)DB.set('invoices',data.invoices);
       if(data.settings)DB.set('settings',data.settings);
       if(data.next_tenant_id)DB.set('next_tenant_id',data.next_tenant_id);
       if(data.next_inspection_id)DB.set('next_inspection_id',data.next_inspection_id);
-      if(data.next_invoice_id)DB.set('next_invoice_id',data.next_invoice_id);
       if(data.documents)DB.set('documents',data.documents);
       if(data.checklists){DB.set('checklists',data.checklists);DB.set('cl_seeded',true);}
       if(data.next_doc_id)DB.set('next_doc_id',data.next_doc_id);
@@ -3017,10 +2834,6 @@ function exportCSV(type){
     const ten=DB.tenants().filter(t=>t.active!==false);if(!ten.length){showToast('No tenants to export.','error');return;}
     headers=['Unit','Name','Email','Phone','DOB','Rent','Deposit','Move-In','Lease Start','Lease End','Pets','Pet Type','Parking Pass','Stall','Storage','Mailbox','Notes'];
     rows=ten.map(t=>[t.unit_number,t.name,t.email,t.phone,t.dob,t.rent_amount,t.deposit_amount,t.move_in_date,t.lease_start,t.lease_end,t.has_pets?'Yes':'No',t.pet_type,t.parking_type||(t.has_parking_pass?'stall':'no-parking'),t.parking_stall,t.storage_unit,t.mailbox_number,(t.notes||'').replace(/"/g,'""')]);
-  } else if(type==='invoices'){
-    const inv=DB.invoices();if(!inv.length){showToast('No invoices to export.','error');return;}
-    headers=['ID','Title','Vendor','Amount','Due Date','Paid Date','Status','Category','Invoice #','Notes'];
-    rows=inv.map(i=>[i.id,i.title,i.vendor,i.amount,i.due_date,i.paid_date,i.status,i.category,i.invoice_number,(i.notes||'').replace(/"/g,'""')]);
   }
   const csv=[headers,...rows].map(r=>r.map(c=>`"${c??''}"`).join(',')).join('\n');
   blob=new Blob([csv],{type:'text/csv'});
@@ -3165,12 +2978,11 @@ function checkFridayReminder(){
 
 /* ─── TUTORIAL ─── */
 const tutorialSteps=[
-  {title:'Welcome to Center Street PM!',body:'A full property management suite — tenants, inspections, invoices, maintenance, documents and more. Let\'s take a quick tour!',target:null},
-  {title:'Alerts',body:'This panel shows everything urgent: overdue inspections, expiring leases, open violations, and overdue invoices. Red = urgent, Yellow = upcoming.',target:'#alerts-section'},
-  {title:'Stats Dashboard',body:'Quick snapshot of your portfolio: tenant count, inspection pipeline, unpaid invoices, and open maintenance requests.',target:'#stats-row'},
+  {title:'Welcome to Center Street PM!',body:'A full property management suite — tenants, inspections, maintenance, documents and more. Let\'s take a quick tour!',target:null},
+  {title:'Alerts',body:'This panel shows everything urgent: overdue inspections, expiring leases, and open violations. Red = urgent, Yellow = upcoming.',target:'#alerts-section'},
+  {title:'Stats Dashboard',body:'Quick snapshot of your portfolio: tenant count, inspection pipeline, and open maintenance requests.',target:'#stats-row'},
   {title:'Tenant Files',body:'Click the folder icon on any tenant to open their full file — tabs for Profile, Documents, Inspections, Maintenance, Notes, and Violations. It\'s like Avionte Bold for property management.',target:'#nav-tenants'},
   {title:'Inspections',body:'Create and track inspections. Click "Generate Inspection Form" to open a fillable, signable form pre-filled with tenant info. Save as PDF.',target:'#nav-inspections'},
-  {title:'Invoices',body:'Track vendor invoices — amounts, due dates, categories, and payment status. Link them to specific units or tenants.',target:'#nav-invoices'},
   {title:'SharePoint / Data',body:'Save this HTML file in your SharePoint document library and open it in the browser — data persists in your browser\'s localStorage. Use the JSON Backup weekly to keep a safe copy.',target:'#nav-backup'},
   {title:'You\'re all set!',body:'Add your first tenant, create an inspection, and let the alerts keep you on track. You can replay this tour anytime via the Help link.',target:null}
 ];
@@ -3806,13 +3618,12 @@ async function writeAutoBackup(){
     }
     const data={
       _version:6,_exported:new Date().toISOString(),_auto:true,
-      tenants:DB.tenants(),inspections:DB.inspections(),invoices:DB.invoices(),
+      tenants:DB.tenants(),inspections:DB.inspections(),
       documents:DB.documents(),checklists:DB.checklists(),events:DB.events(),event_history:DB.eventHistory(),
       maintenance:DB.maintenanceWOs(),recurring_maint:DB.recurringMaint(),
       candidates:DB.candidates(),prev_tenants:DB.prevTenants(),vacancies:DB.vacancies(),settings:DB.settings(),
       next_tenant_id:DB.get('next_tenant_id')||1,
       next_inspection_id:DB.get('next_inspection_id')||1,
-      next_invoice_id:DB.get('next_invoice_id')||1,
       next_doc_id:DB.get('next_doc_id')||1,
       next_cl_id:DB.get('next_cl_id')||1,
       next_cl_item_id:DB.get('next_cl_item_id')||1
@@ -3844,105 +3655,6 @@ function updateBackupFolderStatus(state,folderName,lastSaved){
   el.innerHTML=map[state]||map.none;
 }
 
-// ── Invoice Document Parse ────────────────────────────────────────────────────
-
-function toggleInvParsePanel(){
-  const body=document.getElementById('inv-parse-body');
-  const chev=document.getElementById('inv-parse-chevron');
-  const open=body.style.display==='';
-  body.style.display=open?'none':'';
-  chev.className='bi text-muted '+(open?'bi-chevron-down':'bi-chevron-up');
-}
-
-function handleInvDrop(ev){
-  ev.preventDefault();
-  document.getElementById('inv-drop-zone').classList.remove('drag-over');
-  const file=ev.dataTransfer.files[0];
-  if(!file)return;
-  const dt=new DataTransfer();dt.items.add(file);
-  const inp=document.getElementById('inv-parse-file');
-  inp.files=dt.files;
-  parseInvoiceDocument(inp);
-}
-
-async function parseInvoiceDocument(input){
-  const file=input.files?.[0];
-  if(!file)return;
-  const statusEl=document.getElementById('inv-parse-status');
-  statusEl.style.display='';
-  statusEl.innerHTML='<i class="bi bi-hourglass-split me-1"></i>Reading document…';
-  try{
-    const canvas=await fileToCanvas(file);
-    statusEl.innerHTML='<i class="bi bi-hourglass-split me-1"></i>Running OCR…';
-    const text=await ocrCanvas(canvas);
-    const extracted=extractFromInvoiceOCR(text);
-    statusEl.innerHTML='<i class="bi bi-check2-circle me-1" style="color:#22c55e"></i>Extracted — reviewing fields now.';
-    openInvoiceModal(null,extracted);
-  }catch(e){
-    statusEl.innerHTML=`<span class="text-danger"><i class="bi bi-x-circle me-1"></i>Parse failed: ${e.message}</span>`;
-  }
-  input.value='';
-}
-
-function extractFromInvoiceOCR(text){
-  const lines=text.split('\n').map(l=>l.trim()).filter(Boolean);
-  const r={title:'',vendor:'',amount:'',due_date:'',invoice_number:'',notes:''};
-
-  for(const line of lines){
-    const lc=line.toLowerCase();
-
-    // Amount — "total", "amount due", "balance due", "invoice total"
-    if(!r.amount){
-      const m=line.match(/(?:total|amount\s*due|balance\s*due|invoice\s*total|subtotal)[:\s]*\$?\s*([\d,]+\.?\d*)/i);
-      if(m)r.amount=m[1].replace(/,/g,'');
-    }
-    // Standalone dollar amount (e.g. "$1,250.00" alone on a line)
-    if(!r.amount){
-      const m=line.replace(/\s/g,'').match(/^\$?([\d,]{1,9}\.\d{2})$/);
-      if(m)r.amount=m[1].replace(/,/g,'');
-    }
-
-    // Due date
-    if(!r.due_date){
-      const m=line.match(/(?:due\s*(?:date|on|by)|payment\s*due|pay\s*by|net\s*\d+)[:\s]*([\d]{1,2}[\/\-][\d]{1,2}[\/\-][\d]{2,4})/i);
-      if(m)r.due_date=normalizeDate(m[1]);
-    }
-    // Any date that isn't already captured
-    if(!r.due_date&&/due|by|pay/i.test(lc)){
-      const m=line.match(/([\d]{1,2}[\/\-][\d]{1,2}[\/\-][\d]{2,4})/);
-      if(m)r.due_date=normalizeDate(m[1]);
-    }
-
-    // Vendor — explicit label
-    if(!r.vendor){
-      const m=line.match(/^(?:from|vendor|billed?\s*(?:from|by))[:\s]+(.+)/i);
-      if(m)r.vendor=m[1].trim();
-    }
-
-    // Invoice number → invoice_number field + title fallback
-    if(!r.invoice_number){
-      const m=line.match(/(?:invoice\s*#?|inv\.?\s*#?|invoice\s*no\.?)[:\s]*([\w\-]+)/i);
-      if(m){r.invoice_number=m[1];if(!r.title)r.title='Invoice #'+m[1];}
-    }
-  }
-
-  // Vendor fallback — first line that looks like a company name
-  if(!r.vendor){
-    for(const line of lines.slice(0,10)){
-      if(line.length>3&&line.length<70&&
-         /LLC|Inc\.|Corp|Co\.|Company|Services|Plumbing|Electric|Hvac|Roofing|Cleaning|Maintenance|Landscap|Repair|Construction/i.test(line)){
-        r.vendor=line;break;
-      }
-    }
-  }
-
-  // Title fallback
-  if(!r.title&&r.vendor)r.title=r.vendor+' Invoice';
-  if(!r.title&&lines[0])r.title=lines[0].substring(0,60);
-
-  r.notes=lines.slice(0,6).join(' ').substring(0,250);
-  return r;
-}
 </script>
 <script>
 // ── Documents ────────────────────────────────────────────────────────────────
@@ -4132,7 +3844,7 @@ function seedDefaultChecklists(){
     {name:'Weekly Duties',color:'teal',items:[
       'Review all open maintenance requests','Inspect parking lot and exterior',
       'Check landscaping / snow removal vendors','Audit upcoming lease renewals',
-      'Send any pending inspection forms','Review unpaid invoices',
+      'Send any pending inspection forms',
       'Back up property management data (Friday)']},
     {name:'Monthly Duties',color:'purple',items:[
       'Reconcile rent roll','Send lease renewal notices (60-day expiry)',
@@ -5033,7 +4745,7 @@ function resetTenantChecklist(tenantId,listKey){
 
 /* ─── APP VERSION ─── */
 const APP_VERSION='20260324001';
-const APP_CHANGELOG='Invoices: Unit # field replaced with Invoice # field. Parking: tenant parking now selects from Stall, Open, No Vehicle, or No Parking.';
+const APP_CHANGELOG='Parking: tenant parking now selects from Stall, Open, No Vehicle, or No Parking.';
 
 /* ─── VACANCIES ─── */
 const VAC_STATUS_LABELS={'vacant':'Vacant — Available Now','notice-given':'Notice Given','cleaning':'Cleaning / Turnover','repairs':'Under Repair','leased':'Leased — Not Occupied'};
@@ -5216,10 +4928,6 @@ function handleGlobalSearch(q){
   DB.inspections().forEach(i=>{
     if((i.tenant_name||'').toLowerCase().includes(q)||(i.unit_number||'').toLowerCase().includes(q)){
       results.push({icon:'bi-clipboard-check-fill',color:'#22c55e',label:`${i.tenant_name||'—'} — ${typeLabel(i.type||'')}`,sub:`Unit ${i.unit_number||'—'} · ${i.status}`,action:`renderDetail(${i.id});showPage('detail')`});}
-  });
-  DB.invoices().forEach(inv=>{
-    if((inv.title||'').toLowerCase().includes(q)||(inv.vendor||'').toLowerCase().includes(q)){
-      results.push({icon:'bi-receipt-cutoff',color:'#d97706',label:inv.title||'Invoice',sub:`${inv.vendor||'—'} · ${fmtMoney(inv.amount)}`,action:`showPage('invoices')`});}
   });
   const inp=document.getElementById('global-search');
   const rect=inp.getBoundingClientRect();
