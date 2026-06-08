@@ -1593,7 +1593,7 @@ body{display:flex;}
 
 const DB = {
   get(k){try{return JSON.parse(localStorage.getItem('cs_'+k));}catch{return null;}},
-  set(k,v){localStorage.setItem('cs_'+k,JSON.stringify(v));if(typeof scheduleAutoBackup==='function')scheduleAutoBackup();},
+  set(k,v){try{localStorage.setItem('cs_'+k,JSON.stringify(v));}catch(e){console.error('Save failed for cs_'+k,e);if(typeof showToast==='function')showToast('Save failed — browser storage may be full. Export a backup and remove large documents.','error');return false;}if(typeof scheduleAutoBackup==='function')scheduleAutoBackup();return true;},
   tenants(){return DB.get('tenants')||[];},
   inspections(){return DB.get('inspections')||[];},
   settings(){return Object.assign({manager_name:'',manager_email:'',company_name:'Center Street Property Management',inspection_interval_days:180,alert_lead_days:30,lease_expiry_warn_days:60},DB.get('settings')||{});},
@@ -1654,7 +1654,6 @@ function showToast(msg,type='success'){const el=document.getElementById('toast-e
 function computeAlerts(){
   const tenants=DB.tenants().filter(t=>t.active!==false);
   const inspections=DB.inspections();
-  const invoices=DB.invoices();
   const s=DB.settings();
   const today=todayISO();
   const alerts=[];
@@ -1755,6 +1754,11 @@ function navigateInspections(status){
   },50);
 }
 
+// Parse a reminder_at string in LOCAL time. Date-only strings (no time) are
+// treated as end-of-day local so a reminder set for "today" stays upcoming all
+// day instead of being parsed as UTC midnight (which lands in the past for
+// users west of UTC).
+function remDate(ra){return new Date(ra&&!ra.includes('T')?ra+'T23:59:59':ra);}
 function renderRemindersPage(){
   const now=new Date();
   const dismissed=DB.dismissedAlerts();
@@ -1781,8 +1785,8 @@ function renderRemindersPage(){
 
   // ── Reminders ──
   const upcoming=[],past=[];
-  DB.reminders().filter(r=>!r.completed_at).forEach(r=>{const when=new Date(r.reminder_at);(when>now?upcoming:past).push({id:r.id,text:r.text,when,reminder_at:r.reminder_at,tenant:null,type:'standalone'});});
-  DB.tenants().filter(t=>t.active!==false).forEach(t=>{(t.notes_log||[]).forEach(n=>{if(!n.reminder_at||n.reminder_completed_at)return;const when=new Date(n.reminder_at);(when>now?upcoming:past).push({id:n.id,text:n.text,when,reminder_at:n.reminder_at,tenant:t,type:'note'});});});
+  DB.reminders().filter(r=>!r.completed_at).forEach(r=>{const when=remDate(r.reminder_at);(when>now?upcoming:past).push({id:r.id,text:r.text,when,reminder_at:r.reminder_at,tenant:null,type:'standalone'});});
+  DB.tenants().filter(t=>t.active!==false).forEach(t=>{(t.notes_log||[]).forEach(n=>{if(!n.reminder_at||n.reminder_completed_at)return;const when=remDate(n.reminder_at);(when>now?upcoming:past).push({id:n.id,text:n.text,when,reminder_at:n.reminder_at,tenant:t,type:'note'});});});
   upcoming.sort((a,b)=>a.when-b.when);past.sort((a,b)=>b.when-a.when);
 
   function fmtWhen(r){return r.when.toLocaleDateString(undefined,{weekday:'short',month:'short',day:'numeric'})+(r.reminder_at.includes('T')?' at '+r.when.toLocaleTimeString(undefined,{hour:'numeric',minute:'2-digit'}):'');}
@@ -1884,8 +1888,8 @@ function renderDashboard(){
   document.getElementById('stat-complete').textContent=inspections.filter(i=>i.status==='complete').length;
   const alerts=computeAlerts();
   const now=new Date();
-  const upcomingRem=[...DB.reminders().filter(r=>new Date(r.reminder_at)>now)];
-  DB.tenants().filter(t=>t.active!==false).forEach(t=>{(t.notes_log||[]).forEach(n=>{if(n.reminder_at&&new Date(n.reminder_at)>now)upcomingRem.push(n);});});
+  const upcomingRem=[...DB.reminders().filter(r=>!r.completed_at&&remDate(r.reminder_at)>now)];
+  DB.tenants().filter(t=>t.active!==false).forEach(t=>{(t.notes_log||[]).forEach(n=>{if(n.reminder_at&&!n.reminder_completed_at&&remDate(n.reminder_at)>now)upcomingRem.push(n);});});
   document.getElementById('stat-reminders').textContent=upcomingRem.length;
   const navCount=document.getElementById('nav-alerts-count');
   if(navCount){const total=upcomingRem.length+alerts.length;navCount.textContent=total;navCount.style.display=total?'inline':'none';navCount.style.background=alerts.some(a=>a.level==='danger')?'#e05c5c':'#f59e0b';}
@@ -2238,7 +2242,7 @@ function renderNotesTab(t){
   const feed=notes.length===0?`<div class="no-data">No notes yet.</div>`:notes.map(n=>{
     let reminderChip='';
     if(n.reminder_at){
-      const rd=new Date(n.reminder_at);
+      const rd=remDate(n.reminder_at);
       const isPast=rd<now;
       const label=rd.toLocaleDateString(undefined,{weekday:'short',month:'short',day:'numeric'})+(n.reminder_at.includes('T')?' at '+rd.toLocaleTimeString(undefined,{hour:'numeric',minute:'2-digit'}):'');
       reminderChip=`<div class="note-reminder-chip ${isPast?'note-reminder-past':'note-reminder-future'}"><i class="bi bi-alarm-fill me-1"></i>${isPast?'Follow-up was':'Follow-up'}: ${label}</div>`;
@@ -4743,8 +4747,8 @@ function resetTenantChecklist(tenantId,listKey){
 }
 
 /* ─── APP VERSION ─── */
-const APP_VERSION='20260324001';
-const APP_CHANGELOG='Parking: tenant parking now selects from Stall, Open, No Vehicle, or No Parking.';
+const APP_VERSION='20260608002';
+const APP_CHANGELOG='Fixed Alerts & Reminders not appearing — a leftover invoice reference was crashing the page render. Reminders and system alerts now display correctly, and same-day reminders show under Upcoming.';
 
 /* ─── VACANCIES ─── */
 const VAC_STATUS_LABELS={'vacant':'Vacant — Available Now','notice-given':'Notice Given','cleaning':'Cleaning / Turnover','repairs':'Under Repair','leased':'Leased — Not Occupied'};
