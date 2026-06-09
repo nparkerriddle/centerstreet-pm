@@ -165,7 +165,7 @@ body{display:flex;}
 .chip-sm-storage{background:#f3f4f6;color:#374151;border:1px solid #e5e7eb;}
 .profile-tabs-wrap{background:#fff;border-radius:0 0 12px 12px;box-shadow:0 2px 6px rgba(0,0,0,.09);margin-bottom:18px;}
 .profile-tabs{display:flex;overflow-x:auto;padding:0 18px;border-bottom:2px solid #e5e7eb;}
-.profile-tab{padding:11px 16px;font-size:.82rem;font-weight:600;color:#6b7280;cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px;white-space:nowrap;transition:color .15s;user-select:none;}
+.profile-tab{padding:11px 16px;font-size:.82rem;font-weight:600;color:#6b7280;cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px;white-space:nowrap;transition:color .15s,border-bottom-color .2s ease;user-select:none;}
 .profile-tab:hover{color:var(--navy);}
 .profile-tab.active{color:var(--navy);border-bottom-color:var(--blue);}
 .profile-tab-count{background:#e5e7eb;color:#374151;border-radius:8px;padding:1px 5px;font-size:.67rem;margin-left:3px;}
@@ -371,9 +371,21 @@ body{display:flex;}
 #sidebar nav a:hover i{transform:scale(1.18);}
 .stat-card{animation:fadeUp .35s ease-out both;}
 .stat-card:nth-child(1){animation-delay:.04s}.stat-card:nth-child(2){animation-delay:.08s}.stat-card:nth-child(3){animation-delay:.12s}.stat-card:nth-child(4){animation-delay:.16s}.stat-card:nth-child(5){animation-delay:.20s}.stat-card:nth-child(6){animation-delay:.24s}.stat-card:nth-child(7){animation-delay:.28s}.stat-card:nth-child(8){animation-delay:.32s}
-@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
 .tenant-avatar{transition:transform .2s cubic-bezier(.34,1.56,.64,1);}
 .tenant-avatar:hover{transform:scale(1.08);}
+/* Page-enter transition — re-triggers on every navigation as display toggles */
+.page{animation:pageEnter .5s cubic-bezier(.22,.61,.36,1) both;}
+@keyframes pageEnter{from{opacity:0;transform:translateY(22px) scale(.99)}to{opacity:1;transform:translateY(0) scale(1)}}
+/* Content card entrance, noticeably staggered */
+.page .cs-card{animation:fadeUp .5s cubic-bezier(.22,.61,.36,1) both;}
+.page .cs-card:nth-child(1){animation-delay:.06s}.page .cs-card:nth-child(2){animation-delay:.13s}.page .cs-card:nth-child(3){animation-delay:.2s}.page .cs-card:nth-child(4){animation-delay:.27s}.page .cs-card:nth-child(5){animation-delay:.34s}
+/* Smoother table-row hover with a slight slide */
+.cs-table tbody tr{transition:background-color .2s ease,transform .15s ease;}
+.cs-table tbody tr:hover{transform:translateX(3px);}
+/* Hover lift on list cards (shadow already transitions) */
+.wo-card,.doc-card{transition:box-shadow .22s ease,transform .2s cubic-bezier(.34,1.56,.64,1);}
+.wo-card:hover,.doc-card:hover{transform:translateY(-3px);}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;}}
 </style>
 </head>
@@ -4747,8 +4759,8 @@ function resetTenantChecklist(tenantId,listKey){
 }
 
 /* ─── APP VERSION ─── */
-const APP_VERSION='20260608002';
-const APP_CHANGELOG='Fixed Alerts & Reminders not appearing — a leftover invoice reference was crashing the page render. Reminders and system alerts now display correctly, and same-day reminders show under Upcoming.';
+const APP_VERSION='20260609001';
+const APP_CHANGELOG='Added smooth transition animations throughout — pages glide in when you switch sections, content cards rise into view with a staggered effect, table rows slide and highlight on hover, list cards lift, and profile tabs underline smoothly. Motion is automatically reduced if your system prefers it.';
 
 /* ─── VACANCIES ─── */
 const VAC_STATUS_LABELS={'vacant':'Vacant — Available Now','notice-given':'Notice Given','cleaning':'Cleaning / Turnover','repairs':'Under Repair','leased':'Leased — Not Occupied'};
