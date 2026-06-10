@@ -911,6 +911,13 @@ body{display:flex;}
               <div class="col-md-6"><label class="form-label">Preferred Contact Method</label><select class="form-select" id="t-preferred-contact"><option value="any">Any (No Preference)</option><option value="phone">Phone Call</option><option value="text">Text Message</option><option value="email">Email Only</option><option value="in-person">In-Person Only</option><option value="written">Written / Mail</option></select></div>
               <div class="col-12"><label class="form-label">Accessibility Needs</label><div class="d-flex flex-wrap gap-3"><div class="form-check"><input class="form-check-input" type="checkbox" id="t-acc-deaf"><label class="form-check-label" for="t-acc-deaf">Deaf / Hard of Hearing</label></div><div class="form-check"><input class="form-check-input" type="checkbox" id="t-acc-vision"><label class="form-check-label" for="t-acc-vision">Blind / Low Vision</label></div><div class="form-check"><input class="form-check-input" type="checkbox" id="t-acc-mobility"><label class="form-check-label" for="t-acc-mobility">Mobility Impairment</label></div><div class="form-check"><input class="form-check-input" type="checkbox" id="t-acc-cognitive"><label class="form-check-label" for="t-acc-cognitive">Cognitive / Memory</label></div><div class="form-check"><input class="form-check-input" type="checkbox" id="t-acc-other"><label class="form-check-label" for="t-acc-other">Other</label></div></div></div>
               <div class="col-12"><label class="form-label">Accessibility Notes</label><textarea class="form-control" id="t-accessibility-notes" rows="2" placeholder="e.g. Prefers large-print documents, uses TTY, requires wheelchair-accessible entrance…"></textarea></div>
+              <div class="col-12"><hr class="my-2"><p class="text-muted fw-semibold mb-2" style="font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;">Household</p></div>
+              <div class="col-12"><div class="form-check form-switch"><input class="form-check-input" type="checkbox" id="t-children" onchange="toggleChildrenFields()"><label class="form-check-label fw-semibold" for="t-children"><i class="bi bi-people-fill me-1" style="color:#0ea5e9"></i>Has Children</label></div></div>
+              <div id="children-fields" style="display:none" class="col-12"><div class="row g-2 ms-2">
+                <div class="col-md-4"><label class="form-label"># of Children</label><input type="number" min="0" class="form-control" id="t-num-children" placeholder="e.g. 2"></div>
+                <div class="col-md-8"><label class="form-label">Ages</label><input type="text" class="form-control" id="t-children-ages" placeholder="e.g. 5, 8, 12"></div>
+                <div class="col-12"><label class="form-label">Notes</label><input type="text" class="form-control" id="t-children-notes" placeholder="Names, school, etc. (optional)"></div>
+              </div></div>
               <div class="col-12"><hr class="my-2"><p class="text-muted fw-semibold mb-2" style="font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;">Work Schedule</p></div>
               <div class="col-12"><div class="form-check form-switch"><input class="form-check-input" type="checkbox" id="t-grave-shift"><label class="form-check-label fw-semibold" for="t-grave-shift"><i class="bi bi-moon-stars-fill text-indigo me-1" style="color:#6366f1"></i>Works Grave Shift (Night Shift)</label></div><div class="text-muted mt-1" style="font-size:.78rem;margin-left:2.5rem;">Schedule inspections during daytime hours only (after they've had time to sleep).</div></div>
             </div>
@@ -1938,6 +1945,7 @@ function renderTenants(){
     const lastCell=lastDate?`<span class="text-success">${fmtDate(lastDate)}</span>`:`<span class="text-danger fw-semibold">None</span>`;
     const amenities=[];
     if(t.has_pets)amenities.push(`<span class="chip-sm chip-sm-pets"><i class="bi bi-heart-fill"></i>${h(t.pet_type||'Pet')}</span>`);
+    if(t.has_children)amenities.push(`<span class="chip-sm" style="background:#e0f2fe;color:#0c4a6e;"><i class="bi bi-people-fill"></i>${t.num_children?h(t.num_children)+' Kids':'Kids'}</span>`);
     const _pt=t.parking_type||(t.has_parking_pass?'stall':null);if(_pt==='stall')amenities.push(`<span class="chip-sm chip-sm-parking"><i class="bi bi-p-square-fill"></i>${h(t.parking_stall||'Stall')}</span>`);else if(_pt==='open')amenities.push(`<span class="chip-sm chip-sm-parking"><i class="bi bi-p-square-fill"></i>${h(t.parking_pass_number||'Open')}</span>`);
     if(t.storage_unit)amenities.push(`<span class="chip-sm chip-sm-storage"><i class="bi bi-box-seam-fill"></i>${h(t.storage_unit)}</span>`);
     return`<tr>
@@ -2091,6 +2099,7 @@ function renderTenantFile(tenantId){
   const openViol=violations.filter(v=>!v.resolved).length;
   const badges=[];
   if(tenant.has_pets)badges.push(`<span class="chip chip-pets"><i class="bi bi-heart-fill me-1"></i>${tenant.pet_type||'Pets'}</span>`);
+  if(tenant.has_children)badges.push(`<span class="chip" style="background:#0c4a6e;color:#e0f2fe;"><i class="bi bi-people-fill me-1"></i>${tenant.num_children?tenant.num_children+' ':''}Kid${tenant.num_children&&parseInt(tenant.num_children)!==1?'s':(tenant.num_children?'':'s')}</span>`);
   const _tpt=tenant.parking_type||(tenant.has_parking_pass?'stall':null);if(_tpt==='stall')badges.push(`<span class="chip chip-parking"><i class="bi bi-p-square-fill me-1"></i>Stall ${tenant.parking_stall||'—'}</span>`);else if(_tpt==='open')badges.push(`<span class="chip chip-parking"><i class="bi bi-p-square-fill me-1"></i>Open${tenant.parking_pass_number?' · '+tenant.parking_pass_number:''}</span>`);
   if(tenant.storage_unit)badges.push(`<span class="chip chip-storage"><i class="bi bi-box-seam-fill me-1"></i>Storage ${tenant.storage_unit}</span>`);
   if(tenant.mailbox_number)badges.push(`<span class="chip chip-mailbox"><i class="bi bi-mailbox-fill me-1"></i>Box ${tenant.mailbox_number}</span>`);
@@ -2333,14 +2342,15 @@ function openTenantModal(editId){
   const isEdit=!!editId;
   document.getElementById('tenantModalTitle').textContent=isEdit?'Edit Tenant':'Add Tenant';
   document.getElementById('tenant-modal-error').style.display='none';
-  const fields=['t-name','t-email','t-unit','t-phone','t-dob','t-rent','t-deposit','t-movein','t-moveout','t-lease-start','t-lease-end','t-parking-num','t-parking-stall','t-storage','t-mailbox','t-door-code','t-pet-type','t-pet-breed','t-pet-weight','t-pet-notes','t-emerg-name','t-emerg-phone','t-emerg-relation','t-vehicle-make','t-vehicle-model','t-vehicle-plate','t-vehicle-color','t-notes','t-language','t-accessibility-notes'];
+  const fields=['t-name','t-email','t-unit','t-phone','t-dob','t-rent','t-deposit','t-movein','t-moveout','t-lease-start','t-lease-end','t-parking-num','t-parking-stall','t-storage','t-mailbox','t-door-code','t-pet-type','t-pet-breed','t-pet-weight','t-pet-notes','t-emerg-name','t-emerg-phone','t-emerg-relation','t-vehicle-make','t-vehicle-model','t-vehicle-plate','t-vehicle-color','t-notes','t-language','t-accessibility-notes','t-num-children','t-children-ages','t-children-notes'];
   fields.forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
-  ['t-has-storage','t-pets','t-pet-deposit','t-acc-deaf','t-acc-vision','t-acc-mobility','t-acc-cognitive','t-acc-other','t-grave-shift'].forEach(id=>{const el=document.getElementById(id);if(el)el.checked=false;});
+  ['t-has-storage','t-pets','t-pet-deposit','t-acc-deaf','t-acc-vision','t-acc-mobility','t-acc-cognitive','t-acc-other','t-grave-shift','t-children'].forEach(id=>{const el=document.getElementById(id);if(el)el.checked=false;});
   const ptEl=document.getElementById('t-parking-type');if(ptEl)ptEl.value='no-parking';
   const pcEl=document.getElementById('t-preferred-contact');if(pcEl)pcEl.value='any';
   document.getElementById('parking-fields').style.display='none';
   document.getElementById('storage-fields').style.display='none';
   document.getElementById('pet-fields').style.display='none';
+  document.getElementById('children-fields').style.display='none';
   document.getElementById('tenant-edit-id').value=editId||'';
   // Reset to first tab
   const firstTab=document.querySelector('#tenantModalTabs .nav-link');
@@ -2372,6 +2382,9 @@ function openTenantModal(editId){
       document.getElementById('t-pets').checked=!!t.has_pets;
       document.getElementById('pet-fields').style.display=t.has_pets?'block':'none';
       document.getElementById('t-pet-deposit').checked=!!t.pet_deposit_paid;
+      set('t-num-children',t.num_children);set('t-children-ages',t.children_ages);set('t-children-notes',t.children_notes);
+      document.getElementById('t-children').checked=!!t.has_children;
+      document.getElementById('children-fields').style.display=t.has_children?'block':'none';
     }
   }
   bootstrap.Modal.getOrCreateInstance(document.getElementById('tenantModal')).show();
@@ -2379,6 +2392,7 @@ function openTenantModal(editId){
 function toggleParkingFields(){const pt=document.getElementById('t-parking-type').value;const show=pt==='stall'||pt==='open';document.getElementById('parking-fields').style.display=show?'flex':'none';document.getElementById('parking-stall-wrap').style.display=pt==='stall'?'':'none';}
 function toggleStorageFields(){document.getElementById('storage-fields').style.display=document.getElementById('t-has-storage').checked?'flex':'none';}
 function togglePetFields(){document.getElementById('pet-fields').style.display=document.getElementById('t-pets').checked?'block':'none';}
+function toggleChildrenFields(){document.getElementById('children-fields').style.display=document.getElementById('t-children').checked?'block':'none';}
 
 function saveTenantFromModal(){
   const errEl=document.getElementById('tenant-modal-error');
@@ -2403,6 +2417,8 @@ function saveTenantFromModal(){
     has_pets:document.getElementById('t-pets').checked,
     pet_type:g('t-pet-type'),pet_breed:g('t-pet-breed'),pet_weight_lbs:g('t-pet-weight'),
     pet_deposit_paid:document.getElementById('t-pet-deposit').checked,pet_notes:g('t-pet-notes'),
+    has_children:document.getElementById('t-children').checked,
+    num_children:g('t-num-children'),children_ages:g('t-children-ages'),children_notes:g('t-children-notes'),
     emergency_name:g('t-emerg-name'),emergency_phone:g('t-emerg-phone'),emergency_relation:g('t-emerg-relation'),
     vehicle_make:g('t-vehicle-make'),vehicle_model:g('t-vehicle-model'),vehicle_plate:g('t-vehicle-plate'),vehicle_color:g('t-vehicle-color'),
     notes:g('t-notes'),active:true,
@@ -2847,8 +2863,8 @@ function exportCSV(type){
     rows=ins.map(i=>[i.id,i.unit_number,i.tenant_name,i.tenant_email,i.type,i.status,i.inspector_name,i.date_sent,i.date_received,i.inspection_date,(i.notes||'').replace(/"/g,'""').replace(/\n/g,' '),i.created_at]);
   } else if(type==='tenants'){
     const ten=DB.tenants().filter(t=>t.active!==false);if(!ten.length){showToast('No tenants to export.','error');return;}
-    headers=['Unit','Name','Email','Phone','DOB','Rent','Deposit','Move-In','Lease Start','Lease End','Pets','Pet Type','Parking Pass','Stall','Storage','Mailbox','Notes'];
-    rows=ten.map(t=>[t.unit_number,t.name,t.email,t.phone,t.dob,t.rent_amount,t.deposit_amount,t.move_in_date,t.lease_start,t.lease_end,t.has_pets?'Yes':'No',t.pet_type,t.parking_type||(t.has_parking_pass?'stall':'no-parking'),t.parking_stall,t.storage_unit,t.mailbox_number,(t.notes||'').replace(/"/g,'""')]);
+    headers=['Unit','Name','Email','Phone','DOB','Rent','Deposit','Move-In','Lease Start','Lease End','Pets','Pet Type','Children','# Children','Children Ages','Parking Pass','Stall','Storage','Mailbox','Notes'];
+    rows=ten.map(t=>[t.unit_number,t.name,t.email,t.phone,t.dob,t.rent_amount,t.deposit_amount,t.move_in_date,t.lease_start,t.lease_end,t.has_pets?'Yes':'No',t.pet_type,t.has_children?'Yes':'No',t.num_children,t.children_ages,t.parking_type||(t.has_parking_pass?'stall':'no-parking'),t.parking_stall,t.storage_unit,t.mailbox_number,(t.notes||'').replace(/"/g,'""')]);
   }
   const csv=[headers,...rows].map(r=>r.map(c=>`"${c??''}"`).join(',')).join('\n');
   blob=new Blob([csv],{type:'text/csv'});
@@ -4759,8 +4775,8 @@ function resetTenantChecklist(tenantId,listKey){
 }
 
 /* ─── APP VERSION ─── */
-const APP_VERSION='20260609001';
-const APP_CHANGELOG='Added smooth transition animations throughout — pages glide in when you switch sections, content cards rise into view with a staggered effect, table rows slide and highlight on hover, list cards lift, and profile tabs underline smoothly. Motion is automatically reduced if your system prefers it.';
+const APP_VERSION='20260610001';
+const APP_CHANGELOG='You can now record whether a tenant has children. The tenant form (Basic Info → Household) has a "Has Children" toggle with number of kids, ages, and notes. A blue "Kids" badge shows on tenant cards and profiles, and the info is included in CSV exports.';
 
 /* ─── VACANCIES ─── */
 const VAC_STATUS_LABELS={'vacant':'Vacant — Available Now','notice-given':'Notice Given','cleaning':'Cleaning / Turnover','repairs':'Under Repair','leased':'Leased — Not Occupied'};
